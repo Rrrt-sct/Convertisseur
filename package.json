@@ -25,7 +25,8 @@
     "tamagui": "1.132.20",
     "undefined": "\\",
     "react-native-reanimated": "~3.17.4",
-    "react-native-gesture-handler": "~2.24.0"
+    "react-native-gesture-handler": "~2.24.0",
+    "expo-av": "~15.1.7"
   },
   "devDependencies": {
     "@types/react": "~18.2.79",

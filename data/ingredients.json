@@ -13,7 +13,13 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "citron",
@@ -29,7 +35,13 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "gingembre_racine",
@@ -45,7 +57,13 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "gingembre_moulu",
@@ -61,7 +79,13 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "eau",
@@ -77,7 +101,13 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "huile",
@@ -93,13 +123,19 @@
     "notes": null,
     "psta_wter": null,
     "psta_slt": null,
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
   },
   {
     "id": "pates",
     "label": "Pâtes",
     "avg_unit_g": null,
-    "": "V240825",
+    "": null,
     "peeled_yield": null,
     "tbsp_g": null,
     "juice_ml_per_unit": null,
@@ -109,6 +145,34 @@
     "notes": null,
     "psta_wter": "0,01",
     "psta_slt": "0,07",
-    "psta_wtr_slt": null
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null
+  },
+  {
+    "id": "œuf",
+    "label": "Œuf",
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": "x",
+    "egg_s": "45",
+    "egg_m": "55",
+    "egg_l": "65",
+    "whte_pctge": "0,6",
+    "ylw_pctge": "0,3"
   }
 ]
