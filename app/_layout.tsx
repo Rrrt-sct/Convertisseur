@@ -1,30 +1,36 @@
 // app/_layout.tsx
 import { Stack } from 'expo-router'
-import { TamaguiProvider, Theme } from 'tamagui'
-import tamagui from '../tamagui.config'
+import React from 'react'
+import { TimerProvider } from '../src/timerContext'
 
-export default function Layout() {
+export default function RootLayout() {
   return (
-    <TamaguiProvider config={tamagui}>
-      {/* thème global (change en "dark" si tu veux forcer le sombre) */}
-      <Theme name="light">
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* Accueil (hero + bouton ENTRER) */}
-          <Stack.Screen name="index" />
+    <TimerProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Accueil */}
+        <Stack.Screen name="index" />
 
-          {/* Sélection des ingrédients */}
-          <Stack.Screen
-            name="ingredients"
-            options={{ headerShown: true, title: 'Ingrédients' }}
-          />
+        {/* Sélection des ingrédients */}
+        <Stack.Screen
+          name="ingredients"
+          options={{ headerShown: true, title: 'Ingrédients' }}
+        />
 
-          {/* Écran convertisseur (kawaii) */}
-          <Stack.Screen
-            name="convertisseur"
-            options={{ headerShown: true, title: 'Convertisseur' }}
-          />
-        </Stack>
-      </Theme>
-    </TamaguiProvider>
+        {/* Convertisseur (kawaii) */}
+        <Stack.Screen
+          name="convertisseur"
+          options={{ headerShown: true, title: 'Convertisseur' }}
+        />
+
+        {/* Résultats / convertisseurs */}
+        <Stack.Screen
+          name="results"
+          options={{ headerShown: true, title: 'Convertisseurs' }}
+        />
+
+        {/* Minuteur */}
+        <Stack.Screen name="timer" options={{ headerShown: false }} />
+      </Stack>
+    </TimerProvider>
   )
 }
