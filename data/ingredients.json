@@ -19,7 +19,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": "60",
+    "wght_pdt_m": "100",
+    "wght_pdt_l": "150",
+    "clr_lgth": null,
+    "__rowNumber": 2
   },
   {
     "id": "citron",
@@ -41,14 +46,19 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 3
   },
   {
     "id": "gingembre_racine",
     "label": "Gingembre (racine)",
     "avg_unit_g": null,
     "": null,
-    "peeled_yield": 0.95,
+    "peeled_yield": 0.9,
     "tbsp_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": 5,
@@ -63,7 +73,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 4
   },
   {
     "id": "gingembre_moulu",
@@ -85,7 +100,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 5
   },
   {
     "id": "eau",
@@ -107,7 +127,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 6
   },
   {
     "id": "huile",
@@ -129,7 +154,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 7
   },
   {
     "id": "pates",
@@ -151,7 +181,12 @@
     "egg_m": null,
     "egg_l": null,
     "whte_pctge": null,
-    "ylw_pctge": null
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 8
   },
   {
     "id": "œuf",
@@ -173,6 +208,65 @@
     "egg_m": "55",
     "egg_l": "65",
     "whte_pctge": "0,6",
-    "ylw_pctge": "0,3"
+    "ylw_pctge": "0,3",
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 9
+  },
+  {
+    "id": "celeri",
+    "label": "Céleri",
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": 40,
+    "__rowNumber": 10
+  },
+  {
+    "id": "tomate",
+    "label": "Tomate",
+    "avg_unit_g": 80,
+    "": null,
+    "peeled_yield": 0.8,
+    "tbsp_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "__rowNumber": 11
   }
 ]

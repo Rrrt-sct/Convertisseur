@@ -7,6 +7,7 @@ const img_gingembre_moulu = require('../assets/img/gingembre_moulu.png');
 const img_eau = require('../assets/img/eau.png');
 const img_huile = require('../assets/img/huile.png');
 const img_pates = require('../assets/img/pates.png');
+const img_celeri = require('../assets/img/celeri.png');
 
 export const IMAGES: Record<string, any> = {
   'pomme_de_terre': img_pomme_de_terre,
@@ -16,4 +17,5 @@ export const IMAGES: Record<string, any> = {
   'eau': img_eau,
   'huile': img_huile,
   'pates': img_pates,
+  'celeri': img_celeri,
 };

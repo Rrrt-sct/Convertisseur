@@ -33,12 +33,20 @@ type Item = {
   psta_wter?: number | null
   psta_slt?: number | null
 
-  // œufs (si présents dans le CSV pour l’ingrédient “oeuf”)
+  // œufs
   egg_s?: number | null
   egg_m?: number | null
   egg_l?: number | null
   whte_pctge?: number | null
   ylw_pctge?: number | null
+
+  // pommes de terre
+  wght_pdt_s?: number | null
+  wght_pdt_m?: number | null
+  wght_pdt_l?: number | null
+
+  // céleri (poids d'une branche)
+  clr_lgth?: number | null
 }
 
 // -------- Helpers --------
@@ -116,7 +124,6 @@ export default function Results() {
         Vibration.vibrate(800)
         sound.setOnPlaybackStatusUpdate((s) => {
           if (!mounted) return
-          // décharger quand c’est fini
           // @ts-ignore
           if (s && 'didJustFinish' in s && s.didJustFinish) {
             sound.unloadAsync().catch(() => {})
@@ -131,16 +138,16 @@ export default function Results() {
   return (
     <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
       <View style={st.headerRow}>
-  <Text style={st.h1}>Convertisseurs</Text>
-  <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-    <TouchableOpacity onPress={() => router.push('/timer')}>
-      <Text style={st.navLink}>⏱️ Minuteur</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => router.back()}>
-      <Text style={st.navLink}>↩︎ Modifier</Text>
-    </TouchableOpacity>
-  </View>
-</View>
+        <Text style={st.h1}>Convertisseurs</Text>
+        <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => router.push('/timer')}>
+            <Text style={st.navLink}>⏱️ Minuteur</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={st.navLink}>↩︎ Modifier</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {running && (
         <TouchableOpacity onPress={() => router.push('/timer')} style={st.timerBanner} activeOpacity={0.9}>
@@ -194,6 +201,33 @@ function IngredientCard({ d }: { d: Item }) {
   const [eggTargetYolk, setEggTargetYolk] = useState('')
   const [eggCount, setEggCount] = useState('')
 
+  // Pommes de terre
+  const [pdtSize, setPdtSize] = useState<'S' | 'M' | 'L'>('M')
+  const pdtS = toNumMaybe(d.wght_pdt_s) ?? null
+  const pdtM = toNumMaybe(d.wght_pdt_m) ?? null
+  const pdtL = toNumMaybe(d.wght_pdt_l) ?? null
+  const hasPdt = pdtS !== null || pdtM !== null || pdtL !== null
+  const [pdtWeightNon, setPdtWeightNon] = useState('')
+  const [pdtWeightEpl, setPdtWeightEpl] = useState('')
+
+  // Céleri
+  const [celeryBranches, setCeleryBranches] = useState('')
+  const [celeryWeight, setCeleryWeight] = useState('')
+
+  // Ids normalisés
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isPotato = normId === 'pomme_de_terre' || normId === 'pommes_de_terre' || normId === 'pdt'
+  const isCelery = normId === 'celeri'
+
+  // Poids unitaire PDT selon taille choisie
+  const pdtUnit =
+    pdtSize === 'S' ? (pdtS ?? 0) :
+    pdtSize === 'M' ? (pdtM ?? 0) :
+                      (pdtL ?? 0)
+
+  // Poids unitaire effectif : PDT = taille choisie, sinon avg_unit_g
+  const avgUnitEff = isPotato && hasPdt ? pdtUnit : (d.avg_unit_g || 0)
+
   // Constantes générales
   const density = d.density_g_ml ?? 1
   const tsp_g = d.tsp_g ?? (d.tbsp_g ? d.tbsp_g / 3 : null)
@@ -204,7 +238,7 @@ function IngredientCard({ d }: { d: Item }) {
   const pastaS = toNumMaybe(d.psta_slt)
   const hasPasta = (pastaW !== null) || (pastaS !== null)
 
-  // Œufs (si dispo sur cet ingrédient, typiquement id "oeuf")
+  // Œufs
   const eggS = toNumMaybe(d.egg_s) ?? null
   const eggM = toNumMaybe(d.egg_m) ?? null
   const eggL = toNumMaybe(d.egg_l) ?? null
@@ -212,8 +246,11 @@ function IngredientCard({ d }: { d: Item }) {
   const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
   const hasEggs =
     (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
-
   const eggUnit = eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)
+
+  // Céleri (poids d'une branche)
+  const celeryG = toNumMaybe((d as any).clr_lgth) ?? null
+  const hasCelery = isCelery && celeryG !== null
 
   return (
     <View style={st.card}>
@@ -225,11 +262,13 @@ function IngredientCard({ d }: { d: Item }) {
         )}
       </View>
 
-      {/* Infos clés (poids pièce / jus) */}
-      {(d.avg_unit_g || d.peeled_yield || d.juice_ml_per_unit) && (
+      {/* Infos clés (générales) */}
+      {((!isPotato && d.avg_unit_g) || d.peeled_yield || d.juice_ml_per_unit) && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
-          {d.avg_unit_g ? <Row left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} /> : null}
+          {!isPotato && d.avg_unit_g ? (
+            <Row left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />
+          ) : null}
           {d.peeled_yield && d.avg_unit_g
             ? <Row left={`Poids épluché (×${fmt(d.peeled_yield)})`} right={`${fmt(d.avg_unit_g * d.peeled_yield)} g`} />
             : null}
@@ -286,7 +325,7 @@ function IngredientCard({ d }: { d: Item }) {
           <InputWithEcho
             value={eggTargetWhite}
             onChangeText={setEggTargetWhite}
-            placeholder="Poids voulu Blancs (g)"
+            placeholder="Poids voulu Blanc (g)"
             echoLabel="Blancs (g)"
           />
           <Row
@@ -329,7 +368,105 @@ function IngredientCard({ d }: { d: Item }) {
         </View>
       )}
 
-      {/* Épluché ⇆ Non épluché (grammes) */}
+      {/* Pommes de terre : ordre validé */}
+      {isPotato && hasPdt && (
+        <View style={st.section}>
+          {/* 1. Bloc Épluché ⇆ Non épluché (g) */}
+          {d.peeled_yield ? (
+            <View>
+              <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
+              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder="Quantité épluchée (g)" echoLabel="Épluché (g)" />
+              <Row left="Quantité non épluchée" right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
+              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder="Quantité non épluchée (g)" echoLabel="Non épl. (g)" />
+              <Row left="Quantité épluchée" right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
+            </View>
+          ) : null}
+
+          {/* 3. Info clés S/M/L (petite/moyenne/grosse) */}
+          <View style={{ marginTop: 8 }}>
+            <Text style={st.sTitle}>Infos clés</Text>
+            {pdtS !== null && <Row left="Petite pomme de terre" right={`${fmt(pdtS)} g`} />}
+            {pdtM !== null && <Row left="Pomme de terre moyenne" right={`${fmt(pdtM)} g`} />}
+            {pdtL !== null && <Row left="Grosse pomme de terre" right={`${fmt(pdtL)} g`} />}
+          </View>
+
+          {/* 4. Sélecteur S / M / L */}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            {(['S', 'M', 'L'] as const).map(sz => {
+              const on = pdtSize === sz
+              return (
+                <TouchableOpacity
+                  key={sz}
+                  onPress={() => setPdtSize(sz)}
+                  activeOpacity={0.9}
+                  style={[st.sizeBtn, on && st.sizeBtnOn]}
+                >
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          {/* 5. Quantité ⇆ Poids + Poids épl./non épl. + Pièces épl./non épl. (ordre demandé) */}
+          {pdtUnit > 0 ? (
+            <View style={{ marginTop: 12 }}>
+              <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+
+              {/* Poids épl. -> Nb pièces */}
+              <InputWithEcho
+                value={pdtWeightEpl}
+                onChangeText={setPdtWeightEpl}
+                placeholder="Poids épl. (g)"
+                echoLabel="Épl. (g)"
+              />
+              {(() => {
+                const y = d.peeled_yield ?? null
+                const unitEpl = y ? pdtUnit * y : pdtUnit
+                const pieces = Math.max(0, Math.ceil(num(pdtWeightEpl) / Math.max(1, unitEpl)))
+                return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+              })()}
+
+              {/* Poids non épl. -> Nb pièces */}
+              <InputWithEcho
+                value={pdtWeightNon}
+                onChangeText={setPdtWeightNon}
+                placeholder="Poids non épl. (g)"
+                echoLabel="Non épl. (g)"
+              />
+              <Row
+                left="Nombre de pièces estimées"
+                right={`${Math.max(0, Math.ceil(num(pdtWeightNon) / Math.max(1, pdtUnit)))} pièces`}
+              />
+
+              {/* Pièces non épl. -> Poids */}
+              <InputWithEcho
+                value={countNon}
+                onChangeText={setCountNon}
+                placeholder="Pièces non épl. (ex: 3)"
+                echoLabel="Pièces non épl."
+              />
+              <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countNon) * pdtUnit)} />
+              {d.peeled_yield ? (
+                <Row left="Poids estimé épluché" right={fmtAllUnits(num(countNon) * pdtUnit * (d.peeled_yield || 1))} />
+              ) : null}
+
+              {/* Pièces épl. -> Poids */}
+              <InputWithEcho
+                value={countEpl}
+                onChangeText={setCountEpl}
+                placeholder="Pièces épl. (ex: 3)"
+                echoLabel="Pièces épl."
+              />
+              <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countEpl) * pdtUnit)} />
+              {d.peeled_yield ? (
+                <Row left="Poids estimé épluché" right={fmtAllUnits(num(countEpl) * pdtUnit * (d.peeled_yield || 1))} />
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+      )}
+
+      {/* Épluché ⇆ Non épluché (g) — générique */}
       {d.peeled_yield ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
@@ -340,8 +477,8 @@ function IngredientCard({ d }: { d: Item }) {
         </View>
       ) : null}
 
-      {/* Quantité ⇆ Poids */}
-      {d.avg_unit_g ? (
+      {/* Quantité ⇆ Poids — générique (pour les ingrédients non-PDT) */}
+      {!isPotato && d.avg_unit_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
 
@@ -354,6 +491,39 @@ function IngredientCard({ d }: { d: Item }) {
           {d.peeled_yield ? <Row left="Poids épluché" right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
         </View>
       ) : null}
+
+      {/* Céleri */}
+      {hasCelery && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="1 branche de céleri" right={`${fmt(celeryG!)} g`} />
+
+          <Text style={[st.sTitle, { marginTop: 8 }]}>
+            Nombre de branches <Text style={st.arrow}>⇆</Text> Poids
+          </Text>
+
+          {/* Nb de branches -> Poids */}
+          <InputWithEcho
+            value={celeryBranches}
+            onChangeText={setCeleryBranches}
+            placeholder="Nb de branches (ex: 2)"
+            echoLabel="Branches"
+          />
+          <Row left="Poids estimé" right={fmtAllUnits(num(celeryBranches) * (celeryG || 0))} />
+
+          {/* Poids -> Nb de branches (arrondi à l'unité sup.) */}
+          <InputWithEcho
+            value={celeryWeight}
+            onChangeText={setCeleryWeight}
+            placeholder="Poids (ex: 200 g)"
+            echoLabel="Poids (g)"
+          />
+          <Row
+            left="Nombre de branches estimé"
+            right={`${Math.ceil(num(celeryWeight) / Math.max(1, (celeryG || 0)))} branches`}
+          />
+        </View>
+      )}
 
       {/* Jus */}
       {d.juice_ml_per_unit ? (
@@ -384,7 +554,7 @@ function IngredientCard({ d }: { d: Item }) {
       {(tbsp_g || tsp_g) ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Cuillères <Text style={st.arrow}>⇆</Text> Poids</Text>
-        <InputWithEcho value={tsp} onChangeText={setTsp} placeholder="Cuillères à café (ex: 2)" echoLabel="c. à café" />
+          <InputWithEcho value={tsp} onChangeText={setTsp} placeholder="Cuillères à café (ex: 2)" echoLabel="c. à café" />
           <Row left="Poids" right={fmtAllUnits(num(tsp) * (tsp_g || 0))} />
           <InputWithEcho value={tbsp} onChangeText={setTbsp} placeholder="Cuillères à soupe (ex: 2)" echoLabel="c. à soupe" />
           <Row left="Poids" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
@@ -433,23 +603,6 @@ const st = StyleSheet.create({
 
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
-  link: { color: '#7c3aed', fontWeight: '700' },
-
-  btnTimer: {
-    backgroundColor: '#FF92E0',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    shadowColor: '#FF4FA2',
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  btnTimerText: {
-    color: '#fff',
-    fontWeight: '900',
-    fontSize: 16,
-  },
 
   timerBanner: {
     backgroundColor: '#FF92E0',
@@ -463,6 +616,12 @@ const st = StyleSheet.create({
     elevation: 5,
   },
   timerBannerText: { color: '#fff', fontWeight: '900', textAlign: 'center' },
+
+  navLink: {
+    color: '#7c3aed',
+    fontWeight: '900',
+    fontSize: 18,
+  },
 
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 14, marginBottom: 14, shadowColor: '#FF8FCD', shadowOpacity: 0.16, shadowRadius: 8, elevation: 5 },
   h2: { fontSize: 18, fontWeight: '900', color: '#FF4FA2', marginBottom: 8 },
@@ -495,16 +654,24 @@ const st = StyleSheet.create({
     color: '#9a3aa5',
     maxWidth: '55%',
   },
-  timerLink: {
-  color: '#7c3aed',      // violet comme link
-  fontWeight: '900',
-  fontSize: 18,          // un peu plus gros que link normal
-},
-navLink: {
-  color: '#7c3aed',   // violet, comme ton style "link"
-  fontWeight: '900',
-  fontSize: 18,       // même taille pour Minuteur / Modifier / Retour
-},
 
-
+  sizeBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+    backgroundColor: '#FFE4F6',
+  },
+  sizeBtnOn: {
+    borderColor: '#FF4FA2',
+    backgroundColor: '#FF92E0',
+  },
+  sizeBtnText: {
+    fontWeight: '800',
+    color: '#FF4FA2',
+  },
+  sizeBtnTextOn: {
+    color: '#fff',
+  },
 })

@@ -24,16 +24,24 @@ const delim = countSemi > countComma ? ';' : ','
 // Normalisation header
 const normalizeHeader = (s) => s
   .trim()
-  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // supprime accents
   .replace(/\s+/g, '_')
   .replace(/[^\w]/g, '_')
   .toLowerCase()
 
 const headers = firstLine.split(delim).map(h => normalizeHeader(h))
 
-// Colonnes numériques
+// Colonnes numériques (⚠️ orthographe exacte)
 const numericKeys = new Set([
-  'avg_unit_g','peeled_yield','juice_ml_per_unit','lgth_g','tbsp_g','tsp_g','density_g_ml'
+  'avg_unit_g',
+  'peeled_yield',
+  'juice_ml_per_unit',
+  'lgth_g',
+  'tbsp_g',
+  'tsp_g',
+  'density_g_ml',
+  'clr_lgth',   // poids d'une branche de céleri
+  'wght_lgth'   // poids moyen par cm
 ])
 
 function parseCsvLine(line, sep) {
@@ -53,6 +61,7 @@ function parseCsvLine(line, sep) {
   res.push(cur)
   return res
 }
+
 const rows = lines.slice(1).map(l => parseCsvLine(l, delim))
 
 function coerce(key, val) {
@@ -65,20 +74,79 @@ function coerce(key, val) {
   return v
 }
 
+// ----- DEBUG: affichage des headers -----
+console.log('📄 En-têtes détectées :', headers.join(' | '))
+console.log('🔎 Séparateur détecté :', `'${delim}'`)
+
 // ----- Construction des objets -----
-const data = rows.map(cols => {
+const raw = rows.map((cols, idx) => {
   const obj = {}
   headers.forEach((h, i) => { obj[h] = coerce(h, cols[i]) })
-  obj.id = (obj.id || obj.label || '').toString().trim()
-  obj.label = (obj.label || obj.id || '').toString().trim()
+
+  // Inférence robuste id/label
+  const rawId = (obj.id || '').toString().trim()
+  const rawLabel = (obj.label || '').toString().trim()
+
+  if (!rawId && rawLabel) {
+    // Si pas d'id, dérive depuis label (normalisé)
+    const norm = rawLabel
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '_')
+    obj.id = norm
+  } else {
+    obj.id = rawId
+  }
+  obj.label = rawLabel || obj.id || ''
+
+  // Aide au debug
+  obj.__rowNumber = idx + 2 // +2 car header = 1
   return obj
-}).filter(r => r.id && r.label)
+})
+
+// ----- DEBUG: traque "celeri" avant filtre -----
+const rawCel = raw.filter(r =>
+  String(r.id).toLowerCase().includes('celeri') ||
+  String(r.label).toLowerCase().includes('celeri')
+)
+if (rawCel.length === 0) {
+  console.warn('⚠️ Aucune ligne contenant "celeri" trouvée AVANT filtrage.')
+} else {
+  console.log('✅ Lignes "celeri" AVANT filtrage :')
+  rawCel.forEach(r => console.log('  • ligne', r.__rowNumber, { id: r.id, label: r.label, clr_lgth: r.clr_lgth }))
+}
+
+// Filtre final: garder si on a au moins un label OU un id
+const data = raw
+  .map(r => {
+    // dernière passe propreté
+    r.id = (r.id || '').toString().trim()
+    r.label = (r.label || '').toString().trim()
+    if (!r.id && r.label) {
+      r.id = r.label
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '_')
+    }
+    return r
+  })
+  .filter(r => r.label || r.id)
+
+// ----- DEBUG: traque "celeri" après filtre -----
+const filCel = data.filter(r =>
+  String(r.id).toLowerCase().includes('celeri') ||
+  String(r.label).toLowerCase().includes('celeri')
+)
+if (filCel.length === 0) {
+  console.warn('⚠️ Aucune ligne "celeri" APRES filtrage.')
+} else {
+  console.log('✅ Lignes "celeri" APRES filtrage :')
+  filCel.forEach(r => console.log('  •', { id: r.id, label: r.label, clr_lgth: r.clr_lgth }))
+}
 
 // ----- Écriture JSON -----
 fs.mkdirSync(path.dirname(JSON_OUT), { recursive: true })
 fs.writeFileSync(JSON_OUT, JSON.stringify(data, null, 2), 'utf8')
 console.log(`✅ JSON OK → ${JSON_OUT}`)
-console.log(`   ${data.length} ligne(s), séparateur détecté: '${delim}'`)
+console.log(`   ${data.length} ligne(s) écrites`)
 
 // ----- Génération app/imageMap.ts -----
 const exts = ['.png', '.webp']
@@ -99,12 +167,13 @@ let imports = []
 let entries = []
 
 data.forEach(row => {
-  const id = String(row.id)
+  const id = String(row.id || '')
+  if (!id) return
   const preferred = row.image ? String(row.image).trim() : `${id}`
   const file = findImageFile(preferred)
   if (file) {
     const varName = 'img_' + id.replace(/[^a-zA-Z0-9_]/g, '_')
-    const relPath = `../assets/img/${file}` // depuis app/imageMap.ts
+    const relPath = `../assets/img/${file}` // depuis src/imageMap.ts
     imports.push(`const ${varName} = require('${relPath}');`)
     entries.push(`  '${id}': ${varName},`)
   }
