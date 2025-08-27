@@ -279,94 +279,103 @@ function IngredientCard({ d }: { d: Item }) {
       )}
 
       {/* Module Œufs */}
-      {hasEggs && (
-        <View style={st.section}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          <Row left="Œuf petit" right="< 50 g (S)" />
-          <Row left="Œuf moyen" right="50–60 g (M)" />
-          <Row left="Œuf gros" right="60–70 g (L)" />
-          <View style={{ height: 6 }} />
-          <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
-          <Row left="Pochés" right="2 min" />
-          <Row left="À la coque" right="3 min" />
-          <Row left="Durs" right="9 min" />
+      {/* ========= Module Œufs (ENTIER) ========= */}
+{/* ========= Module Œufs (ENTIER) ========= */}
+{hasEggs && (
+  <View style={st.section}>
+    <Text style={st.sTitle}>Infos clés</Text>
+    <Row left="Œuf petit" right="< 50 g (S)" />
+    <Row left="Œuf moyen" right="50–60 g (M)" />
+    <Row left="Œuf gros" right="60–70 g (L)" />
+    <View style={{ height: 6 }} />
+    <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+    <Row left="Pochés" right="2 min" />
+    <Row left="À la coque" right="3 min" />
+    <Row left="Durs" right="9 min" />
 
-          {/* Sélecteur S/M/L */}
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            {(['S', 'M', 'L'] as const).map(sz => {
-              const on = eggSize === sz
-              return (
-                <TouchableOpacity
-                  key={sz}
-                  onPress={() => setEggSize(sz)}
-                  activeOpacity={0.9}
-                  style={[st.sizeBtn, on && st.sizeBtnOn]}
-                >
-                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
+    {/* Sélecteur S / M / L */}
+    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+      {(['S', 'M', 'L'] as const).map(sz => {
+        const on = eggSize === sz
+        return (
+          <TouchableOpacity
+            key={sz}
+            onPress={() => setEggSize(sz)}
+            activeOpacity={0.9}
+            style={[st.sizeBtn, on && st.sizeBtnOn]}
+          >
+            <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+          </TouchableOpacity>
+        )
+      })}
+    </View>
 
-          {/* 1) Poids ↔ Quantité (total) */}
-          <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
-          <InputWithEcho
-            value={eggTargetTotal}
-            onChangeText={setEggTargetTotal}
-            placeholder="Pds voulu Blanc+Jaune (g)"
-            echoLabel="Blanc+Jaune (g)"
-          />
-          <Row
-            left="Nombre d'œufs estimés"
-            right={`${Math.ceil(num(eggTargetTotal) / Math.max(1, eggUnit))} œufs`}
-          />
+    {/* 1) Poids voulu Blanc+Jaune -> Nombre d'œufs */}
+    <Text style={[st.sTitle, { marginTop: 10 }]}>
+      Poids <Text style={st.arrow}>⇆</Text> Quantité
+    </Text>
+    <InputWithEcho
+      value={eggTargetTotal}
+      onChangeText={setEggTargetTotal}
+      placeholder="Pds voulu Blanc+Jaune (g)"
+      echoLabel="Blanc+Jaune (g)"
+    />
+    {(() => {
+      const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+      const denom = eggUnit * sumPct
+      const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+    })()}
 
-          {/* 2) Blancs seuls */}
-          <InputWithEcho
-            value={eggTargetWhite}
-            onChangeText={setEggTargetWhite}
-            placeholder="Poids voulu Blanc (g)"
-            echoLabel="Blancs (g)"
-          />
-          <Row
-            left="Nombre d'œufs estimés"
-            right={`${Math.ceil(num(eggTargetWhite) / Math.max(1, (eggUnit * (whitePct ?? 0))))} œufs`}
-          />
+    {/* 2) Poids voulu Blancs -> Nombre d'œufs */}
+    <InputWithEcho
+      value={eggTargetWhite}
+      onChangeText={setEggTargetWhite}
+      placeholder="Poids voulu Blancs (g)"
+      echoLabel="Blancs (g)"
+    />
+    {(() => {
+      const denom = eggUnit * (whitePct ?? 0)
+      const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+    })()}
 
-          {/* 3) Jaunes seuls */}
-          <InputWithEcho
-            value={eggTargetYolk}
-            onChangeText={setEggTargetYolk}
-            placeholder="Poids voulu Jaune (g)"
-            echoLabel="Jaune (g)"
-          />
-          <Row
-            left="Nombre d'œufs estimés"
-            right={`${Math.ceil(num(eggTargetYolk) / Math.max(1, (eggUnit * (yolkPct ?? 0))))} œufs`}
-          />
+    {/* 3) Poids voulu Jaune -> Nombre d'œufs */}
+    <InputWithEcho
+      value={eggTargetYolk}
+      onChangeText={setEggTargetYolk}
+      placeholder="Poids voulu Jaune (g)"
+      echoLabel="Jaune (g)"
+    />
+    {(() => {
+      const denom = eggUnit * (yolkPct ?? 0)
+      const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+    })()}
 
-          {/* 4) Nombre d'œufs -> poids */}
-          <InputWithEcho
-            value={eggCount}
-            onChangeText={setEggCount}
-            placeholder="Nombre d'œufs (ex: 2)"
-            echoLabel="Œufs"
-          />
-          {(() => {
-            const c = num(eggCount)
-            const total = c * eggUnit
-            const whites = c * eggUnit * (whitePct ?? 0)
-            const yolks  = c * eggUnit * (yolkPct ?? 0)
-            return (
-              <>
-                <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
-                <Row left="Blanc" right={`${fmt(whites)} g`} />
-                <Row left="Jaune" right={`${fmt(yolks)} g`} />
-              </>
-            )
-          })()}
-        </View>
-      )}
+    {/* 4) Nombre d'œufs -> poids */}
+    <InputWithEcho
+      value={eggCount}
+      onChangeText={setEggCount}
+      placeholder="Nombre d'œufs (ex: 2)"
+      echoLabel="Œufs"
+    />
+    {(() => {
+      const c = num(eggCount)
+      const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+      const total = c * eggUnit * sumPct
+      const whites = c * eggUnit * (whitePct ?? 0)
+      const yolks  = c * eggUnit * (yolkPct ?? 0)
+      return (
+        <>
+          <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
+          <Row left="Blanc" right={`${fmt(whites)} g`} />
+          <Row left="Jaune" right={`${fmt(yolks)} g`} />
+        </>
+      )
+    })()}
+  </View>
+)}
 
       {/* Pommes de terre : ordre validé */}
       {isPotato && hasPdt && (
@@ -570,8 +579,22 @@ function IngredientCard({ d }: { d: Item }) {
       {/* Pâtes */}
       {hasPasta && (
         <View style={st.section}>
-          <Text style={st.sTitle}>Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel</Text>
-          <InputWithEcho value={pastaG} onChangeText={setPastaG} placeholder="Qtité de pâtes (g)" echoLabel="Pâtes (g)" />
+    <Text style={st.sTitle}>Infos clés</Text>
+    <Row
+      left="Pâtes réussies 🇮🇹"
+      right="1 L d’eau + 10 g gros sel / 100 g pâtes"
+    />
+
+    <Text style={[st.sTitle, { marginTop: 8 }]}>
+      Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
+    </Text>
+
+    <InputWithEcho
+      value={pastaG}
+      onChangeText={setPastaG}
+      placeholder="Qtité de pâtes (g)"
+      echoLabel="Pâtes (g)"
+    />
           {(() => {
             const g = num(pastaG)
             const L = g * (pastaW ?? 0)
