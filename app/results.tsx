@@ -47,6 +47,10 @@ type Item = {
 
   // céleri (poids d'une branche)
   clr_lgth?: number | null
+
+  // genre pour accord (optionnel, accepte "f" / "m" ou "feminin"/"masculin")
+  genre?: string | null
+  gender?: string | null
 }
 
 // -------- Helpers --------
@@ -96,6 +100,16 @@ function InputWithEcho(props: {
           {echoLabel}: {value}
         </Text>
       )}
+    </View>
+  )
+}
+
+/** Petit encart “tip / info clé” plus présentable */
+function Tip({ children }: { children: React.ReactNode }) {
+  return (
+    <View style={st.tipBox}>
+      <Text style={st.tipEmoji}>💡</Text>
+      <Text style={st.tipText}>{children}</Text>
     </View>
   )
 }
@@ -181,6 +195,9 @@ function IngredientCard({ d }: { d: Item }) {
   // Quantité ↔ Poids
   const [countNon, setCountNon] = useState('')
   const [countEpl, setCountEpl] = useState('')
+  // Ajouts génériques (poids -> pièces)
+  const [genWeightEpl, setGenWeightEpl] = useState('')
+  const [genWeightNon, setGenWeightNon] = useState('')
   // Jus
   const [countJuice, setCountJuice] = useState('')
   const [volMl, setVolMl] = useState('')
@@ -219,6 +236,13 @@ function IngredientCard({ d }: { d: Item }) {
   const isPotato = normId === 'pomme_de_terre' || normId === 'pommes_de_terre' || normId === 'pdt'
   const isCelery = normId === 'celeri'
 
+  // Accord "épluché / épluchée"
+  const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
+  const isF = g === 'f' || g.startsWith('fem')
+  const EPL = `Épluch${isF ? 'ée' : 'é'}`
+  const NON_EPL = `Non épluch${isF ? 'ée' : 'é'}`
+  const NON_EPL_SHORT = 'non épl.'
+
   // Poids unitaire PDT selon taille choisie
   const pdtUnit =
     pdtSize === 'S' ? (pdtS ?? 0) :
@@ -252,6 +276,41 @@ function IngredientCard({ d }: { d: Item }) {
   const celeryG = toNumMaybe((d as any).clr_lgth) ?? null
   const hasCelery = isCelery && celeryG !== null
 
+  // -------- Bloc “Infos clés” (unique et conditionnel) --------
+  const infoRows: React.ReactNode[] = []
+  let infoTip: React.ReactNode | null = null
+
+  if (!isPotato && d.avg_unit_g) {
+    infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
+  }
+  if (d.peeled_yield && d.avg_unit_g) {
+    infoRows.push(
+      <Row
+        key="peeled"
+        left={`Poids ${EPL.toLowerCase()} (×${fmt(d.peeled_yield)})`}
+        right={`${fmt(d.avg_unit_g * d.peeled_yield)} g`}
+      />
+    )
+  }
+  if (d.juice_ml_per_unit) {
+    infoRows.push(
+      <Row
+        key="juice"
+        left="Jus moyen (1 pièce)"
+        right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt(d.juice_ml_per_unit * density)} g)`}
+      />
+    )
+  }
+  // Tip "100 g -> X g" seulement si on a un rendement mais PAS de poids unitaire
+  if (d.peeled_yield && !d.avg_unit_g) {
+    infoTip = (
+      <Tip>
+        Avec <Text style={st.tipStrong}>100 g</Text> de {d.label} non {EPL.toLowerCase()},
+        vous obtiendrez <Text style={st.tipStrong}>{fmt(100 * (d.peeled_yield || 1))} g</Text> de {d.label} {EPL.toLowerCase()}.
+      </Tip>
+    )
+  }
+
   return (
     <View style={st.card}>
       {/* Titre + image */}
@@ -262,141 +321,163 @@ function IngredientCard({ d }: { d: Item }) {
         )}
       </View>
 
-      {/* Infos clés (générales) */}
-      {((!isPotato && d.avg_unit_g) || d.peeled_yield || d.juice_ml_per_unit) && (
+      {/* Infos clés (unique, rendu seulement si contenu) */}
+      {(infoRows.length > 0 || infoTip) && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
-          {!isPotato && d.avg_unit_g ? (
-            <Row left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />
-          ) : null}
-          {d.peeled_yield && d.avg_unit_g
-            ? <Row left={`Poids épluché (×${fmt(d.peeled_yield)})`} right={`${fmt(d.avg_unit_g * d.peeled_yield)} g`} />
-            : null}
-          {d.juice_ml_per_unit
-            ? <Row left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt(d.juice_ml_per_unit * density)} g)`} />
-            : null}
+          {infoTip}
+          {infoRows}
         </View>
       )}
 
-      {/* Module Œufs */}
-      {/* ========= Module Œufs (ENTIER) ========= */}
-{/* ========= Module Œufs (ENTIER) ========= */}
-{hasEggs && (
-  <View style={st.section}>
-    <Text style={st.sTitle}>Infos clés</Text>
-    <Row left="Œuf petit" right="< 50 g (S)" />
-    <Row left="Œuf moyen" right="50–60 g (M)" />
-    <Row left="Œuf gros" right="60–70 g (L)" />
-    <View style={{ height: 6 }} />
-    <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
-    <Row left="Pochés" right="2 min" />
-    <Row left="À la coque" right="3 min" />
-    <Row left="Durs" right="9 min" />
+      {/* Bloc Épluché ⇆ Non épluché — générique pour tous sauf PDT */}
+      {d.peeled_yield && !isPotato && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>
+            {EPL} <Text style={st.arrow}>⇆</Text> {NON_EPL}
+          </Text>
 
-    {/* Sélecteur S / M / L */}
-    <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-      {(['S', 'M', 'L'] as const).map(sz => {
-        const on = eggSize === sz
-        return (
-          <TouchableOpacity
-            key={sz}
-            onPress={() => setEggSize(sz)}
-            activeOpacity={0.9}
-            style={[st.sizeBtn, on && st.sizeBtnOn]}
-          >
-            <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
-          </TouchableOpacity>
-        )
-      })}
-    </View>
+          <InputWithEcho
+            value={qtyEpl}
+            onChangeText={setQtyEpl}
+            placeholder={`Quantité ${EPL.toLowerCase()} (g)`}
+            echoLabel={`${EPL} (g)`}
+          />
+          <Row
+            left={`Quantité ${NON_EPL_SHORT}`}
+            right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))}
+          />
 
-    {/* 1) Poids voulu Blanc+Jaune -> Nombre d'œufs */}
-    <Text style={[st.sTitle, { marginTop: 10 }]}>
-      Poids <Text style={st.arrow}>⇆</Text> Quantité
-    </Text>
-    <InputWithEcho
-      value={eggTargetTotal}
-      onChangeText={setEggTargetTotal}
-      placeholder="Pds voulu Blanc+Jaune (g)"
-      echoLabel="Blanc+Jaune (g)"
-    />
-    {(() => {
-      const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-      const denom = eggUnit * sumPct
-      const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
-      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-    })()}
+          <InputWithEcho
+            value={qtyNon}
+            onChangeText={setQtyNon}
+            placeholder={`Quantité ${NON_EPL.toLowerCase()} (g)`}
+            echoLabel={`${NON_EPL} (g)`}
+          />
+          <Row
+            left={`Quantité ${EPL.toLowerCase()}`}
+            right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))}
+          />
+        </View>
+      )}
 
-    {/* 2) Poids voulu Blancs -> Nombre d'œufs */}
-    <InputWithEcho
-      value={eggTargetWhite}
-      onChangeText={setEggTargetWhite}
-      placeholder="Poids voulu Blancs (g)"
-      echoLabel="Blancs (g)"
-    />
-    {(() => {
-      const denom = eggUnit * (whitePct ?? 0)
-      const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
-      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-    })()}
+      {/* ========= Module Œufs ========= */}
+      {hasEggs && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="Œuf petit (S)" right="< 50 g" />
+          <Row left="Œuf moyen (M)" right="50–60 g" />
+          <Row left="Œuf gros (L)" right="60–70 g" />
+          <View style={{ height: 6 }} />
+          <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+          <Row left="Pochés" right="2 min" />
+          <Row left="À la coque" right="3 min" />
+          <Row left="Durs" right="9 min" />
 
-    {/* 3) Poids voulu Jaune -> Nombre d'œufs */}
-    <InputWithEcho
-      value={eggTargetYolk}
-      onChangeText={setEggTargetYolk}
-      placeholder="Poids voulu Jaune (g)"
-      echoLabel="Jaune (g)"
-    />
-    {(() => {
-      const denom = eggUnit * (yolkPct ?? 0)
-      const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
-      return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-    })()}
+          {/* Sélecteur S / M / L */}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            {(['S', 'M', 'L'] as const).map(sz => {
+              const on = eggSize === sz
+              return (
+                <TouchableOpacity
+                  key={sz}
+                  onPress={() => setEggSize(sz)}
+                  activeOpacity={0.9}
+                  style={[st.sizeBtn, on && st.sizeBtnOn]}
+                >
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
 
-    {/* 4) Nombre d'œufs -> poids */}
-    <InputWithEcho
-      value={eggCount}
-      onChangeText={setEggCount}
-      placeholder="Nombre d'œufs (ex: 2)"
-      echoLabel="Œufs"
-    />
-    {(() => {
-      const c = num(eggCount)
-      const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-      const total = c * eggUnit * sumPct
-      const whites = c * eggUnit * (whitePct ?? 0)
-      const yolks  = c * eggUnit * (yolkPct ?? 0)
-      return (
-        <>
-          <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
-          <Row left="Blanc" right={`${fmt(whites)} g`} />
-          <Row left="Jaune" right={`${fmt(yolks)} g`} />
-        </>
-      )
-    })()}
-  </View>
-)}
+          {/* 1) Poids voulu Blanc+Jaune -> Nombre d'œufs */}
+          <Text style={[st.sTitle, { marginTop: 10 }]}>
+            Poids <Text style={st.arrow}>⇆</Text> Quantité
+          </Text>
+          <InputWithEcho
+            value={eggTargetTotal}
+            onChangeText={setEggTargetTotal}
+            placeholder="Pds voulu Blanc+Jaune (g)"
+            echoLabel="Blanc+Jaune (g)"
+          />
+          {(() => {
+            const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+            const denom = eggUnit * sumPct
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
 
-      {/* Pommes de terre : ordre validé */}
+          {/* 2) Poids voulu Blancs -> Nombre d'œufs */}
+          <InputWithEcho
+            value={eggTargetWhite}
+            onChangeText={setEggTargetWhite}
+            placeholder="Poids voulu Blancs (g)"
+            echoLabel="Blancs (g)"
+          />
+          {(() => {
+            const denom = eggUnit * (whitePct ?? 0)
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
+
+          {/* 3) Poids voulu Jaune -> Nombre d'œufs */}
+          <InputWithEcho
+            value={eggTargetYolk}
+            onChangeText={setEggTargetYolk}
+            placeholder="Poids voulu Jaune (g)"
+            echoLabel="Jaune (g)"
+          />
+          {(() => {
+            const denom = eggUnit * (yolkPct ?? 0)
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
+
+          {/* 4) Nombre d'œufs -> poids (répartition) */}
+          <InputWithEcho
+            value={eggCount}
+            onChangeText={setEggCount}
+            placeholder="Nombre d'œufs (ex: 2)"
+            echoLabel="Œufs"
+          />
+          {(() => {
+            const c = num(eggCount)
+            const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+            const total = c * eggUnit * sumPct
+            const whites = c * eggUnit * (whitePct ?? 0)
+            const yolks  = c * eggUnit * (yolkPct ?? 0)
+            return (
+              <>
+                <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
+                <Row left="Blanc" right={`${fmt(whites)} g`} />
+                <Row left="Jaune" right={`${fmt(yolks)} g`} />
+              </>
+            )
+          })()}
+        </View>
+      )}
+
+      {/* Pommes de terre : ordre validé (inchangé) */}
       {isPotato && hasPdt && (
         <View style={st.section}>
-          {/* 1. Bloc Épluché ⇆ Non épluché (g) */}
+          {/* 1. Bloc ÉPL ⇆ NON ÉPL */}
           {d.peeled_yield ? (
             <View>
-              <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
-              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder="Quantité épluchée (g)" echoLabel="Épluché (g)" />
-              <Row left="Quantité non épluchée" right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
-              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder="Quantité non épluchée (g)" echoLabel="Non épl. (g)" />
-              <Row left="Quantité épluchée" right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
+              <Text style={st.sTitle}>{EPL} <Text style={st.arrow}>⇆</Text> {NON_EPL}</Text>
+              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder={`Quantité ${EPL.toLowerCase()} (g)`} echoLabel={`${EPL} (g)`} />
+              <Row left={`Quantité ${NON_EPL_SHORT}`} right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
+              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder={`Quantité ${NON_EPL.toLowerCase()} (g)`} echoLabel={`${NON_EPL} (g)`} />
+              <Row left={`Quantité ${EPL.toLowerCase()}`} right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
             </View>
           ) : null}
 
-          {/* 3. Info clés S/M/L (petite/moyenne/grosse) */}
+          {/* 3. Info clés S/M/L */}
           <View style={{ marginTop: 8 }}>
             <Text style={st.sTitle}>Infos clés</Text>
-            {pdtS !== null && <Row left="Petite pomme de terre" right={`${fmt(pdtS)} g`} />}
-            {pdtM !== null && <Row left="Pomme de terre moyenne" right={`${fmt(pdtM)} g`} />}
-            {pdtL !== null && <Row left="Grosse pomme de terre" right={`${fmt(pdtL)} g`} />}
+            {pdtS !== null && <Row left="Petite pomme de terre (S)" right={`${fmt(pdtS)} g`} />}
+            {pdtM !== null && <Row left="Pomme de terre moyenne (M)" right={`${fmt(pdtM)} g`} />}
+            {pdtL !== null && <Row left="Grosse pomme de terre (L)" right={`${fmt(pdtL)} g`} />}
           </View>
 
           {/* 4. Sélecteur S / M / L */}
@@ -416,7 +497,7 @@ function IngredientCard({ d }: { d: Item }) {
             })}
           </View>
 
-          {/* 5. Quantité ⇆ Poids + Poids épl./non épl. + Pièces épl./non épl. (ordre demandé) */}
+          {/* 5. Quantité ⇆ Poids + Poids/ pièces (ordre demandé) */}
           {pdtUnit > 0 ? (
             <View style={{ marginTop: 12 }}>
               <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
@@ -456,7 +537,7 @@ function IngredientCard({ d }: { d: Item }) {
               />
               <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countNon) * pdtUnit)} />
               {d.peeled_yield ? (
-                <Row left="Poids estimé épluché" right={fmtAllUnits(num(countNon) * pdtUnit * (d.peeled_yield || 1))} />
+                <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * pdtUnit * (d.peeled_yield || 1))} />
               ) : null}
 
               {/* Pièces épl. -> Poids */}
@@ -468,36 +549,53 @@ function IngredientCard({ d }: { d: Item }) {
               />
               <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countEpl) * pdtUnit)} />
               {d.peeled_yield ? (
-                <Row left="Poids estimé épluché" right={fmtAllUnits(num(countEpl) * pdtUnit * (d.peeled_yield || 1))} />
+                <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * pdtUnit * (d.peeled_yield || 1))} />
               ) : null}
             </View>
           ) : null}
         </View>
       )}
 
-      {/* Épluché ⇆ Non épluché (g) — générique */}
-      {d.peeled_yield ? (
-        <View style={st.section}>
-          <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
-          <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder="Quantité épluchée (g)" echoLabel="Épluché (g)" />
-          <Row left="Quantité non épluchée" right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
-          <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder="Quantité non épluchée (g)" echoLabel="Non épl. (g)" />
-          <Row left="Quantité épluchée" right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
-        </View>
-      ) : null}
-
       {/* Quantité ⇆ Poids — générique (pour les ingrédients non-PDT) */}
       {!isPotato && d.avg_unit_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
 
+          {/* Poids épl. -> Nb pièces */}
+          <InputWithEcho
+            value={genWeightEpl}
+            onChangeText={setGenWeightEpl}
+            placeholder="Poids épl. (g)"
+            echoLabel="Épl. (g)"
+          />
+          {(() => {
+            const unitEpl = (d.peeled_yield ? d.avg_unit_g! * d.peeled_yield : d.avg_unit_g!) || 0
+            const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0
+            return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+          })()}
+
+          {/* Poids non épl. -> Nb pièces */}
+          <InputWithEcho
+            value={genWeightNon}
+            onChangeText={setGenWeightNon}
+            placeholder="Poids non épl. (g)"
+            echoLabel="Non épl. (g)"
+          />
+          {(() => {
+            const unitNon = d.avg_unit_g || 0
+            const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0
+            return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+          })()}
+
+          {/* Pièces non épl. -> Poids */}
           <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
-          {d.peeled_yield ? <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
+          {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
 
+          {/* Pièces épl. -> Poids */}
           <InputWithEcho value={countEpl} onChangeText={setCountEpl} placeholder="Pièces épl. (ex: 3)" echoLabel="Pièces épl." />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0))} />
-          {d.peeled_yield ? <Row left="Poids épluché" right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
+          {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
         </View>
       ) : null}
 
@@ -567,7 +665,6 @@ function IngredientCard({ d }: { d: Item }) {
           <Row left="Poids" right={fmtAllUnits(num(tsp) * (tsp_g || 0))} />
           <InputWithEcho value={tbsp} onChangeText={setTbsp} placeholder="Cuillères à soupe (ex: 2)" echoLabel="c. à soupe" />
           <Row left="Poids" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
-          <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Cuillères</Text>
           <InputWithEcho value={weightToSpoons} onChangeText={setWeightToSpoons} placeholder="Poids (g) — ex: 15" echoLabel="Poids (g)" />
           <Row
             left="Équivalent"
@@ -579,22 +676,22 @@ function IngredientCard({ d }: { d: Item }) {
       {/* Pâtes */}
       {hasPasta && (
         <View style={st.section}>
-    <Text style={st.sTitle}>Infos clés</Text>
-    <Row
-      left="Pâtes réussies 🇮🇹"
-      right="1 L d’eau + 10 g gros sel / 100 g pâtes"
-    />
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row
+            left="Pâtes réussies 🇮🇹"
+            right="1 L d’eau + 10 g gros sel / 100 g pâtes"
+          />
 
-    <Text style={[st.sTitle, { marginTop: 8 }]}>
-      Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
-    </Text>
+          <Text style={[st.sTitle, { marginTop: 8 }]}>
+            Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
+          </Text>
 
-    <InputWithEcho
-      value={pastaG}
-      onChangeText={setPastaG}
-      placeholder="Qtité de pâtes (g)"
-      echoLabel="Pâtes (g)"
-    />
+          <InputWithEcho
+            value={pastaG}
+            onChangeText={setPastaG}
+            placeholder="Qtité de pâtes (g)"
+            echoLabel="Pâtes (g)"
+          />
           {(() => {
             const g = num(pastaG)
             const L = g * (pastaW ?? 0)
@@ -696,5 +793,32 @@ const st = StyleSheet.create({
   },
   sizeBtnTextOn: {
     color: '#fff',
+  },
+
+  // Tip / Info clé présentable
+  tipBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#FFF6FB',
+    borderColor: '#FFB6F9',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 12,
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  tipEmoji: {
+    fontSize: 16,
+    marginTop: 1,
+  },
+  tipText: {
+    color: '#57324B',
+    fontWeight: '600',
+    flexShrink: 1,
+  },
+  tipStrong: {
+    color: '#FF4FA2',
+    fontWeight: '900',
   },
 })

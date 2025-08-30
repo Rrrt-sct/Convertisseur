@@ -11,6 +11,8 @@ const img_oeuf = require('../assets/img/oeuf.png');
 const img_celeri = require('../assets/img/celeri.png');
 const img_tomate = require('../assets/img/tomate.png');
 const img_avocat = require('../assets/img/avocat.png');
+const img_carotte = require('../assets/img/carotte.png');
+const img_poivron = require('../assets/img/poivron.png');
 
 export const IMAGES: Record<string, any> = {
   'pomme_de_terre': img_pomme_de_terre,
@@ -24,4 +26,6 @@ export const IMAGES: Record<string, any> = {
   'celeri': img_celeri,
   'tomate': img_tomate,
   'avocat': img_avocat,
+  'carotte': img_carotte,
+  'poivron': img_poivron,
 };

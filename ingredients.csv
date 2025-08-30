@@ -1,5 +1,5 @@
 ﻿id ;label;avg_unit_g;;peeled_yield;;tbsp_g;;juice_ml_per_unit;;lgth_g;;tsp_g;;density_g_ml;;notes;;psta_wter;;psta_slt;;psta_wtr_slt;;egg;;egg_s;;egg_m;;egg_l;;whte_pctge;;ylw_pctge;;wght_pdt_s;;wght_pdt_m;;wght_pdt_l;;clr_lgth
-pomme_de_terre;Pomme de terre;95;;0,85;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;60;;100;;150;;
+pomme_de_terre;Pomme de terre;;;0,85;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;60;;100;;150;;
 citron;Citron;;;;;;;45;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 gingembre_racine;Gingembre (racine);;;0,9;;;;;;5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 gingembre_moulu;Gingembre moulu;;;;;9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -10,3 +10,5 @@ oeuf ;Œuf;;;;;;;;;;;;;;;;;;;;;;;x;;45;;55;;65;;0,6;;0,3;;;;;;;;
 celeri;Céleri;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;40
 tomate;Tomate;80;;0,8;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 avocat;Avocat;242;V270825;0,65;V270825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+carotte;Carotte;85;;0,77;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+poivron;Poivron;70;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

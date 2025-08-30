@@ -7,7 +7,7 @@ export default function HomeScreen() {
   const { height, width } = useWindowDimensions()
 
   // image = ~60% de la hauteur écran, bornée
-  const IMG_H = Math.round(Math.min(540, Math.max(320, height * 0.60)))
+  const IMG_H = Math.round(Math.min(640, Math.max(340, height * 0.80)))
 
   const go = () => router.push('/ingredients') // nouvelle destination
 
