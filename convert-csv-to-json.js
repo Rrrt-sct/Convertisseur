@@ -4,7 +4,8 @@ const path = require('path')
 // Entrées / sorties
 const CSV_IN   = path.resolve('./ingredients.csv')
 const JSON_OUT = path.resolve('./data/ingredients.json')
-const IMG_DIR  = path.resolve('./assets/img')
+// 👉 on pointe sur les images optimisées
+const IMG_DIR  = path.resolve('./assets/illustrations_opt')
 const MAP_OUT  = path.resolve('./src/imageMap.ts')
 
 // ----- Lecture CSV -----
@@ -24,14 +25,14 @@ const delim = countSemi > countComma ? ';' : ','
 // Normalisation header
 const normalizeHeader = (s) => s
   .trim()
-  .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // supprime accents
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/\s+/g, '_')
   .replace(/[^\w]/g, '_')
   .toLowerCase()
 
 const headers = firstLine.split(delim).map(h => normalizeHeader(h))
 
-// Colonnes numériques (⚠️ orthographe exacte)
+// Colonnes numériques
 const numericKeys = new Set([
   'avg_unit_g',
   'peeled_yield',
@@ -41,7 +42,6 @@ const numericKeys = new Set([
   'tsp_g',
   'density_g_ml',
   'clr_lgth',   // poids d'une branche de céleri
-  'wght_lgth'   // poids moyen par cm
 ])
 
 function parseCsvLine(line, sep) {
@@ -74,7 +74,7 @@ function coerce(key, val) {
   return v
 }
 
-// ----- DEBUG: affichage des headers -----
+// ----- DEBUG -----
 console.log('📄 En-têtes détectées :', headers.join(' | '))
 console.log('🔎 Séparateur détecté :', `'${delim}'`)
 
@@ -83,12 +83,10 @@ const raw = rows.map((cols, idx) => {
   const obj = {}
   headers.forEach((h, i) => { obj[h] = coerce(h, cols[i]) })
 
-  // Inférence robuste id/label
   const rawId = (obj.id || '').toString().trim()
   const rawLabel = (obj.label || '').toString().trim()
 
   if (!rawId && rawLabel) {
-    // Si pas d'id, dérive depuis label (normalisé)
     const norm = rawLabel
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '_')
@@ -97,13 +95,11 @@ const raw = rows.map((cols, idx) => {
     obj.id = rawId
   }
   obj.label = rawLabel || obj.id || ''
-
-  // Aide au debug
-  obj.__rowNumber = idx + 2 // +2 car header = 1
+  obj.__rowNumber = idx + 2
   return obj
 })
 
-// ----- DEBUG: traque "celeri" avant filtre -----
+// --- DEBUG "celeri" avant filtre ---
 const rawCel = raw.filter(r =>
   String(r.id).toLowerCase().includes('celeri') ||
   String(r.label).toLowerCase().includes('celeri')
@@ -115,10 +111,8 @@ if (rawCel.length === 0) {
   rawCel.forEach(r => console.log('  • ligne', r.__rowNumber, { id: r.id, label: r.label, clr_lgth: r.clr_lgth }))
 }
 
-// Filtre final: garder si on a au moins un label OU un id
 const data = raw
   .map(r => {
-    // dernière passe propreté
     r.id = (r.id || '').toString().trim()
     r.label = (r.label || '').toString().trim()
     if (!r.id && r.label) {
@@ -130,7 +124,7 @@ const data = raw
   })
   .filter(r => r.label || r.id)
 
-// ----- DEBUG: traque "celeri" après filtre -----
+// --- DEBUG "celeri" après filtre ---
 const filCel = data.filter(r =>
   String(r.id).toLowerCase().includes('celeri') ||
   String(r.label).toLowerCase().includes('celeri')
@@ -148,34 +142,58 @@ fs.writeFileSync(JSON_OUT, JSON.stringify(data, null, 2), 'utf8')
 console.log(`✅ JSON OK → ${JSON_OUT}`)
 console.log(`   ${data.length} ligne(s) écrites`)
 
-// ----- Génération app/imageMap.ts -----
-const exts = ['.png', '.webp']
-function findImageFile(baseName) {
-  if (/\.(png|webp)$/i.test(baseName)) {
-    const p = path.join(IMG_DIR, baseName)
-    return fs.existsSync(p) ? baseName : null
-  }
-  for (const ext of exts) {
-    const name = baseName + ext
-    const p = path.join(IMG_DIR, name)
-    if (fs.existsSync(p)) return name
+// ====== Génération src/imageMap.ts (detail + thumb) ======
+const DETAIL_SUFFIX = ''        // ex: "tomate.webp"
+const THUMB_SUFFIX  = '_t'      // ex: "tomate_t.webp"
+const validExts = ['.webp', '.png', '.jpg', '.jpeg']
+
+function existsInOptim(name) {
+  return fs.existsSync(path.join(IMG_DIR, name))
+}
+function findAny(baseNoExt) {
+  for (const ext of validExts) {
+    const n = baseNoExt + ext
+    if (existsInOptim(n)) return n
   }
   return null
 }
 
 let imports = []
-let entries = []
+let entriesDetail = []
+let entriesThumb  = []
 
 data.forEach(row => {
   const id = String(row.id || '')
   if (!id) return
-  const preferred = row.image ? String(row.image).trim() : `${id}`
-  const file = findImageFile(preferred)
-  if (file) {
-    const varName = 'img_' + id.replace(/[^a-zA-Z0-9_]/g, '_')
-    const relPath = `../assets/img/${file}` // depuis src/imageMap.ts
-    imports.push(`const ${varName} = require('${relPath}');`)
-    entries.push(`  '${id}': ${varName},`)
+
+  // candidates optimisées produites par scripts/optimize-images.js
+  const detailName = `${id}${DETAIL_SUFFIX}.webp`  // ex: id.webp
+  const thumbName  = `${id}${THUMB_SUFFIX}.webp`   // ex: id_t.webp
+
+  let usedDetail = null
+  let usedThumb  = null
+
+  if (existsInOptim(detailName)) {
+    usedDetail = detailName
+  } else {
+    // fallback: tenter n'importe quelle extension (cas migration incomplète)
+    const alt = findAny(id)
+    if (alt) usedDetail = alt
+  }
+  if (existsInOptim(thumbName)) {
+    usedThumb = thumbName
+  }
+
+  // Générer les imports (depuis src/imageMap.ts vers ../assets/illustrations_opt)
+  if (usedDetail) {
+    const varD = 'img_' + id.replace(/[^a-zA-Z0-9_]/g, '_')
+    imports.push(`const ${varD} = require('../assets/illustrations_opt/${usedDetail}');`)
+    entriesDetail.push(`  '${id}': ${varD},`)
+  }
+  if (usedThumb) {
+    const varT = 'th_' + id.replace(/[^a-zA-Z0-9_]/g, '_')
+    imports.push(`const ${varT} = require('../assets/illustrations_opt/${usedThumb}');`)
+    entriesThumb.push(`  '${id}': ${varT},`)
   }
 })
 
@@ -184,11 +202,15 @@ const mapTs = `// ⚠️ Fichier généré automatiquement. Ne pas éditer.
 ${imports.join('\n')}
 
 export const IMAGES: Record<string, any> = {
-${entries.join('\n')}
+${entriesDetail.join('\n')}
+};
+
+export const IMAGES_THUMB: Record<string, any> = {
+${entriesThumb.join('\n')}
 };
 `
 
 fs.mkdirSync(path.dirname(MAP_OUT), { recursive: true })
 fs.writeFileSync(MAP_OUT, mapTs, 'utf8')
 console.log(`✅ Map d’images OK → ${MAP_OUT}`)
-console.log(`   ${entries.length} image(s) liées trouvées dans ${IMG_DIR}`)
+console.log(`   ${entriesDetail.length} détail(s) + ${entriesThumb.length} vignette(s) depuis ${IMG_DIR}`)

@@ -1,14 +1,15 @@
-﻿id ;label;avg_unit_g;;peeled_yield;;tbsp_g;;juice_ml_per_unit;;lgth_g;;tsp_g;;density_g_ml;;notes;;psta_wter;;psta_slt;;psta_wtr_slt;;egg;;egg_s;;egg_m;;egg_l;;whte_pctge;;ylw_pctge;;wght_pdt_s;;wght_pdt_m;;wght_pdt_l;;clr_lgth
-pomme_de_terre;Pomme de terre;;;0,85;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;60;;100;;150;;
-citron;Citron;;;;;;;45;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-gingembre_racine;Gingembre (racine);;;0,9;;;;;;5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-gingembre_moulu;Gingembre moulu;;;;;9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-eau;Eau;;;;;15;V220825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-huile ;Huile;;;;;13,5;V220825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-pates;Pâtes;;;;;;;;;;;;;;;;;0,01;V240825;0,1;V240825;;;;;;;;;;;;;;;;;;;;;
-oeuf ;Œuf;;;;;;;;;;;;;;;;;;;;;;;x;;45;;55;;65;;0,6;;0,3;;;;;;;;
-celeri;Céleri;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;40
-tomate;Tomate;80;;0,8;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-avocat;Avocat;242;V270825;0,65;V270825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-carotte;Carotte;85;;0,77;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-poivron;Poivron;70;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+﻿id ;label;genre;avg_unit_g;;peeled_yield;;tbsp_g;;juice_ml_per_unit;;lgth_g;;tsp_g;;density_g_ml;;notes;;psta_wter;;psta_slt;;psta_wtr_slt;;egg;;egg_s;;egg_m;;egg_l;;whte_pctge;;ylw_pctge;;wght_pdt_s;;wght_pdt_m;;wght_pdt_l;;clr_lgth;;tea;;grn_tp;;grn_tm;;bck_tp;;bck_tm;;olg_tp;;olg_tm;;rbs_tp;;rbs_tm
+pomme_de_terre;Pomme de terre;f;;;0,85;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;60;;100;;150;;;;;;;;;;;;;;;;;;;;
+citron;Citron;;;;;;;;45;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+gingembre_racine;Gingembre (racine);;;;0,9;;;;;;5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+gingembre_moulu;Gingembre moulu;;;;;;9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+eau;Eau;f;;;;;15;V220825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+huile ;Huile;f;;;;;13,5;V220825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+pates;Pâtes;;;;;;;;;;;;;;;;;;0,01;V240825;0,1;V240825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+oeuf ;Œuf;;;;;;;;;;;;;;;;;;;;;;;;x;;45;;55;;65;;0,6;;0,3;;;;;;;;;;;;;;;;;;;;;;;;;;
+celeri;Céleri;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;40;;;;;;;;;;;;;;;;;;
+tomate;Tomate;f;80;;0,8;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+avocat;Avocat;;242;V270825;0,65;V270825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+carotte;Carotte;f;85;;0,77;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+poivron;Poivron;;70;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+the;Thé;;;;;;4,2;V290825;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;x;;75;;Entre 2m30s et 3 minutes;;85;;Entre 4 et 5 minutes;;90;;Entre 5 et 7 minutes;;95;; 5 minutes

@@ -1,10 +1,26 @@
 // app/ingredients.tsx
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 
-// ✅ Charger le JSON via require (compatible Metro)
+// Données
 const RAW: any[] = require('../data/ingredients.json')
+
+// Map d’images (autogénérée par ton script)
+let IMAGES: Record<string, any> = {}
+try {
+  IMAGES = require('../src/imageMap').IMAGES || {}
+} catch {
+  try { IMAGES = require('./imageMap').IMAGES || {} } catch {}
+}
 
 type Item = {
   id: string
@@ -17,16 +33,23 @@ type Item = {
   tsp_g?: number | null
 }
 
-/** Donne un id et un label sûrs même si le CSV est incomplet */
+function toNum(v: any): number | null {
+  if (v === undefined || v === null || v === '') return null
+  const n = Number(String(v).replace(',', '.'))
+  return Number.isFinite(n) ? n : null
+}
+
+/** Normalisation sûre d’une ligne CSV → Item */
 function normalizeRow(x: any): Item | null {
   const rawId = (x?.id ?? x?.label ?? '').toString().trim()
   const id = rawId || `item_${Math.random().toString(36).slice(2)}`
   const rawLabel = (x?.label ?? x?.id ?? '').toString().trim()
   if (!rawLabel && !rawId) return null
+
   const label = (rawLabel || rawId)
     .replace(/_/g, ' ')
     .replace(/\s+/g, ' ')
-    .replace(/^\w/, (m) => m.toUpperCase())
+    .replace(/^\p{L}/u, (m) => m.toUpperCase())
 
   return {
     id,
@@ -40,26 +63,25 @@ function normalizeRow(x: any): Item | null {
   }
 }
 
-function toNum(v: any): number | null {
-  if (v === undefined || v === null || v === '') return null
-  const n = Number(String(v).replace(',', '.'))
-  return Number.isFinite(n) ? n : null
-}
-
 export default function IngredientsScreen() {
   const [q, setQ] = useState('')
   const [sel, setSel] = useState<string[]>([])
 
-  // ✅ Normalise + trie en sécurité
   const list = useMemo(() => {
-    const base = (Array.isArray(RAW) ? RAW : []).map(normalizeRow).filter(Boolean) as Item[]
-    const s = q.trim().toLowerCase()
+    const base = (Array.isArray(RAW) ? RAW : [])
+      .map(normalizeRow)
+      .filter(Boolean) as Item[]
+
     const sorted = base.sort((a, b) =>
       (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
     )
+
+    const s = q.trim().toLowerCase()
     return s
       ? sorted.filter(
-          (x) => x.label.toLowerCase().includes(s) || x.id.toLowerCase().includes(s),
+          (x) =>
+            x.label.toLowerCase().includes(s) ||
+            x.id.toLowerCase().includes(s),
         )
       : sorted
   }, [q])
@@ -85,9 +107,13 @@ export default function IngredientsScreen() {
           placeholderTextColor="#ff8fcd"
         />
 
-        <ScrollView contentContainerStyle={st.chipsWrap} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={st.chipsWrap}
+          keyboardShouldPersistTaps="handled"
+        >
           {list.map((it) => {
             const on = sel.includes(it.id)
+            const img = IMAGES[it.id]
             return (
               <TouchableOpacity
                 key={it.id}
@@ -95,7 +121,17 @@ export default function IngredientsScreen() {
                 activeOpacity={0.9}
                 style={[st.chip, on && st.chipOn]}
               >
-                <Text style={[st.chipText, on && st.chipTextOn]}>{it.label}</Text>
+                {/* vignette dans la puce */}
+                {img ? (
+                  <Image source={img} style={st.thumb} resizeMode="contain" />
+                ) : (
+                  <View style={[st.thumb, st.thumbFallback]}>
+                    <Text>🍽️</Text>
+                  </View>
+                )}
+                <Text style={[st.chipText, on && st.chipTextOn]} numberOfLines={1}>
+                  {it.label}
+                </Text>
               </TouchableOpacity>
             )
           })}
@@ -138,18 +174,44 @@ const st = StyleSheet.create({
     color: '#FF4FA2',
     marginBottom: 10,
   },
-  chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingVertical: 6 },
+
+  // Chips + image
+  chipsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    paddingVertical: 6,
+  },
   chip: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    maxWidth: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     backgroundColor: '#FFE4F6',
     borderRadius: 999,
     borderWidth: 2,
     borderColor: '#FFB6F9',
   },
-  chipOn: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
+  chipOn: {
+    backgroundColor: '#FF92E0',
+    borderColor: '#FF4FA2',
+  },
+  thumb: {
+    width: 22,
+    height: 22,
+    marginRight: 8,
+    borderRadius: 6,
+  },
+  thumbFallback: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFEAF7',
+  },
   chipText: { color: '#FF4FA2', fontWeight: '700' },
   chipTextOn: { color: '#fff' },
+
+  // CTA
   cta: {
     marginTop: 14,
     backgroundColor: '#FF92E0',

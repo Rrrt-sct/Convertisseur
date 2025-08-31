@@ -2,7 +2,7 @@
 import { Audio } from 'expo-av'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, Vibration, View } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { msToMMSS, useTimer } from '../src/timerContext'
 
 // DB statique
@@ -48,12 +48,36 @@ type Item = {
   // céleri (poids d'une branche)
   clr_lgth?: number | null
 
-  // genre pour accord (optionnel, accepte "f" / "m" ou "feminin"/"masculin")
+  // genre pour accord
   genre?: string | null
   gender?: string | null
+
+  // thé (déclencheur) + paramètres (nombre OU texte libre)
+  tea?: string | number | null
+  grn_tp?: string | number | null
+  grn_tm?: string | number | null
+  bck_tp?: string | number | null
+  bck_tm?: string | number | null
+  olg_tp?: string | number | null
+  olg_tm?: string | number | null
+  rbs_tp?: string | number | null
+  rbs_tm?: string | number | null
 }
 
 // -------- Helpers --------
+
+// Temperature/temps de thé : si nombre → on formate, sinon on rend tel quel
+const teaTemp = (v: any) => {
+  if (v === null || v === undefined || v === '') return '—'
+  const n = Number(String(v).replace(',', '.'))
+  return Number.isFinite(n) ? `${fmt(n)} °C` : String(v)
+}
+const teaTime = (v: any) => {
+  if (v === null || v === undefined || v === '') return '—'
+  const n = Number(String(v).replace(',', '.'))
+  return Number.isFinite(n) ? `${fmt(n)} min` : String(v)
+}
+
 const num = (s: string) => {
   const n = Number((s ?? '').toString().replace(',', '.'))
   return isNaN(n) ? 0 : n
@@ -76,7 +100,7 @@ function toNumMaybe(v: any): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-/** Champ avec rappel compact (apparait à droite quand une valeur est présente) */
+/** Champ avec rappel compact */
 function InputWithEcho(props: {
   value: string
   onChangeText: (t: string) => void
@@ -104,7 +128,7 @@ function InputWithEcho(props: {
   )
 }
 
-/** Petit encart “tip / info clé” plus présentable */
+/** Encart tip / info clé */
 function Tip({ children }: { children: React.ReactNode }) {
   return (
     <View style={st.tipBox}>
@@ -126,7 +150,7 @@ export default function Results() {
     return ids.map(id => map[id]).filter(Boolean)
   }, [ids])
 
-  // 🔔 Sonner quand le minuteur finit (même si on n’est pas sur la page Timer)
+  // 🔔 Minuteur : on joue juste le son (pas de vibration)
   useEffect(() => {
     let mounted = true
     async function ding() {
@@ -135,8 +159,8 @@ export default function Results() {
           require('../assets/sounds/bell.mp3'),
           { shouldPlay: true, volume: 1.0 }
         )
-        Vibration.vibrate(800)
         sound.setOnPlaybackStatusUpdate((s) => {
+          // @ts-ignore
           if (!mounted) return
           // @ts-ignore
           if (s && 'didJustFinish' in s && s.didJustFinish) {
@@ -189,49 +213,33 @@ function Row({ left, right }: { left: string; right: string }) {
 
 function IngredientCard({ d }: { d: Item }) {
   // Etats saisies
-  // Épluchage (g)
   const [qtyEpl, setQtyEpl] = useState('')
   const [qtyNon, setQtyNon] = useState('')
-  // Quantité ↔ Poids
   const [countNon, setCountNon] = useState('')
   const [countEpl, setCountEpl] = useState('')
-  // Ajouts génériques (poids -> pièces)
   const [genWeightEpl, setGenWeightEpl] = useState('')
   const [genWeightNon, setGenWeightNon] = useState('')
-  // Jus
   const [countJuice, setCountJuice] = useState('')
   const [volMl, setVolMl] = useState('')
-  // Taille
   const [lengthCm, setLengthCm] = useState('')
   const [lenWeightG, setLenWeightG] = useState('')
-  // Cuillères
   const [tsp, setTsp] = useState('')
   const [tbsp, setTbsp] = useState('')
   const [weightToSpoons, setWeightToSpoons] = useState('')
-  // Pâtes
   const [pastaG, setPastaG] = useState('')
   const [waterL, setWaterL] = useState('')
-  // Œufs
   const [eggSize, setEggSize] = useState<'S' | 'M' | 'L'>('S')
   const [eggTargetTotal, setEggTargetTotal] = useState('')
   const [eggTargetWhite, setEggTargetWhite] = useState('')
   const [eggTargetYolk, setEggTargetYolk] = useState('')
   const [eggCount, setEggCount] = useState('')
-
-  // Pommes de terre
   const [pdtSize, setPdtSize] = useState<'S' | 'M' | 'L'>('M')
-  const pdtS = toNumMaybe(d.wght_pdt_s) ?? null
-  const pdtM = toNumMaybe(d.wght_pdt_m) ?? null
-  const pdtL = toNumMaybe(d.wght_pdt_l) ?? null
-  const hasPdt = pdtS !== null || pdtM !== null || pdtL !== null
   const [pdtWeightNon, setPdtWeightNon] = useState('')
   const [pdtWeightEpl, setPdtWeightEpl] = useState('')
-
-  // Céleri
   const [celeryBranches, setCeleryBranches] = useState('')
   const [celeryWeight, setCeleryWeight] = useState('')
 
-  // Ids normalisés
+  // Ids / flags
   const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
   const isPotato = normId === 'pomme_de_terre' || normId === 'pommes_de_terre' || normId === 'pdt'
   const isCelery = normId === 'celeri'
@@ -243,13 +251,14 @@ function IngredientCard({ d }: { d: Item }) {
   const NON_EPL = `Non épluch${isF ? 'ée' : 'é'}`
   const NON_EPL_SHORT = 'non épl.'
 
-  // Poids unitaire PDT selon taille choisie
+  // Poids unitaire PDT selon taille
+  const pdtS = toNumMaybe(d.wght_pdt_s) ?? null
+  const pdtM = toNumMaybe(d.wght_pdt_m) ?? null
+  const pdtL = toNumMaybe(d.wght_pdt_l) ?? null
+  const hasPdt = pdtS !== null || pdtM !== null || pdtL !== null
   const pdtUnit =
-    pdtSize === 'S' ? (pdtS ?? 0) :
-    pdtSize === 'M' ? (pdtM ?? 0) :
-                      (pdtL ?? 0)
+    (pdtSize === 'S' ? (pdtS ?? 0) : pdtSize === 'M' ? (pdtM ?? 0) : (pdtL ?? 0))
 
-  // Poids unitaire effectif : PDT = taille choisie, sinon avg_unit_g
   const avgUnitEff = isPotato && hasPdt ? pdtUnit : (d.avg_unit_g || 0)
 
   // Constantes générales
@@ -272,17 +281,42 @@ function IngredientCard({ d }: { d: Item }) {
     (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
   const eggUnit = eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)
 
-  // Céleri (poids d'une branche)
+  // Céleri
   const celeryG = toNumMaybe((d as any).clr_lgth) ?? null
   const hasCelery = isCelery && celeryG !== null
 
-  // -------- Bloc “Infos clés” (unique et conditionnel) --------
-  const infoRows: React.ReactNode[] = []
-  let infoTip: React.ReactNode | null = null
+  // THÉ — présence + valeurs (on garde texte si fourni dans le CSV)
+  const hasTea = d.tea !== undefined && d.tea !== null && String(d.tea).trim() !== ''
+  const t_grn_tp = (d as any).grn_tp
+  const t_grn_tm = (d as any).grn_tm
+  const t_bck_tp = (d as any).bck_tp
+  const t_bck_tm = (d as any).bck_tm
+  const t_olg_tp = (d as any).olg_tp
+  const t_olg_tm = (d as any).olg_tm
+  const t_rbs_tp = (d as any).rbs_tp
+  const t_rbs_tm = (d as any).rbs_tm
 
+  // -------- Bloc “Infos clés” (unique) --------
+  const infoRows: React.ReactNode[] = []
+
+  // (0) THÉ en premier si présent
+  if (hasTea) {
+    if (t_grn_tp !== null || t_grn_tm !== null)
+      infoRows.push(<Row key="tea-grn" left="Thé vert" right={`${teaTemp(t_grn_tp)} • ${teaTime(t_grn_tm)}`} />)
+    if (t_bck_tp !== null || t_bck_tm !== null)
+      infoRows.push(<Row key="tea-bck" left="Thé noir" right={`${teaTemp(t_bck_tp)} • ${teaTime(t_bck_tm)}`} />)
+    if (t_olg_tp !== null || t_olg_tm !== null)
+      infoRows.push(<Row key="tea-olg" left="Oolong" right={`${teaTemp(t_olg_tp)} • ${teaTime(t_olg_tm)}`} />)
+    if (t_rbs_tp !== null || t_rbs_tm !== null)
+      infoRows.push(<Row key="tea-rbs" left="Rooibos" right={`${teaTemp(t_rbs_tp)} • ${teaTime(t_rbs_tm)}`} />)
+  }
+
+  // (1) Poids moyen (non-PDT)
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
+
+  // (2) Rendement (si avg_unit_g aussi présent)
   if (d.peeled_yield && d.avg_unit_g) {
     infoRows.push(
       <Row
@@ -292,6 +326,8 @@ function IngredientCard({ d }: { d: Item }) {
       />
     )
   }
+
+  // (3) Jus moyen
   if (d.juice_ml_per_unit) {
     infoRows.push(
       <Row
@@ -301,19 +337,13 @@ function IngredientCard({ d }: { d: Item }) {
       />
     )
   }
-  // Tip "100 g -> X g" seulement si on a un rendement mais PAS de poids unitaire
-  if (d.peeled_yield && !d.avg_unit_g) {
-    infoTip = (
-      <Tip>
-        Avec <Text style={st.tipStrong}>100 g</Text> de {d.label} non {EPL.toLowerCase()},
-        vous obtiendrez <Text style={st.tipStrong}>{fmt(100 * (d.peeled_yield || 1))} g</Text> de {d.label} {EPL.toLowerCase()}.
-      </Tip>
-    )
-  }
+
+  // Tip rendement seulement si peeled_yield existe mais pas avg_unit_g
+  const showTip = !!(d.peeled_yield && !d.avg_unit_g)
 
   return (
     <View style={st.card}>
-      {/* Titre + image */}
+      {/* Titre + image simple (pas de progressif) */}
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text style={[st.h2, { flex: 1 }]}>{d.label}</Text>
         {IMAGES[d.id] && (
@@ -321,16 +351,20 @@ function IngredientCard({ d }: { d: Item }) {
         )}
       </View>
 
-      {/* Infos clés (unique, rendu seulement si contenu) */}
-      {(infoRows.length > 0 || infoTip) && (
+      {(infoRows.length > 0 || showTip) && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
-          {infoTip}
+          {showTip && (
+            <Tip>
+              Avec <Text style={st.tipStrong}>100 g</Text> de {d.label} non {EPL.toLowerCase()},
+              vous obtiendrez <Text style={st.tipStrong}>{fmt(100 * (d.peeled_yield || 1))} g</Text> de {d.label} {EPL.toLowerCase()}.
+            </Tip>
+          )}
           {infoRows}
         </View>
       )}
 
-      {/* Bloc Épluché ⇆ Non épluché — générique pour tous sauf PDT */}
+      {/* Bloc Épluché ⇆ Non épluché — générique (tous SAUF PDT) */}
       {d.peeled_yield && !isPotato && (
         <View style={st.section}>
           <Text style={st.sTitle}>
@@ -343,10 +377,7 @@ function IngredientCard({ d }: { d: Item }) {
             placeholder={`Quantité ${EPL.toLowerCase()} (g)`}
             echoLabel={`${EPL} (g)`}
           />
-          <Row
-            left={`Quantité ${NON_EPL_SHORT}`}
-            right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))}
-          />
+          <Row left={`Quantité ${NON_EPL_SHORT}`} right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
 
           <InputWithEcho
             value={qtyNon}
@@ -354,114 +385,91 @@ function IngredientCard({ d }: { d: Item }) {
             placeholder={`Quantité ${NON_EPL.toLowerCase()} (g)`}
             echoLabel={`${NON_EPL} (g)`}
           />
-          <Row
-            left={`Quantité ${EPL.toLowerCase()}`}
-            right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))}
-          />
+          <Row left={`Quantité ${EPL.toLowerCase()}`} right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
         </View>
       )}
 
       {/* ========= Module Œufs ========= */}
-      {hasEggs && (
-        <View style={st.section}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          <Row left="Œuf petit (S)" right="< 50 g" />
-          <Row left="Œuf moyen (M)" right="50–60 g" />
-          <Row left="Œuf gros (L)" right="60–70 g" />
-          <View style={{ height: 6 }} />
-          <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
-          <Row left="Pochés" right="2 min" />
-          <Row left="À la coque" right="3 min" />
-          <Row left="Durs" right="9 min" />
+      {(() => {
+        const eggS = toNumMaybe(d.egg_s) ?? null
+        const eggM = toNumMaybe(d.egg_m) ?? null
+        const eggL = toNumMaybe(d.egg_l) ?? null
+        const whitePct = toNumMaybe(d.whte_pctge) ?? null
+        const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
+        const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
+        const eggUnit = (eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0))
+        if (!hasEggs) return null
 
-          {/* Sélecteur S / M / L */}
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            {(['S', 'M', 'L'] as const).map(sz => {
-              const on = eggSize === sz
+        return (
+          <View style={st.section}>
+            <Text style={st.sTitle}>Infos clés</Text>
+            <Row left="Œuf petit (S)" right="< 50 g" />
+            <Row left="Œuf moyen (M)" right="50–60 g" />
+            <Row left="Œuf gros (L)" right="60–70 g" />
+            <View style={{ height: 6 }} />
+            <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+            <Row left="Pochés" right="2 min" />
+            <Row left="À la coque" right="3 min" />
+            <Row left="Durs" right="9 min" />
+
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+              {(['S', 'M', 'L'] as const).map(sz => {
+                const on = eggSize === sz
+                return (
+                  <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
+                    <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            <Text style={[st.sTitle, { marginTop: 10 }]}>
+              Poids <Text style={st.arrow}>⇆</Text> Quantité
+            </Text>
+            <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
+            {(() => {
+              const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+              const denom = eggUnit * sumPct
+              const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+            })()}
+
+            <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
+            {(() => {
+              const denom = eggUnit * (whitePct ?? 0)
+              const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+            })()}
+
+            <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
+            {(() => {
+              const denom = eggUnit * (yolkPct ?? 0)
+              const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+            })()}
+
+            <InputWithEcho value={eggCount} onChangeText={setEggCount} placeholder="Nombre d'œufs (ex: 2)" echoLabel="Œufs" />
+            {(() => {
+              const c = num(eggCount)
+              const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+              const total = c * eggUnit * sumPct
+              const whites = c * eggUnit * (whitePct ?? 0)
+              const yolks  = c * eggUnit * (yolkPct ?? 0)
               return (
-                <TouchableOpacity
-                  key={sz}
-                  onPress={() => setEggSize(sz)}
-                  activeOpacity={0.9}
-                  style={[st.sizeBtn, on && st.sizeBtnOn]}
-                >
-                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
-                </TouchableOpacity>
+                <>
+                  <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
+                  <Row left="Blanc" right={`${fmt(whites)} g`} />
+                  <Row left="Jaune" right={`${fmt(yolks)} g`} />
+                </>
               )
-            })}
+            })()}
           </View>
+        )
+      })()}
 
-          {/* 1) Poids voulu Blanc+Jaune -> Nombre d'œufs */}
-          <Text style={[st.sTitle, { marginTop: 10 }]}>
-            Poids <Text style={st.arrow}>⇆</Text> Quantité
-          </Text>
-          <InputWithEcho
-            value={eggTargetTotal}
-            onChangeText={setEggTargetTotal}
-            placeholder="Pds voulu Blanc+Jaune (g)"
-            echoLabel="Blanc+Jaune (g)"
-          />
-          {(() => {
-            const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-            const denom = eggUnit * sumPct
-            const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
-            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-          })()}
-
-          {/* 2) Poids voulu Blancs -> Nombre d'œufs */}
-          <InputWithEcho
-            value={eggTargetWhite}
-            onChangeText={setEggTargetWhite}
-            placeholder="Poids voulu Blancs (g)"
-            echoLabel="Blancs (g)"
-          />
-          {(() => {
-            const denom = eggUnit * (whitePct ?? 0)
-            const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
-            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-          })()}
-
-          {/* 3) Poids voulu Jaune -> Nombre d'œufs */}
-          <InputWithEcho
-            value={eggTargetYolk}
-            onChangeText={setEggTargetYolk}
-            placeholder="Poids voulu Jaune (g)"
-            echoLabel="Jaune (g)"
-          />
-          {(() => {
-            const denom = eggUnit * (yolkPct ?? 0)
-            const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
-            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-          })()}
-
-          {/* 4) Nombre d'œufs -> poids (répartition) */}
-          <InputWithEcho
-            value={eggCount}
-            onChangeText={setEggCount}
-            placeholder="Nombre d'œufs (ex: 2)"
-            echoLabel="Œufs"
-          />
-          {(() => {
-            const c = num(eggCount)
-            const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-            const total = c * eggUnit * sumPct
-            const whites = c * eggUnit * (whitePct ?? 0)
-            const yolks  = c * eggUnit * (yolkPct ?? 0)
-            return (
-              <>
-                <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
-                <Row left="Blanc" right={`${fmt(whites)} g`} />
-                <Row left="Jaune" right={`${fmt(yolks)} g`} />
-              </>
-            )
-          })()}
-        </View>
-      )}
-
-      {/* Pommes de terre : ordre validé (inchangé) */}
+      {/* Pommes de terre */}
       {isPotato && hasPdt && (
         <View style={st.section}>
-          {/* 1. Bloc ÉPL ⇆ NON ÉPL */}
           {d.peeled_yield ? (
             <View>
               <Text style={st.sTitle}>{EPL} <Text style={st.arrow}>⇆</Text> {NON_EPL}</Text>
@@ -472,7 +480,6 @@ function IngredientCard({ d }: { d: Item }) {
             </View>
           ) : null}
 
-          {/* 3. Info clés S/M/L */}
           <View style={{ marginTop: 8 }}>
             <Text style={st.sTitle}>Infos clés</Text>
             {pdtS !== null && <Row left="Petite pomme de terre (S)" right={`${fmt(pdtS)} g`} />}
@@ -480,35 +487,23 @@ function IngredientCard({ d }: { d: Item }) {
             {pdtL !== null && <Row left="Grosse pomme de terre (L)" right={`${fmt(pdtL)} g`} />}
           </View>
 
-          {/* 4. Sélecteur S / M / L */}
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
             {(['S', 'M', 'L'] as const).map(sz => {
               const on = pdtSize === sz
               return (
-                <TouchableOpacity
-                  key={sz}
-                  onPress={() => setPdtSize(sz)}
-                  activeOpacity={0.9}
-                  style={[st.sizeBtn, on && st.sizeBtnOn]}
-                >
+                <TouchableOpacity key={sz} onPress={() => setPdtSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
                   <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
                 </TouchableOpacity>
               )
             })}
           </View>
 
-          {/* 5. Quantité ⇆ Poids + Poids/ pièces (ordre demandé) */}
           {pdtUnit > 0 ? (
             <View style={{ marginTop: 12 }}>
               <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
 
               {/* Poids épl. -> Nb pièces */}
-              <InputWithEcho
-                value={pdtWeightEpl}
-                onChangeText={setPdtWeightEpl}
-                placeholder="Poids épl. (g)"
-                echoLabel="Épl. (g)"
-              />
+              <InputWithEcho value={pdtWeightEpl} onChangeText={setPdtWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
               {(() => {
                 const y = d.peeled_yield ?? null
                 const unitEpl = y ? pdtUnit * y : pdtUnit
@@ -517,36 +512,18 @@ function IngredientCard({ d }: { d: Item }) {
               })()}
 
               {/* Poids non épl. -> Nb pièces */}
-              <InputWithEcho
-                value={pdtWeightNon}
-                onChangeText={setPdtWeightNon}
-                placeholder="Poids non épl. (g)"
-                echoLabel="Non épl. (g)"
-              />
-              <Row
-                left="Nombre de pièces estimées"
-                right={`${Math.max(0, Math.ceil(num(pdtWeightNon) / Math.max(1, pdtUnit)))} pièces`}
-              />
+              <InputWithEcho value={pdtWeightNon} onChangeText={setPdtWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
+              <Row left="Nombre de pièces estimées" right={`${Math.max(0, Math.ceil(num(pdtWeightNon) / Math.max(1, pdtUnit)))} pièces`} />
 
               {/* Pièces non épl. -> Poids */}
-              <InputWithEcho
-                value={countNon}
-                onChangeText={setCountNon}
-                placeholder="Pièces non épl. (ex: 3)"
-                echoLabel="Pièces non épl."
-              />
+              <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
               <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countNon) * pdtUnit)} />
               {d.peeled_yield ? (
                 <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * pdtUnit * (d.peeled_yield || 1))} />
               ) : null}
 
               {/* Pièces épl. -> Poids */}
-              <InputWithEcho
-                value={countEpl}
-                onChangeText={setCountEpl}
-                placeholder="Pièces épl. (ex: 3)"
-                echoLabel="Pièces épl."
-              />
+              <InputWithEcho value={countEpl} onChangeText={setCountEpl} placeholder="Pièces épl. (ex: 3)" echoLabel="Pièces épl." />
               <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countEpl) * pdtUnit)} />
               {d.peeled_yield ? (
                 <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * pdtUnit * (d.peeled_yield || 1))} />
@@ -556,18 +533,13 @@ function IngredientCard({ d }: { d: Item }) {
         </View>
       )}
 
-      {/* Quantité ⇆ Poids — générique (pour les ingrédients non-PDT) */}
+      {/* Quantité ⇆ Poids — générique (non-PDT) */}
       {!isPotato && d.avg_unit_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
 
           {/* Poids épl. -> Nb pièces */}
-          <InputWithEcho
-            value={genWeightEpl}
-            onChangeText={setGenWeightEpl}
-            placeholder="Poids épl. (g)"
-            echoLabel="Épl. (g)"
-          />
+          <InputWithEcho value={genWeightEpl} onChangeText={setGenWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
           {(() => {
             const unitEpl = (d.peeled_yield ? d.avg_unit_g! * d.peeled_yield : d.avg_unit_g!) || 0
             const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0
@@ -575,24 +547,18 @@ function IngredientCard({ d }: { d: Item }) {
           })()}
 
           {/* Poids non épl. -> Nb pièces */}
-          <InputWithEcho
-            value={genWeightNon}
-            onChangeText={setGenWeightNon}
-            placeholder="Poids non épl. (g)"
-            echoLabel="Non épl. (g)"
-          />
+          <InputWithEcho value={genWeightNon} onChangeText={setGenWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
           {(() => {
             const unitNon = d.avg_unit_g || 0
             const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0
             return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
           })()}
 
-          {/* Pièces non épl. -> Poids */}
+          {/* Pièces ↦ poids */}
           <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
           {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
 
-          {/* Pièces épl. -> Poids */}
           <InputWithEcho value={countEpl} onChangeText={setCountEpl} placeholder="Pièces épl. (ex: 3)" echoLabel="Pièces épl." />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0))} />
           {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
@@ -609,26 +575,11 @@ function IngredientCard({ d }: { d: Item }) {
             Nombre de branches <Text style={st.arrow}>⇆</Text> Poids
           </Text>
 
-          {/* Nb de branches -> Poids */}
-          <InputWithEcho
-            value={celeryBranches}
-            onChangeText={setCeleryBranches}
-            placeholder="Nb de branches (ex: 2)"
-            echoLabel="Branches"
-          />
+          <InputWithEcho value={celeryBranches} onChangeText={setCeleryBranches} placeholder="Nb de branches (ex: 2)" echoLabel="Branches" />
           <Row left="Poids estimé" right={fmtAllUnits(num(celeryBranches) * (celeryG || 0))} />
 
-          {/* Poids -> Nb de branches (arrondi à l'unité sup.) */}
-          <InputWithEcho
-            value={celeryWeight}
-            onChangeText={setCeleryWeight}
-            placeholder="Poids (ex: 200 g)"
-            echoLabel="Poids (g)"
-          />
-          <Row
-            left="Nombre de branches estimé"
-            right={`${Math.ceil(num(celeryWeight) / Math.max(1, (celeryG || 0)))} branches`}
-          />
+          <InputWithEcho value={celeryWeight} onChangeText={setCeleryWeight} placeholder="Poids (ex: 200 g)" echoLabel="Poids (g)" />
+          <Row left="Nombre de branches estimé" right={`${Math.ceil(num(celeryWeight) / Math.max(1, (celeryG || 0)))} branches`} />
         </View>
       )}
 
@@ -637,10 +588,8 @@ function IngredientCard({ d }: { d: Item }) {
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Jus</Text>
           <InputWithEcho value={countJuice} onChangeText={setCountJuice} placeholder="Nombre de pièces (ex: 2 citrons)" echoLabel="Pièces" />
-          <Row
-            left="Volume"
-            right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`}
-          />
+          <Row left="Volume"
+               right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`} />
           <InputWithEcho value={volMl} onChangeText={setVolMl} placeholder="Volume ou poids voulu (ml ou g)" echoLabel="Voulu" />
           <Row left="Nombre de pièces estimé" right={`${fmt(Math.ceil(num(volMl) / (d.juice_ml_per_unit || 1)))} `} />
         </View>
@@ -677,21 +626,11 @@ function IngredientCard({ d }: { d: Item }) {
       {hasPasta && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
-          <Row
-            left="Pâtes réussies 🇮🇹"
-            right="1 L d’eau + 10 g gros sel / 100 g pâtes"
-          />
-
+          <Row left="Pâtes réussies 🇮🇹" right="1 L d’eau + 10 g gros sel / 100 g pâtes" />
           <Text style={[st.sTitle, { marginTop: 8 }]}>
             Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
           </Text>
-
-          <InputWithEcho
-            value={pastaG}
-            onChangeText={setPastaG}
-            placeholder="Qtité de pâtes (g)"
-            echoLabel="Pâtes (g)"
-          />
+          <InputWithEcho value={pastaG} onChangeText={setPastaG} placeholder="Qtité de pâtes (g)" echoLabel="Pâtes (g)" />
           {(() => {
             const g = num(pastaG)
             const L = g * (pastaW ?? 0)
@@ -737,11 +676,7 @@ const st = StyleSheet.create({
   },
   timerBannerText: { color: '#fff', fontWeight: '900', textAlign: 'center' },
 
-  navLink: {
-    color: '#7c3aed',
-    fontWeight: '900',
-    fontSize: 18,
-  },
+  navLink: { color: '#7c3aed', fontWeight: '900', fontSize: 18 },
 
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 14, marginBottom: 14, shadowColor: '#FF8FCD', shadowOpacity: 0.16, shadowRadius: 8, elevation: 5 },
   h2: { fontSize: 18, fontWeight: '900', color: '#FF4FA2', marginBottom: 8 },
@@ -783,19 +718,11 @@ const st = StyleSheet.create({
     borderColor: '#FFB6F9',
     backgroundColor: '#FFE4F6',
   },
-  sizeBtnOn: {
-    borderColor: '#FF4FA2',
-    backgroundColor: '#FF92E0',
-  },
-  sizeBtnText: {
-    fontWeight: '800',
-    color: '#FF4FA2',
-  },
-  sizeBtnTextOn: {
-    color: '#fff',
-  },
+  sizeBtnOn: { borderColor: '#FF4FA2', backgroundColor: '#FF92E0' },
+  sizeBtnText: { fontWeight: '800', color: '#FF4FA2' },
+  sizeBtnTextOn: { color: '#fff' },
 
-  // Tip / Info clé présentable
+  // Tip
   tipBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -808,17 +735,7 @@ const st = StyleSheet.create({
     marginTop: 6,
     marginBottom: 4,
   },
-  tipEmoji: {
-    fontSize: 16,
-    marginTop: 1,
-  },
-  tipText: {
-    color: '#57324B',
-    fontWeight: '600',
-    flexShrink: 1,
-  },
-  tipStrong: {
-    color: '#FF4FA2',
-    fontWeight: '900',
-  },
+  tipEmoji: { fontSize: 16, marginTop: 1 },
+  tipText: { color: '#57324B', fontWeight: '600', flexShrink: 1 },
+  tipStrong: { color: '#FF4FA2', fontWeight: '900' },
 })

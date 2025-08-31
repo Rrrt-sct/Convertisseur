@@ -2,15 +2,18 @@
   "name": "Convertisseur",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "private": true,
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
-    "csv:json": "node convert-csv-to-json.js"
+    "csv:json": "node convert-csv-to-json.js",
+    "optimize:images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "expo": "~53.0.0",
+    "expo-av": "~15.1.7",
+    "expo-image": "^2.4.0",
     "expo-keep-awake": "~13.0.2",
     "expo-linking": "~7.1.7",
     "expo-router": "~5.1.5",
@@ -19,18 +22,16 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-web": "^0.20.0",
-    "tamagui": "1.132.20",
-    "undefined": "\\",
-    "react-native-reanimated": "~3.17.4",
-    "react-native-gesture-handler": "~2.24.0",
-    "expo-av": "~15.1.7"
+    "tamagui": "1.132.20"
   },
   "devDependencies": {
     "@types/react": "~18.2.79",
+    "sharp": "^0.34.3",
     "typescript": "~5.3.3"
-  },
-  "private": true
+  }
 }
