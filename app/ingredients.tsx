@@ -34,6 +34,7 @@ type Item = {
   tsp_g?: number | null
 }
 
+// ------- Helpers -------
 function toNum(v: any): number | null {
   if (v === undefined || v === null || v === '') return null
   const n = Number(String(v).replace(',', '.'))
@@ -43,7 +44,9 @@ function toBoolNum(v: any): number {
   const s = (v ?? '').toString().trim().toLowerCase()
   return s === '1' || s === 'true' || s === 'oui' || s === 'yes' ? 1 : 0
 }
-
+const hasVal = (v: any) => v !== undefined && v !== null && String(v).trim() !== ''
+const stripAccents = (s: string) =>
+  s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
 /** Normalisation sûre d’une ligne CSV → Item */
 function normalizeRow(x: any): Item | null {
@@ -55,7 +58,7 @@ function normalizeRow(x: any): Item | null {
   const label = (rawLabel || rawId)
     .replace(/_/g, ' ')
     .replace(/\s+/g, ' ')
-    .replace(/^\p{L}/u, (m) => m.toUpperCase())
+    .replace(/^./, (m) => m.toUpperCase())
 
   return {
     id,
@@ -70,6 +73,21 @@ function normalizeRow(x: any): Item | null {
   }
 }
 
+/** Détecte une ligne "variété de pâtes" (au moins un pst_* rempli) */
+function isPastaVarietyRow(row: any) {
+  return ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
+}
+/** Détecte une ligne qui porte des usages (au moins un pfct_* rempli) */
+function hasPastaUsages(row: any) {
+  return ['pfct_lg_pst', 'pfct_shrt_pst', 'pfct_sml_pst', 'pfct_flf_pst', 'pfct_ovn_pst']
+    .some((k) => hasVal(row?.[k]))
+}
+/** Ligne générique “pâtes” (à garder) */
+function isGenericPastaRow(row: any) {
+  const ref = stripAccents(`${row?.id ?? ''} ${row?.label ?? ''}`)
+  return /\bpates?\b/.test(ref) || /\bpasta\b/.test(ref) || /\bpâtes?\b/.test(ref)
+}
+
 export default function IngredientsScreen() {
   const [q, setQ] = useState('')
   const [sel, setSel] = useState<string[]>([])
@@ -79,12 +97,26 @@ export default function IngredientsScreen() {
       .map(normalizeRow)
       .filter(Boolean) as Item[]
 
-// Exclure les variétés de pommes de terre (is_pdt = 1)
-const noVarieties = base.filter((x) => (x.is_pdt ?? 0) !== 1)
+    // Map id -> ligne brute
+    const rawById: Record<string, any> = Object.fromEntries(
+      (Array.isArray(RAW) ? RAW : []).map((r: any) => [String(r?.id ?? ''), r])
+    )
 
-const sorted = noVarieties.sort((a, b) =>
-  (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
-)
+    // Exclure :
+    // 1) variétés PDT (is_pdt=1)
+    // 2) variétés de pâtes (pst_* rempli)
+    // 3) lignes avec usages (pfct_*) — SAUF la ligne générique "pâtes"
+    const noVarieties = base.filter((x) => {
+      const raw = rawById[x.id] || {}
+      if ((x.is_pdt ?? 0) === 1) return false
+      if (isPastaVarietyRow(raw)) return false
+      if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label })) return false
+      return true
+    })
+
+    const sorted = noVarieties.sort((a, b) =>
+      (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
+    )
 
     const s = q.trim().toLowerCase()
     return s
@@ -131,7 +163,6 @@ const sorted = noVarieties.sort((a, b) =>
                 activeOpacity={0.9}
                 style={[st.chip, on && st.chipOn]}
               >
-                {/* vignette dans la puce */}
                 {img ? (
                   <Image source={img} style={st.thumb} resizeMode="contain" />
                 ) : (
@@ -185,7 +216,6 @@ const st = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Chips + image
   chipsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -221,7 +251,6 @@ const st = StyleSheet.create({
   chipText: { color: '#FF4FA2', fontWeight: '700' },
   chipTextOn: { color: '#fff' },
 
-  // CTA
   cta: {
     marginTop: 14,
     backgroundColor: '#FF92E0',
