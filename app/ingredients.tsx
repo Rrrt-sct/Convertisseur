@@ -25,6 +25,7 @@ try {
 type Item = {
   id: string
   label: string
+  is_pdt?: number | null
   avg_unit_g?: number | null
   peeled_yield?: number | null
   juice_ml_per_unit?: number | null
@@ -38,6 +39,11 @@ function toNum(v: any): number | null {
   const n = Number(String(v).replace(',', '.'))
   return Number.isFinite(n) ? n : null
 }
+function toBoolNum(v: any): number {
+  const s = (v ?? '').toString().trim().toLowerCase()
+  return s === '1' || s === 'true' || s === 'oui' || s === 'yes' ? 1 : 0
+}
+
 
 /** Normalisation sûre d’une ligne CSV → Item */
 function normalizeRow(x: any): Item | null {
@@ -54,6 +60,7 @@ function normalizeRow(x: any): Item | null {
   return {
     id,
     label,
+    is_pdt: toBoolNum(x?.is_pdt),
     avg_unit_g: toNum(x?.avg_unit_g),
     peeled_yield: toNum(x?.peeled_yield),
     juice_ml_per_unit: toNum(x?.juice_ml_per_unit),
@@ -72,9 +79,12 @@ export default function IngredientsScreen() {
       .map(normalizeRow)
       .filter(Boolean) as Item[]
 
-    const sorted = base.sort((a, b) =>
-      (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
-    )
+// Exclure les variétés de pommes de terre (is_pdt = 1)
+const noVarieties = base.filter((x) => (x.is_pdt ?? 0) !== 1)
+
+const sorted = noVarieties.sort((a, b) =>
+  (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
+)
 
     const s = q.trim().toLowerCase()
     return s

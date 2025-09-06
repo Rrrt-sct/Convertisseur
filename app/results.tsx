@@ -17,6 +17,111 @@ try {
   try { IMAGES = require('./imageMap').IMAGES || {} } catch {}
 }
 
+/* =======================
+   PDT — Usages & helpers
+   ======================= */
+// ⚠️ Mapping colonnes CSV -> libellés UI
+const PDT_METHODS = [
+  { label: 'Frites',            keys: ['frites'] },
+  { label: 'Purée',             keys: ['puree'] },
+  { label: 'Gratin',            keys: ['gratin'] },
+  { label: 'Sautées',           keys: ['saute', 'sautee', 'sautees', 'sautes'] },
+  { label: 'Rissolées',         keys: ['rissolee', 'rissolees'] },
+  { label: 'Vapeur',            keys: ['vapeur', 'steam'] },
+
+  // 🔹 Entières (baked) = colonne "four" (et variantes si tu les ajoutes)
+  { label: 'Entières au four',  keys: ['four', 'entieres_four', 'entiere_four'] },
+
+  // 🔹 Rôties en morceaux = roties + tolérance "oties" (faute courante)
+  { label: 'Rôties au four',    keys: ['roties', 'rotie', 'roti', 'roast', 'oties'] },
+
+  { label: 'Potage',            keys: ['potage', 'soupe'] },
+] as const
+type PdtMethod = typeof PDT_METHODS[number]
+
+function scoreFor(row: any, method: PdtMethod): number {
+  for (const k of method.keys) {
+    const raw = row?.[k]
+    if (raw === undefined || raw === null || raw === '') continue
+    const n = Number(String(raw).replace(',', '.'))
+    if (Number.isFinite(n) && n > 0) return n // 1, 2 ou 3
+  }
+  return 0
+}
+const starsFor   = (s: number) => (s >= 3 ? '★★★' : s === 2 ? '★★' : s === 1 ? '★' : '')
+const verdictFor = (s: number) => (s >= 3 ? 'Parfaite' : s === 2 ? 'Convient très bien' : s === 1 ? 'Possible' : '')
+
+// ---- Textes explicatifs par usage (sans dépendre de st pour éviter l’erreur d’init) ----
+const __P = { color: '#444', lineHeight: 20, marginBottom: 6 } as const
+const __B = { fontWeight: '800', color: '#333' } as const
+
+const PdtAdvice: Record<string, React.ReactNode> = {
+  'Gratin': (
+    <View>
+      <Text style={__P}>Pour réussir un gratin savoureux, le choix de la pomme de terre est essentiel.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair fondante</Text> sont les plus adaptées : elles absorbent bien la crème ou le lait et deviennent moelleuses tout en gardant une belle tenue à la cuisson. Elles garantissent un gratin onctueux et équilibré.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair ferme</Text> peuvent aussi être utilisées : elles tiennent parfaitement en tranches et donnent un gratin plus structuré, avec des couches nettes et régulières.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair farineuse</Text> sont moins courantes pour cet usage, mais elles apportent une texture très fondante et crémeuse. En revanche, les tranches se tiennent moins bien, ce qui convient davantage si l’on recherche un gratin fondant plutôt qu’un gratin “tranché”.</Text>
+    </View>
+  ),
+  'Frites': (
+    <View>
+      <Text style={__P}>Pour obtenir des frites dorées et croustillantes à l’extérieur, moelleuses à l’intérieur, le type de pomme de terre est déterminant.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair farineuse</Text> sont les plus adaptées. Riches en amidon, elles donnent des frites qui croustillent bien après cuisson et restent légères et fondantes au cœur.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair fondante</Text> peuvent aussi convenir : frites correctes mais un peu moins croustillantes et plus moelleuses.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair ferme</Text> sont à éviter : frites plus sèches ou caoutchouteuses.</Text>
+    </View>
+  ),
+  'Vapeur': (
+    <View>
+      <Text style={__P}>La cuisson vapeur préserve les saveurs, mais toutes les variétés ne réagissent pas pareil.</Text>
+      <Text style={__P}>Les pommes de terre <Text style={__B}>à chair ferme</Text> sont les plus adaptées : excellente tenue, idéales en salade ou en accompagnement.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> conviennent mais se ramollissent davantage.</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> ne sont pas recommandées : elles se déliteront.</Text>
+    </View>
+  ),
+  'Entières au four': (
+    <View>
+      <Text style={__P}>Pour des pommes de terre entières au four, le type de chair influe beaucoup sur le résultat.</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> sont les plus adaptées : chair aérée et moelleuse, parfaites en “baked”.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> conviennent aussi : texture plus crémeuse et dense.</Text>
+      <Text style={__P}>Les <Text style={__B}>fermes</Text> sont moins recommandées : résultat souvent trop compact.</Text>
+    </View>
+  ),
+  'Rôties au four': (
+    <View>
+      <Text style={__P}>En morceaux rôtis au four, la tenue et la coloration comptent.</Text>
+      <Text style={__P}>Les <Text style={__B}>fermes</Text> conviennent très bien : bonne tenue, belle dorure.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> sont également adaptées : cœur moelleux, belle coloration.</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> donnent une surface très croustillante et un intérieur fondant mais sont plus fragiles.</Text>
+    </View>
+  ),
+  'Rissolées': (
+    <View>
+      <Text style={__P}>Les rissolées demandent des variétés qui tiennent après précuisson et dorent joliment.</Text>
+      <Text style={__P}>Les <Text style={__B}>fermes</Text> sont les plus adaptées : jolis cubes dorés et croustillants.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> peuvent convenir : plus moelleuses, mais se délient plus facilement si trop cuites.</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> sont moins recommandées : elles se désagrègent vite.</Text>
+    </View>
+  ),
+  'Purée': (
+    <View>
+      <Text style={__P}>La qualité d’une purée dépend surtout du type de pomme de terre.</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> sont les plus adaptées : purée légère, onctueuse, bien liée.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> conviennent pour une purée plus crémeuse et dense.</Text>
+      <Text style={__P}>Les <Text style={__B}>fermes</Text> sont moins recommandées : purée collante ou élastique.</Text>
+    </View>
+  ),
+  'Potage': (
+    <View>
+      <Text style={__P}>Pour un potage lisse et velouté :</Text>
+      <Text style={__P}>Les <Text style={__B}>farineuses</Text> sont idéales : elles lient bien grâce à l’amidon.</Text>
+      <Text style={__P}>Les <Text style={__B}>fondantes</Text> donnent une texture crémeuse, un peu moins homogène.</Text>
+      <Text style={__P}>Les <Text style={__B}>fermes</Text> sont moins adaptées : elles restent en morceaux.</Text>
+    </View>
+  ),
+}
+
 // -------- Types --------
 type Item = {
   id: string
@@ -52,7 +157,7 @@ type Item = {
   genre?: string | null
   gender?: string | null
 
-  // thé (déclencheur) + paramètres (nombre OU texte libre)
+  // thé (déclencheur) + paramètres
   tea?: string | number | null
   grn_tp?: string | number | null
   grn_tm?: string | number | null
@@ -64,9 +169,7 @@ type Item = {
   rbs_tm?: string | number | null
 }
 
-// -------- Helpers --------
-
-// Temperature/temps de thé : si nombre → on formate, sinon on rend tel quel
+// -------- Helpers génériques --------
 const teaTemp = (v: any) => {
   if (v === null || v === undefined || v === '') return '—'
   const n = Number(String(v).replace(',', '.'))
@@ -77,7 +180,6 @@ const teaTime = (v: any) => {
   const n = Number(String(v).replace(',', '.'))
   return Number.isFinite(n) ? `${fmt(n)} min` : String(v)
 }
-
 const num = (s: string) => {
   const n = Number((s ?? '').toString().replace(',', '.'))
   return isNaN(n) ? 0 : n
@@ -239,6 +341,10 @@ function IngredientCard({ d }: { d: Item }) {
   const [celeryBranches, setCeleryBranches] = useState('')
   const [celeryWeight, setCeleryWeight] = useState('')
 
+  // Usages/Variétés PDT
+  const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null) // aucun usage au départ
+  const [pdtSelected, setPdtSelected] = useState<any | null>(null)
+
   // Ids / flags
   const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
   const isPotato = normId === 'pomme_de_terre' || normId === 'pommes_de_terre' || normId === 'pdt'
@@ -256,9 +362,7 @@ function IngredientCard({ d }: { d: Item }) {
   const pdtM = toNumMaybe(d.wght_pdt_m) ?? null
   const pdtL = toNumMaybe(d.wght_pdt_l) ?? null
   const hasPdt = pdtS !== null || pdtM !== null || pdtL !== null
-  const pdtUnit =
-    (pdtSize === 'S' ? (pdtS ?? 0) : pdtSize === 'M' ? (pdtM ?? 0) : (pdtL ?? 0))
-
+  const pdtUnit = (pdtSize === 'S' ? (pdtS ?? 0) : pdtSize === 'M' ? (pdtM ?? 0) : (pdtL ?? 0))
   const avgUnitEff = isPotato && hasPdt ? pdtUnit : (d.avg_unit_g || 0)
 
   // Constantes générales
@@ -277,15 +381,14 @@ function IngredientCard({ d }: { d: Item }) {
   const eggL = toNumMaybe(d.egg_l) ?? null
   const whitePct = toNumMaybe(d.whte_pctge) ?? null
   const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
-  const hasEggs =
-    (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
+  const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
   const eggUnit = eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)
 
   // Céleri
   const celeryG = toNumMaybe((d as any).clr_lgth) ?? null
   const hasCelery = isCelery && celeryG !== null
 
-  // THÉ — présence + valeurs (on garde texte si fourni dans le CSV)
+  // THÉ — présence + valeurs
   const hasTea = d.tea !== undefined && d.tea !== null && String(d.tea).trim() !== ''
   const t_grn_tp = (d as any).grn_tp
   const t_grn_tm = (d as any).grn_tm
@@ -298,8 +401,6 @@ function IngredientCard({ d }: { d: Item }) {
 
   // -------- Bloc “Infos clés” (unique) --------
   const infoRows: React.ReactNode[] = []
-
-  // (0) THÉ en premier si présent
   if (hasTea) {
     if (t_grn_tp !== null || t_grn_tm !== null)
       infoRows.push(<Row key="tea-grn" left="Thé vert" right={`${teaTemp(t_grn_tp)} • ${teaTime(t_grn_tm)}`} />)
@@ -310,13 +411,9 @@ function IngredientCard({ d }: { d: Item }) {
     if (t_rbs_tp !== null || t_rbs_tm !== null)
       infoRows.push(<Row key="tea-rbs" left="Rooibos" right={`${teaTemp(t_rbs_tp)} • ${teaTime(t_rbs_tm)}`} />)
   }
-
-  // (1) Poids moyen (non-PDT)
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
-
-  // (2) Rendement (si avg_unit_g aussi présent)
   if (d.peeled_yield && d.avg_unit_g) {
     infoRows.push(
       <Row
@@ -326,8 +423,6 @@ function IngredientCard({ d }: { d: Item }) {
       />
     )
   }
-
-  // (3) Jus moyen
   if (d.juice_ml_per_unit) {
     infoRows.push(
       <Row
@@ -337,13 +432,17 @@ function IngredientCard({ d }: { d: Item }) {
       />
     )
   }
-
-  // Tip rendement seulement si peeled_yield existe mais pas avg_unit_g
   const showTip = !!(d.peeled_yield && !d.avg_unit_g)
 
+  /* ----- Variétés de PDT (is_pdt = 1) ----- */
+  const pdtVarieties = useMemo(() => {
+    return (DB as any[]).filter(v => Number(v?.is_pdt) === 1)
+  }, [])
+
+  /* ===== RENDER ===== */
   return (
     <View style={st.card}>
-      {/* Titre + image simple (pas de progressif) */}
+      {/* Titre + image simple */}
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text style={[st.h2, { flex: 1 }]}>{d.label}</Text>
         {IMAGES[d.id] && (
@@ -364,31 +463,6 @@ function IngredientCard({ d }: { d: Item }) {
         </View>
       )}
 
-      {/* Bloc Épluché ⇆ Non épluché — générique (tous SAUF PDT) */}
-      {d.peeled_yield && !isPotato && (
-        <View style={st.section}>
-          <Text style={st.sTitle}>
-            {EPL} <Text style={st.arrow}>⇆</Text> {NON_EPL}
-          </Text>
-
-          <InputWithEcho
-            value={qtyEpl}
-            onChangeText={setQtyEpl}
-            placeholder={`Quantité ${EPL.toLowerCase()} (g)`}
-            echoLabel={`${EPL} (g)`}
-          />
-          <Row left={`Quantité ${NON_EPL_SHORT}`} right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
-
-          <InputWithEcho
-            value={qtyNon}
-            onChangeText={setQtyNon}
-            placeholder={`Quantité ${NON_EPL.toLowerCase()} (g)`}
-            echoLabel={`${NON_EPL} (g)`}
-          />
-          <Row left={`Quantité ${EPL.toLowerCase()}`} right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
-        </View>
-      )}
-
       {/* ========= Module Œufs ========= */}
       {(() => {
         const eggS = toNumMaybe(d.egg_s) ?? null
@@ -397,7 +471,7 @@ function IngredientCard({ d }: { d: Item }) {
         const whitePct = toNumMaybe(d.whte_pctge) ?? null
         const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
         const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
-        const eggUnit = (eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0))
+        const eggUnit = (eggSize === 'S' ? (eggS ?? 0) : (eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)))
         if (!hasEggs) return null
 
         return (
@@ -429,45 +503,155 @@ function IngredientCard({ d }: { d: Item }) {
             <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
             {(() => {
               const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-              const denom = eggUnit * sumPct
+              const denom = (eggUnit || 0) * sumPct
               const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
             })()}
 
             <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
             {(() => {
-              const denom = eggUnit * (whitePct ?? 0)
+              const denom = (eggUnit || 0) * (whitePct ?? 0)
               const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
             })()}
 
             <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
             {(() => {
-              const denom = eggUnit * (yolkPct ?? 0)
+              const denom = (eggUnit || 0) * (yolkPct ?? 0)
               const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-            })()}
-
-            <InputWithEcho value={eggCount} onChangeText={setEggCount} placeholder="Nombre d'œufs (ex: 2)" echoLabel="Œufs" />
-            {(() => {
-              const c = num(eggCount)
-              const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-              const total = c * eggUnit * sumPct
-              const whites = c * eggUnit * (whitePct ?? 0)
-              const yolks  = c * eggUnit * (yolkPct ?? 0)
-              return (
-                <>
-                  <Row left="Blanc+Jaune" right={`${fmt(total)} g`} />
-                  <Row left="Blanc" right={`${fmt(whites)} g`} />
-                  <Row left="Jaune" right={`${fmt(yolks)} g`} />
-                </>
-              )
             })()}
           </View>
         )
       })()}
 
-      {/* Pommes de terre */}
+      {/* --------- Usages & variétés de pommes de terre --------- */}
+      {isPotato && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>Choisir un usage</Text>
+
+          {/* Pills d’usages (toggle) */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+            {PDT_METHODS.map(m => {
+              const on = pdtMethod?.label === m.label
+              return (
+                <TouchableOpacity
+                  key={m.label}
+                  onPress={() => {
+                    // Toggle : re-clic = annuler le filtre → toutes les variétés sans étoiles
+                    setPdtMethod(prev => (prev?.label === m.label ? null : m))
+                    setPdtSelected(null)
+                  }}
+                  activeOpacity={0.9}
+                  style={[st.sizeBtn, on && st.sizeBtnOn]}
+                >
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{m.label}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          {/* Texte explicatif (selon usage) */}
+          {pdtMethod?.label && PdtAdvice[pdtMethod.label] ? (
+            <View style={{ marginBottom: 10 }}>
+              {PdtAdvice[pdtMethod.label]}
+            </View>
+          ) : null}
+
+          {/* Titre au-dessus de la liste des variétés */}
+          <Text style={[st.sTitle, { marginBottom: 6 }]}>Choisir une variété</Text>
+
+          {/* Variétés :
+              - si aucun usage sélectionné → toutes, sans étoiles
+              - sinon → seulement celles compatibles avec cet usage, triées 3→2→1 puis alphabétique */}
+          {(() => {
+            let list: Array<{ v: any; s: number }>
+            if (!pdtMethod) {
+              list = (DB as any[])
+                .filter(v => Number(v?.is_pdt) === 1)
+                .map(v => ({ v, s: 0 }))
+                .sort((a, b) => {
+                  const an = String(a.v.label ?? a.v.pdt_variety ?? a.v.id)
+                  const bn = String(b.v.label ?? b.v.pdt_variety ?? b.v.id)
+                  return an.localeCompare(bn, 'fr', { sensitivity: 'base' })
+                })
+            } else {
+              list = (DB as any[])
+                .filter(v => Number(v?.is_pdt) === 1)
+                .map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
+                .filter(x => x.s >= 1)
+                .sort((a, b) => {
+                  if (b.s !== a.s) return b.s - a.s
+                  const an = String(a.v.label ?? a.v.pdt_variety ?? a.v.id)
+                  const bn = String(b.v.label ?? b.v.pdt_variety ?? b.v.id)
+                  return an.localeCompare(bn, 'fr', { sensitivity: 'base' })
+                })
+            }
+
+            return list.length > 0 ? (
+              <View style={st.pillsWrap}>
+                {list.map(({ v, s }) => {
+                  const name = String(v.label ?? v.pdt_variety ?? v.id)
+                  const on = pdtSelected?.id === v.id
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => setPdtSelected(v)}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillOn]}
+                    >
+                      {IMAGES[v.id] ? (
+                        <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                      ) : null}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                      {/* badge d'étoiles uniquement quand un usage est choisi */}
+                      {pdtMethod && s > 0 ? <Text style={st.pillBadge}>{starsFor(s)}</Text> : null}
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            ) : (
+              <Text style={{ color: '#666' }}>
+                {pdtMethod
+                  ? `Aucune variété référencée pour ${pdtMethod.label.toLowerCase()}.`
+                  : 'Aucune variété trouvée.'}
+              </Text>
+            )
+          })()}
+
+          {/* Détail variété — visible uniquement après clic */}
+          {pdtSelected && (
+            <View style={{ marginTop: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                {IMAGES[pdtSelected.id] ? (
+                  <Image source={IMAGES[pdtSelected.id]} style={{ width: 56, height: 56, borderRadius: 12 }} />
+                ) : null}
+                <Tip>
+                  Variété : <Text style={st.tipStrong}>
+                    {String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}
+                  </Text>
+                </Tip>
+              </View>
+
+              {!!pdtSelected.pdt_texture && (
+                <Row left="Chair" right={String(pdtSelected.pdt_texture)} />
+              )}
+
+              <View style={{ marginTop: 8, gap: 4 }}>
+                {PDT_METHODS.map(m => {
+                  const s = scoreFor(pdtSelected, m)
+                  if (s < 1) return null
+                  return (
+                    <Row key={m.label} left={m.label} right={`${starsFor(s)} ${verdictFor(s)}`} />
+                  )
+                })}
+              </View>
+            </View>
+          )}
+        </View>
+      )}
+
+      {/* Pommes de terre — conversions (inchangé) */}
       {isPotato && hasPdt && (
         <View style={st.section}>
           {d.peeled_yield ? (
@@ -537,8 +721,6 @@ function IngredientCard({ d }: { d: Item }) {
       {!isPotato && d.avg_unit_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
-
-          {/* Poids épl. -> Nb pièces */}
           <InputWithEcho value={genWeightEpl} onChangeText={setGenWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
           {(() => {
             const unitEpl = (d.peeled_yield ? d.avg_unit_g! * d.peeled_yield : d.avg_unit_g!) || 0
@@ -546,7 +728,6 @@ function IngredientCard({ d }: { d: Item }) {
             return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
           })()}
 
-          {/* Poids non épl. -> Nb pièces */}
           <InputWithEcho value={genWeightNon} onChangeText={setGenWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
           {(() => {
             const unitNon = d.avg_unit_g || 0
@@ -554,19 +735,14 @@ function IngredientCard({ d }: { d: Item }) {
             return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
           })()}
 
-          {/* Pièces ↦ poids */}
           <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
           {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
-
-          <InputWithEcho value={countEpl} onChangeText={setCountEpl} placeholder="Pièces épl. (ex: 3)" echoLabel="Pièces épl." />
-          <Row left="Poids non épluché" right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0))} />
-          {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
         </View>
       ) : null}
 
       {/* Céleri */}
-      {hasCelery && (
+      {isCelery && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
           <Row left="1 branche de céleri" right={`${fmt(celeryG!)} g`} />
@@ -738,4 +914,27 @@ const st = StyleSheet.create({
   tipEmoji: { fontSize: 16, marginTop: 1 },
   tipText: { color: '#57324B', fontWeight: '600', flexShrink: 1 },
   tipStrong: { color: '#FF4FA2', fontWeight: '900' },
+
+  // Puces variétés
+  pillsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFE4F6',
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+    gap: 6,
+  },
+  pillOn: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
+  pillText: { color: '#FF4FA2', fontWeight: '800', maxWidth: 160 },
+  pillTextOn: { color: '#fff' },
+  pillBadge: { marginLeft: 6, fontWeight: '900', color: '#7a6680' },
 })
