@@ -69,6 +69,37 @@ const PdtAdvice: Record<string, React.ReactNode> = {
   Potage: (<View><Text style={__P}>Pour un potage…</Text></View>),
 }
 
+/* ========= PÂTES — constantes ========= */
+const PASTA_TYPES = [
+  { key: 'lg',   label: 'Pâtes longues',     pst: 'pst_lg',   pfct: 'pfct_lg_pst' },
+  { key: 'shrt', label: 'Pâtes courtes',     pst: 'pst_shrt', pfct: 'pfct_shrt_pst' },
+  { key: 'sml',  label: 'Petites pâtes',     pst: 'pst_sml',  pfct: 'pfct_sml_pst' },
+  { key: 'flf',  label: 'Farfalles & Co.',   pst: 'pst_flf',  pfct: 'pfct_flf_pst' },
+  { key: 'ovn',  label: 'Pour le four',      pst: 'pst_ovn',  pfct: 'pfct_ovn_pst' },
+] as const
+
+// palette 9 couleurs stables (même numéro ⇒ même couleur)
+const PALETTE9 = [
+  '#d97706', '#059669', '#2563eb', '#db2777', '#16a34a',
+  '#7c3aed', '#dc2626', '#0ea5e9', '#9333ea',
+]
+
+/* ========= TOMATES — constantes ========= */
+const TOMATO_USAGES = [
+  { key: 'sld', label: 'Salade',                  col: 'tmt_sld' },
+  { key: 'sc',  label: 'Sauce & cuisson longue',  col: 'tmt_sc'  },
+  { key: 'frc', label: 'Farcies',                 col: 'tmt_frc' },
+  { key: 'ap',  label: 'Apéritif',                col: 'tmt_ap'  },
+] as const
+
+const TOMATO_FAMILIES = [
+  { col: 'tmt_rd',   label: 'rondes' },
+  { col: 'tmt_all',  label: 'allongées' },
+  { col: 'tmt_cktl', label: 'cocktail' },
+  { col: 'tmt_ch',   label: 'charnues' },
+  { col: 'tmt_anc',  label: 'anciennes' },
+] as const
+
 // -------- Types --------
 type Item = {
   id: string
@@ -116,7 +147,7 @@ type Item = {
   rbs_tm?: string | number | null
 }
 
-// -------- Helpers génériques --------
+/* ========= Helpers génériques ========= */
 const teaTemp = (v: any) => {
   if (v === null || v === undefined || v === '') return '—'
   const n = Number(String(v).replace(',', '.'))
@@ -180,21 +211,6 @@ function infoTextFor(row: any, num: number): string {
   return txt
 }
 
-/* ========= PÂTES — constantes ========= */
-const PASTA_TYPES = [
-  { key: 'lg',   label: 'Pâtes longues',     pst: 'pst_lg',   pfct: 'pfct_lg_pst' },
-  { key: 'shrt', label: 'Pâtes courtes',     pst: 'pst_shrt', pfct: 'pfct_shrt_pst' },
-  { key: 'sml',  label: 'Petites pâtes',     pst: 'pst_sml',  pfct: 'pfct_sml_pst' },
-  { key: 'flf',  label: 'Farfalles & Co.',   pst: 'pst_flf',  pfct: 'pfct_flf_pst' },
-  { key: 'ovn',  label: 'Pour le four',      pst: 'pst_ovn',  pfct: 'pfct_ovn_pst' },
-] as const
-
-// palette 9 couleurs stables (même numéro ⇒ même couleur)
-const PALETTE9 = [
-  '#d97706', '#059669', '#2563eb', '#db2777', '#16a34a',
-  '#7c3aed', '#dc2626', '#0ea5e9', '#9333ea',
-]
-
 export default function Results() {
   const { running, remainingMs, finishCount } = useTimer()
   const { items } = useLocalSearchParams<{ items?: string }>()
@@ -230,7 +246,7 @@ export default function Results() {
     return () => { mounted = false }
   }, [finishCount])
 
-  // -------- Modal d’info global (levé ici pour couvrir tout l’écran) --------
+  // -------- Modal d’info global --------
   const [infoModal, setInfoModal] = useState<{ title: string; text: string } | null>(null)
 
   return (
@@ -395,14 +411,19 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
   // PÂTES — états UI
   const [showPastaUsages, setShowPastaUsages] = useState(false)
-  const [pastaUsageSelId, setPastaUsageSelId] = useState<string | null>(null) // sélection d’un usage
-  const [pastaSelected, setPastaSelected] = useState<any | null>(null)        // sélection d’une variété
+  const [pastaUsageSelId, setPastaUsageSelId] = useState<string | null>(null)
+  const [pastaSelected, setPastaSelected] = useState<any | null>(null)
+
+  // TOMATES — états UI
+  const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
+  const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
 
   // Ids / flags
   const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
   const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
   const isCelery = normId === 'celeri'
   const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
+  const isTomato = ['tomate', 'tomates'].includes(normId)
 
   // Accord "épluché / épluchée"
   const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
@@ -523,6 +544,11 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
     return true
   }
 
+  /* ----- Variétés de tomates (is_tmt rempli) ----- */
+  const tomatoVarieties = useMemo(() => {
+    return (DB as any[]).filter(v => hasVal(v?.is_tmt))
+  }, [])
+
   /* ===== RENDER ===== */
   return (
     <View style={st.card}>
@@ -547,6 +573,12 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
       {/* ========= Module Œufs ========= */}
       {(() => {
+        const eggS = toNumMaybe(d.egg_s) ?? null
+        const eggM = toNumMaybe(d.egg_m) ?? null
+        const eggL = toNumMaybe(d.egg_l) ?? null
+        const whitePct = toNumMaybe(d.whte_pctge) ?? null
+        const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
+        const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
         if (!hasEggs) return null
         return (
           <View style={st.section}>
@@ -575,22 +607,27 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
             <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
             {(() => {
-              const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
-              const denom = (eggUnit || 0) * sumPct
+              const whitePct2 = toNumMaybe(d.whte_pctge) ?? 0
+              const yolkPct2  = toNumMaybe(d.ylw_pctge)  ?? 0
+              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
+              const sumPct = whitePct2 + yolkPct2
+              const denom = eggUnit2 * sumPct
               const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
             })()}
 
             <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
             {(() => {
-              const denom = (eggUnit || 0) * (whitePct ?? 0)
+              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
+              const denom = eggUnit2 * (toNumMaybe(d.whte_pctge) ?? 0)
               const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
             })()}
 
             <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
             {(() => {
-              const denom = (eggUnit || 0) * (yolkPct ?? 0)
+              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
+              const denom = eggUnit2 * (toNumMaybe(d.ylw_pctge) ?? 0)
               const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
               return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
             })()}
@@ -641,10 +678,10 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                   const name = String(v.label ?? v.pdt_variety ?? v.id)
                   const on = pdtSelected?.id === v.id
                   return (
-                    <TouchableOpacity key={v.id} onPress={() => setPdtSelected(v)} activeOpacity={0.9} style={[st.pill, on && st.pillOn]}>
+                    <TouchableOpacity key={v.id} onPress={() => setPdtSelected(v)} activeOpacity={0.9} style={[st.pill, on && st.pillActive]}>
                       {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                       <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
-                      {pdtMethod && s > 0 ? <Text style={st.pillBadge}>{starsFor(s)}</Text> : null}
+                      {pdtMethod && s > 0 ? <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text> : null}
                     </TouchableOpacity>
                   )
                 })}
@@ -789,7 +826,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
             )
           })()}
 
-          {/* VARIÉTÉS compatibles POUR L’USAGE SÉLECTIONNÉ (indépendant de "Choisir une variété") */}
+          {/* VARIÉTÉS compatibles POUR L’USAGE SÉLECTIONNÉ */}
           {selectedUsage && (() => {
             const flags = selectedUsage.flags
             const typesMatching = [
@@ -812,19 +849,22 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                   <Text style={{ color: '#666' }}>Aucune variété trouvée.</Text>
                 ) : (
                   <View style={st.pillsWrap}>
-                    {list.map(({ v, name }) => (
-                      <TouchableOpacity key={v.id} activeOpacity={0.9} style={st.pill} onPress={() => setPastaSelected(v)}>
-                        {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                        <Text style={st.pillText} numberOfLines={1}>{name}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    {list.map(({ v, name }) => {
+                      const on = pastaSelected?.id === v.id
+                      return (
+                        <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
+                          {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                          <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                        </TouchableOpacity>
+                      )
+                    })}
                   </View>
                 )}
               </View>
             )
           })()}
 
-          {/* 3) Choisir une variété — TOUJOURS toutes les variétés (indépendant des usages) */}
+          {/* 3) Choisir une variété — toutes */}
           <Text style={[st.sTitle, { marginBottom: 6, marginTop: 8 }]}>Choisir une variété</Text>
           {(() => {
             const allList = pastaVarieties
@@ -834,12 +874,15 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
             return (
               <>
                 <View style={st.pillsWrap}>
-                  {allList.map(({ v, name }) => (
-                    <TouchableOpacity key={v.id} activeOpacity={0.9} style={st.pill} onPress={() => setPastaSelected(v)}>
-                      {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                      <Text style={st.pillText} numberOfLines={1}>{name}</Text>
-                    </TouchableOpacity>
-                  ))}
+                  {allList.map(({ v, name }) => {
+                    const on = pastaSelected?.id === v.id
+                    return (
+                      <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
+                        {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                        <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                      </TouchableOpacity>
+                    )
+                  })}
                 </View>
 
                 {/* Détail variété → usages compatibles */}
@@ -885,6 +928,139 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                           )
                         })}
                       </View>
+                    </View>
+                  )
+                })()}
+              </>
+            )
+          })()}
+        </View>
+      )}
+
+      {/* --------- Module TOMATES --------- */}
+      {isTomato && (
+        <View style={st.section}>
+          {/* 1️⃣ Choisir un usage */}
+          <Text style={st.sTitle}>Choisir un usage</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+            {TOMATO_USAGES.map(u => {
+              const on = tomatoUsageSelKey === u.key
+              return (
+                <TouchableOpacity
+                  key={u.key}
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    setTomatoSelected(null)
+                    setTomatoUsageSelKey(prev => prev === u.key ? null : u.key)
+                  }}
+                  style={[st.sizeBtn, on && st.sizeBtnOn]}
+                >
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{u.label}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          {/* Variétés correspondant à l’usage sélectionné (tri ⭐⭐⭐ → ⭐ → aucune) */}
+          {tomatoUsageSelKey && (() => {
+            const usage = TOMATO_USAGES.find(u => u.key === tomatoUsageSelKey)!
+            const list = tomatoVarieties
+              .map(v => ({ v, s: firstInt(v?.[usage.col]) ?? 0, name: String(v.label ?? v.id) }))
+              .filter(x => x.s >= 1)
+              .sort((a, b) => (b.s - a.s) || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+            return (
+              <View style={{ marginTop: 6 }}>
+                {list.length === 0 ? (
+                  <Text style={{ color: '#666' }}>Aucune variété notée pour cet usage.</Text>
+                ) : (
+                  <View style={st.pillsWrap}>
+                    {list.map(({ v, s }) => {
+                      const on = tomatoSelected?.id === v.id
+                      return (
+                        <TouchableOpacity
+                          key={v.id}
+                          activeOpacity={0.9}
+                          style={[st.pill, on && st.pillActive]}
+                          onPress={() => setTomatoSelected(v)}
+                        >
+                          {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                          <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{String(v.label ?? v.id)}</Text>
+                          <Text style={[st.pillBadge, on && { color: '#fff' }]}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                        </TouchableOpacity>
+                      )
+                    })}
+                  </View>
+                )}
+              </View>
+            )
+          })()}
+
+          {/* 2️⃣ Choisir une variété (toutes) */}
+          <Text style={[st.sTitle, { marginTop: 8, marginBottom: 6 }]}>Choisir une variété</Text>
+          {(() => {
+            const all = tomatoVarieties
+              .map(v => ({ v, name: String(v.label ?? v.id) }))
+              .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+            return (
+              <>
+                <View style={st.pillsWrap}>
+                  {all.map(({ v, name }) => {
+                    const on = tomatoSelected?.id === v.id
+                    return (
+                      <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setTomatoSelected(v)}>
+                        {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                        <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                      </TouchableOpacity>
+                    )
+                  })}
+                </View>
+
+                {/* Détail variété sélectionnée */}
+                {tomatoSelected && (() => {
+                  const fams = TOMATO_FAMILIES
+                    .filter(f => hasVal(tomatoSelected?.[f.col]))
+                    .map(f => f.label)
+
+                  // Usages possibles, triés 3★ → 2★ → 1★
+                  const usages = TOMATO_USAGES
+                    .map(u => ({ u, s: firstInt(tomatoSelected?.[u.col]) ?? 0 }))
+                    .filter(x => x.s >= 1)
+                    .sort((a, b) => b.s - a.s)
+
+                  const taste = String(tomatoSelected?.tmt_com ?? '').trim()
+
+                  return (
+                    <View style={{ marginTop: 10 }}>
+                      {/* Famille en gras puis valeur en-dessous */}
+                      {fams.length > 0 && (
+                        <View style={{ marginBottom: 6 }}>
+                          <Text style={st.sTitle}>Famille</Text>
+                          <Text style={{ color: '#57324B', fontWeight: '600' }}>{fams.join(', ')}</Text>
+                        </View>
+                      )}
+
+                      {/* Goût en gras puis valeur en-dessous */}
+                      {!!taste && (
+                        <View style={{ marginTop: 4, marginBottom: 6 }}>
+                          <Text style={st.sTitle}>Goût</Text>
+                          <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
+                        </View>
+                      )}
+
+                      {usages.length > 0 && (
+                        <View style={{ marginTop: 4 }}>
+                          <Text style={st.sTitle}>Usages possibles</Text>
+                          <View style={st.pillsWrap}>
+                            {usages.map(({ u, s }) => (
+                              <View key={`tu-${u.key}`} style={st.pill}>
+                                <Text style={st.pillText}>{u.label}</Text>
+                                <Text style={st.pillBadge}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      )}
                     </View>
                   )
                 })()}
@@ -1151,6 +1327,7 @@ const st = StyleSheet.create({
     gap: 6,
   },
   pillOn: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
+  pillActive: { backgroundColor: '#FF4FA2', borderColor: '#7c3aed' }, // 👈 sélection assombrie
   pillText: { color: '#FF4FA2', fontWeight: '800', maxWidth: 180 },
   pillTextOn: { color: '#fff' },
   pillBadge: { marginLeft: 6, fontWeight: '900', color: '#7a6680' },

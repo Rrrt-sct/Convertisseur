@@ -19,13 +19,16 @@ let IMAGES: Record<string, any> = {}
 try {
   IMAGES = require('../src/imageMap').IMAGES || {}
 } catch {
-  try { IMAGES = require('./imageMap').IMAGES || {} } catch {}
+  try {
+    IMAGES = require('./imageMap').IMAGES || {}
+  } catch {}
 }
 
 type Item = {
   id: string
   label: string
   is_pdt?: number | null
+  is_tmt?: number | null
   avg_unit_g?: number | null
   peeled_yield?: number | null
   juice_ml_per_unit?: number | null
@@ -42,9 +45,10 @@ function toNum(v: any): number | null {
 }
 function toBoolNum(v: any): number {
   const s = (v ?? '').toString().trim().toLowerCase()
-  return s === '1' || s === 'true' || s === 'oui' || s === 'yes' ? 1 : 0
+  return s === '1' || s === 'true' || s === 'oui' || s === 'yes' || s === 'x' ? 1 : 0
 }
-const hasVal = (v: any) => v !== undefined && v !== null && String(v).trim() !== ''
+const hasVal = (v: any) =>
+  v !== undefined && v !== null && String(v).trim() !== ''
 const stripAccents = (s: string) =>
   s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
@@ -64,6 +68,7 @@ function normalizeRow(x: any): Item | null {
     id,
     label,
     is_pdt: toBoolNum(x?.is_pdt),
+    is_tmt: toBoolNum(x?.is_tmt),
     avg_unit_g: toNum(x?.avg_unit_g),
     peeled_yield: toNum(x?.peeled_yield),
     juice_ml_per_unit: toNum(x?.juice_ml_per_unit),
@@ -75,17 +80,28 @@ function normalizeRow(x: any): Item | null {
 
 /** Détecte une ligne "variété de pâtes" (au moins un pst_* rempli) */
 function isPastaVarietyRow(row: any) {
-  return ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
+  return ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some(
+    (k) => hasVal(row?.[k]),
+  )
 }
 /** Détecte une ligne qui porte des usages (au moins un pfct_* rempli) */
 function hasPastaUsages(row: any) {
-  return ['pfct_lg_pst', 'pfct_shrt_pst', 'pfct_sml_pst', 'pfct_flf_pst', 'pfct_ovn_pst']
-    .some((k) => hasVal(row?.[k]))
+  return [
+    'pfct_lg_pst',
+    'pfct_shrt_pst',
+    'pfct_sml_pst',
+    'pfct_flf_pst',
+    'pfct_ovn_pst',
+  ].some((k) => hasVal(row?.[k]))
 }
 /** Ligne générique “pâtes” (à garder) */
 function isGenericPastaRow(row: any) {
   const ref = stripAccents(`${row?.id ?? ''} ${row?.label ?? ''}`)
   return /\bpates?\b/.test(ref) || /\bpasta\b/.test(ref) || /\bpâtes?\b/.test(ref)
+}
+/** Détecte une ligne "variété de tomates" (champ is_tmt renseigné) */
+function isTomatoVarietyRow(row: any) {
+  return hasVal(row?.is_tmt)
 }
 
 export default function IngredientsScreen() {
@@ -99,41 +115,50 @@ export default function IngredientsScreen() {
 
     // Map id -> ligne brute
     const rawById: Record<string, any> = Object.fromEntries(
-      (Array.isArray(RAW) ? RAW : []).map((r: any) => [String(r?.id ?? ''), r])
+      (Array.isArray(RAW) ? RAW : []).map((r: any) => [String(r?.id ?? ''), r]),
     )
 
     // Exclure :
     // 1) variétés PDT (is_pdt=1)
     // 2) variétés de pâtes (pst_* rempli)
     // 3) lignes avec usages (pfct_*) — SAUF la ligne générique "pâtes"
+    // 4) variétés de tomates (is_tmt renseigné)
     const noVarieties = base.filter((x) => {
       const raw = rawById[x.id] || {}
       if ((x.is_pdt ?? 0) === 1) return false
       if (isPastaVarietyRow(raw)) return false
-      if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label })) return false
+      if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label }))
+        return false
+      if (isTomatoVarietyRow(raw)) return false
       return true
     })
 
     const sorted = noVarieties.sort((a, b) =>
-      (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
+      (a.label ?? '').localeCompare(b.label ?? '', 'fr', {
+        sensitivity: 'base',
+      }),
     )
 
     const s = q.trim().toLowerCase()
     return s
       ? sorted.filter(
           (x) =>
-            x.label.toLowerCase().includes(s) ||
-            x.id.toLowerCase().includes(s),
+            x.label.toLowerCase().includes(s) || x.id.toLowerCase().includes(s),
         )
       : sorted
   }, [q])
 
   const toggle = (id: string) =>
-    setSel((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+    setSel((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
 
   const validate = () => {
     if (sel.length === 0) return
-    router.push({ pathname: '/results', params: { items: JSON.stringify(sel) } })
+    router.push({
+      pathname: '/results',
+      params: { items: JSON.stringify(sel) },
+    })
   }
 
   return (
@@ -170,7 +195,10 @@ export default function IngredientsScreen() {
                     <Text>🍽️</Text>
                   </View>
                 )}
-                <Text style={[st.chipText, on && st.chipTextOn]} numberOfLines={1}>
+                <Text
+                  style={[st.chipText, on && st.chipTextOn]}
+                  numberOfLines={1}
+                >
                   {it.label}
                 </Text>
               </TouchableOpacity>
@@ -192,8 +220,18 @@ export default function IngredientsScreen() {
 }
 
 const st = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFEEFC', padding: 18, paddingTop: 36 },
-  title: { fontSize: 26, fontWeight: '900', color: '#FF4FA2', marginBottom: 14 },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFEEFC',
+    padding: 18,
+    paddingTop: 36,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#FF4FA2',
+    marginBottom: 14,
+  },
   card: {
     flex: 1,
     backgroundColor: '#fff',
