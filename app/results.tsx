@@ -502,6 +502,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
     infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
   }
 
+
   /* ----- Variétés / Usages ----- */
   const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
   const pastaVarieties = useMemo(() => {
@@ -552,6 +553,40 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           {infoRows}
         </View>
       )}
+{/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
+{(() => {
+  const y = toNumMaybe(d.peeled_yield)
+  if (!y || y <= 0) return null
+
+  // à partir d’un poids ÉPLUCHÉ, on remonte le NON ÉPLUCHÉ : non = epl / y
+  const nonFromEpl = num(qtyEpl) / y
+  // à partir d’un poids NON ÉPLUCHÉ, on calcule l’ÉPLUCHÉ : epl = non * y
+  const eplFromNon = num(qtyNon) * y
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>
+        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+      </Text>
+
+      <InputWithEcho
+        value={qtyEpl}
+        onChangeText={setQtyEpl}
+        placeholder="Quantité épluchée (g)"
+        echoLabel="Épluchée (g)"
+      />
+      <Row left="Équiv. non épluché" right={fmtAllUnits(nonFromEpl)} />
+
+      <InputWithEcho
+        value={qtyNon}
+        onChangeText={setQtyNon}
+        placeholder="Quantité non épluchée (g)"
+        echoLabel="Non épluchée (g)"
+      />
+      <Row left="Équiv. épluché" right={fmtAllUnits(eplFromNon)} />
+    </View>
+  )
+})()}
 
       {/* ========= Module Œufs ========= */}
       {hasEggs && (
