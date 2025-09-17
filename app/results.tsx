@@ -19,13 +19,29 @@ import { msToMMSS, useTimer } from '../src/timerContext'
 // @ts-ignore
 const DB = require('../data/ingredients.json') as any[]
 
-// Map d’images (facultatif)
+// Map d’images (IMAGES ou IMAGE_MAP supportés)
 let IMAGES: Record<string, any> = {}
 try {
-  IMAGES = require('../src/imageMap').IMAGES || {}
+  const mod = require('../src/imageMap')
+  IMAGES = (mod.IMAGES || mod.IMAGE_MAP || {}) as Record<string, any>
 } catch {
-  try { IMAGES = require('./imageMap').IMAGES || {} } catch {}
+  try {
+    const mod2 = require('./imageMap')
+    IMAGES = (mod2.IMAGES || mod2.IMAGE_MAP || {}) as Record<string, any>
+  } catch {}
 }
+/** normalise la source d'image (accepte require, {detail,thumb}, etc.) */
+const imgSrc = (id: string) => {
+  const v: any = IMAGES?.[id]
+  return v?.thumb ?? v?.detail ?? v ?? null
+}
+/** Helpers pour accéder aux images */
+const imgThumb = (id: string) =>
+  IMAGES?.[id]?.thumb ?? IMAGES?.[id]?.detail ?? IMAGES?.[id] ?? null
+
+const imgDetail = (id: string) =>
+  IMAGES?.[id]?.detail ?? IMAGES?.[id]?.thumb ?? IMAGES?.[id] ?? null
+
 
 /* =======================
    PDT — Usages & helpers
@@ -43,6 +59,8 @@ const PDT_METHODS = [
 ] as const
 type PdtMethod = typeof PDT_METHODS[number]
 
+function hasVal(v: any) { return v !== undefined && v !== null && String(v).trim() !== '' }
+
 function scoreFor(row: any, method: PdtMethod): number {
   for (const k of method.keys) {
     const raw = row?.[k]
@@ -56,7 +74,7 @@ const starsFor = (s: number) => (s >= 3 ? '★★★' : s === 2 ? '★★' : s =
 const verdictFor = (s: number) =>
   s >= 3 ? 'Parfaite' : s === 2 ? 'Convient très bien' : s === 1 ? 'Possible' : ''
 
-// ---- Textes explicatifs PDT (raccourcis ici) ----
+// ---- Textes explicatifs PDT (placeholders) ----
 const __P = { color: '#444', lineHeight: 20, marginBottom: 6 } as const
 const PdtAdvice: Record<string, React.ReactNode> = {
   Gratin: (<View><Text style={__P}>Pour réussir un gratin…</Text></View>),
@@ -100,42 +118,37 @@ const TOMATO_FAMILIES = [
   { col: 'tmt_anc',  label: 'anciennes' },
 ] as const
 
+/* ========= OIGNONS — constantes ========= */
+const ONION_USAGES = [
+  { key: 'cru',    label: 'Cru',                         col: 'cru_onn' },
+  { key: 'csndc',  label: 'Cuisson douce / mijotée',     col: 'csndc_onn' },
+  { key: 'pltrpd', label: 'Plats rapides / sautés',      col: 'pltrpd_onn' },
+] as const
+
 // -------- Types --------
 type Item = {
   id: string
   label: string
-  avg_unit_g: number | null
-  peeled_yield: number | null
-  juice_ml_per_unit: number | null
-  lgth_g: number | null
-  tbsp_g: number | null
-  tsp_g: number | null
+  avg_unit_g?: number | null
+  peeled_yield?: number | null
+  juice_ml_per_unit?: number | null
+  lgth_g?: number | null
+  tbsp_g?: number | null
+  tsp_g?: number | null
   density_g_ml?: number | null
-
-  // pâtes
   psta_wter?: number | null
   psta_slt?: number | null
-
-  // œufs
   egg_s?: number | null
   egg_m?: number | null
   egg_l?: number | null
   whte_pctge?: number | null
   ylw_pctge?: number | null
-
-  // pommes de terre
   wght_pdt_s?: number | null
   wght_pdt_m?: number | null
   wght_pdt_l?: number | null
-
-  // céleri
   clr_lgth?: number | null
-
-  // genre pour accord
   genre?: string | null
   gender?: string | null
-
-  // thé
   tea?: string | number | null
   grn_tp?: string | number | null
   grn_tm?: string | number | null
@@ -147,7 +160,7 @@ type Item = {
   rbs_tm?: string | number | null
 }
 
-/* ========= Helpers génériques ========= */
+// -------- Helpers génériques --------
 const teaTemp = (v: any) => {
   if (v === null || v === undefined || v === '') return '—'
   const n = Number(String(v).replace(',', '.'))
@@ -179,7 +192,6 @@ function toNumMaybe(v: any): number | null {
   const n = Number(String(v).replace(',', '.'))
   return Number.isFinite(n) ? n : null
 }
-const hasVal = (v: any) => v !== undefined && v !== null && String(v).trim() !== ''
 
 /** Récupère le 1er entier présent dans une cellule (ex: "8#xx" -> 8) */
 function firstInt(v: any): number | null {
@@ -189,7 +201,7 @@ function firstInt(v: any): number | null {
   const n = Number(m[1])
   return Number.isFinite(n) ? n : null
 }
-/** Parse "info_sls" -> map numero -> texte (formats acceptés: "8:txt;9:autre" ou "8=txt | 9=...") */
+/** Parse "info_sls" -> map numero -> texte (formats: "8:txt;9:autre" ou "8=txt | 9=...") */
 function parseInfoMap(info: any): Record<number, string> {
   const txt = String(info ?? '').trim()
   if (!txt) return {}
@@ -203,13 +215,13 @@ function parseInfoMap(info: any): Record<number, string> {
   }
   return map
 }
-/** Texte d'info pour un usage donné */
-function infoTextFor(row: any, num: number): string {
+function infoTextFor(row: any, n: number): string {
   const map = parseInfoMap(row?.info_sls)
-  if (map[num]) return map[num]
-  const txt = String(row?.info_sls ?? '').trim()
-  return txt
+  if (map[n]) return map[n]
+  return String(row?.info_sls ?? '').trim()
 }
+
+/* ========= Composant principal ========= */
 
 export default function Results() {
   const { running, remainingMs, finishCount } = useTimer()
@@ -246,7 +258,7 @@ export default function Results() {
     return () => { mounted = false }
   }, [finishCount])
 
-  // -------- Modal d’info global --------
+  // Modal d’info global (pour usages pâtes)
   const [infoModal, setInfoModal] = useState<{ title: string; text: string } | null>(null)
 
   return (
@@ -298,6 +310,8 @@ export default function Results() {
   )
 }
 
+/* ========= Sous-composants ========= */
+
 function Row({ left, right }: { left: string; right: string }) {
   return (
     <View style={st.row}>
@@ -307,7 +321,6 @@ function Row({ left, right }: { left: string; right: string }) {
   )
 }
 
-/** Champ avec rappel compact */
 function InputWithEcho(props: {
   value: string
   onChangeText: (t: string) => void
@@ -335,7 +348,6 @@ function InputWithEcho(props: {
   )
 }
 
-/** Petit bouton “i” réutilisable */
 function InfoButton({
   tint,
   onPress,
@@ -365,16 +377,6 @@ function InfoButton({
     >
       <Text style={[st.infoBtnTxt, { color: isLight ? '#fff' : tint }]}>i</Text>
     </TouchableOpacity>
-  )
-}
-
-/** Tip (utilisé dans plusieurs sections) */
-function Tip({ children }: { children: React.ReactNode }) {
-  return (
-    <View style={st.tipBox}>
-      <Text style={st.tipEmoji}>💡</Text>
-      <Text style={st.tipText}>{children}</Text>
-    </View>
   )
 }
 
@@ -418,12 +420,17 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
   const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
 
-  // Ids / flags
+  // OIGNONS — états UI
+  const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
+  const [onionSelected, setOnionSelected] = useState<any | null>(null)
+
+  // Flags par id
   const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
   const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
   const isCelery = normId === 'celeri'
   const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
   const isTomato = ['tomate', 'tomates'].includes(normId)
+  const isOnion = ['oignon', 'oignons'].includes(normId)
 
   // Accord "épluché / épluchée"
   const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
@@ -459,7 +466,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const eggUnit = eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)
 
   // Céleri
-  const celeryG = toNumMaybe((d as any).clr_lgth) ?? null
+  const celeryG = toNumMaybe(d.clr_lgth) ?? null
   const hasCelery = isCelery && celeryG !== null
 
   // THÉ
@@ -489,24 +496,19 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
   if (d.peeled_yield && d.avg_unit_g) {
-    infoRows.push(<Row key="peeled" left={`Poids ${EPL.toLowerCase()} (×${fmt(d.peeled_yield)})`} right={`${fmt(d.avg_unit_g * d.peeled_yield)} g`} />)
+    infoRows.push(<Row key="peeled" left={`Poids ${EPL.toLowerCase()} (×${fmt(d.peeled_yield)})`} right={`${fmt((d.avg_unit_g || 0) * (d.peeled_yield || 1))} g`} />)
   }
   if (d.juice_ml_per_unit) {
-    infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt(d.juice_ml_per_unit * density)} g)`} />)
+    infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
   }
-  const showTip = !!(d.peeled_yield && !d.avg_unit_g)
 
-  /* ----- Variétés de PDT (is_pdt = 1) ----- */
+  /* ----- Variétés / Usages ----- */
   const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
-
-  /* ----- Variétés de pâtes (au moins un pst_* rempli) ----- */
   const pastaVarieties = useMemo(() => {
     const hasAnyPst = (row: any) =>
       ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
     return (DB as any[]).filter(v => hasAnyPst(v))
   }, [])
-
-  /* ----- Usages de pâtes (au moins un pfct_* rempli) ----- */
   const pastaUsages = useMemo(() => {
     const rows = (DB as any[]).filter(r =>
       ['pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'].some(k => hasVal(r?.[k]))
@@ -527,27 +529,13 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
       return { row: r, num: numMain, flags, isGen }
     }).filter(x => x.num > 0)
   }, [])
+  const tomatoVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_tmt)), [])
+  const onionVarieties  = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_onn)), [])
 
   const selectedUsage = useMemo(
     () => pastaUsages.find(u => u.row?.id === pastaUsageSelId) || null,
     [pastaUsages, pastaUsageSelId]
   )
-
-  const hasInfo = (row: any, num?: number) => {
-    const raw = String(row?.info_sls ?? '').trim()
-    if (!raw) return false
-    if (typeof num === 'number') {
-      const m = parseInfoMap(raw)
-      const picked = m[num]
-      return Boolean((picked ?? raw).trim())
-    }
-    return true
-  }
-
-  /* ----- Variétés de tomates (is_tmt rempli) ----- */
-  const tomatoVarieties = useMemo(() => {
-    return (DB as any[]).filter(v => hasVal(v?.is_tmt))
-  }, [])
 
   /* ===== RENDER ===== */
   return (
@@ -555,85 +543,65 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
       {/* Titre + image */}
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text style={[st.h2, { flex: 1 }]}>{d.label}</Text>
-        {IMAGES[d.id] && <Image source={IMAGES[d.id]} style={{ width: 44, height: 44, marginLeft: 8 }} resizeMode="contain" />}
+        {imgSrc(d.id) && <Image source={imgSrc(d.id)} style={{ width: 44, height: 44, marginLeft: 8 }} resizeMode="contain" />}
       </View>
 
-      {(infoRows.length > 0 || showTip) && (
+      {(infoRows.length > 0) && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
-          {showTip && (
-            <Tip>
-              Avec <Text style={st.tipStrong}>100 g</Text> de {d.label} non {EPL.toLowerCase()},
-              vous obtiendrez <Text style={st.tipStrong}>{fmt(100 * (d.peeled_yield || 1))} g</Text> de {d.label} {EPL.toLowerCase()}.
-            </Tip>
-          )}
           {infoRows}
         </View>
       )}
 
       {/* ========= Module Œufs ========= */}
-      {(() => {
-        const eggS = toNumMaybe(d.egg_s) ?? null
-        const eggM = toNumMaybe(d.egg_m) ?? null
-        const eggL = toNumMaybe(d.egg_l) ?? null
-        const whitePct = toNumMaybe(d.whte_pctge) ?? null
-        const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
-        const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
-        if (!hasEggs) return null
-        return (
-          <View style={st.section}>
-            <Text style={st.sTitle}>Infos clés</Text>
-            <Row left="Œuf petit (S)" right="< 50 g" />
-            <Row left="Œuf moyen (M)" right="50–60 g" />
-            <Row left="Œuf gros (L)" right="60–70 g" />
-            <View style={{ height: 6 }} />
-            <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
-            <Row left="Pochés" right="2 min" />
-            <Row left="À la coque" right="3 min" />
-            <Row left="Durs" right="9 min" />
+      {hasEggs && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="Œuf petit (S)" right="< 50 g" />
+          <Row left="Œuf moyen (M)" right="50–60 g" />
+          <Row left="Œuf gros (L)" right="60–70 g" />
+          <View style={{ height: 6 }} />
+          <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+          <Row left="Pochés" right="2 min" />
+          <Row left="À la coque" right="3 min" />
+          <Row left="Durs" right="9 min" />
 
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-              {(['S', 'M', 'L'] as const).map(sz => {
-                const on = eggSize === sz
-                return (
-                  <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
-                    <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </View>
-
-            <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
-
-            <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
-            {(() => {
-              const whitePct2 = toNumMaybe(d.whte_pctge) ?? 0
-              const yolkPct2  = toNumMaybe(d.ylw_pctge)  ?? 0
-              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
-              const sumPct = whitePct2 + yolkPct2
-              const denom = eggUnit2 * sumPct
-              const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
-              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-            })()}
-
-            <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
-            {(() => {
-              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
-              const denom = eggUnit2 * (toNumMaybe(d.whte_pctge) ?? 0)
-              const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
-              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-            })()}
-
-            <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
-            {(() => {
-              const eggUnit2 = eggSize === 'S' ? (toNumMaybe(d.egg_s) ?? 0) : eggSize === 'M' ? (toNumMaybe(d.egg_m) ?? 0) : (toNumMaybe(d.egg_l) ?? 0)
-              const denom = eggUnit2 * (toNumMaybe(d.ylw_pctge) ?? 0)
-              const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
-              return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-            })()}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            {(['S', 'M', 'L'] as const).map(sz => {
+              const on = eggSize === sz
+              return (
+                <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+                </TouchableOpacity>
+              )
+            })}
           </View>
-        )
-      })()}
+
+          <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
+
+          <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
+          {(() => {
+            const sumPct = (whitePct ?? 0) + (yolkPct ?? 0)
+            const denom = (eggUnit || 0) * sumPct
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
+
+          <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
+          {(() => {
+            const denom = (eggUnit || 0) * (whitePct ?? 0)
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
+
+          <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
+          {(() => {
+            const denom = (eggUnit || 0) * (yolkPct ?? 0)
+            const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+            return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+          })()}
+        </View>
+      )}
 
       {/* --------- Pommes de terre --------- */}
       {isPotato && (
@@ -664,10 +632,10 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           {(() => {
             let list: Array<{ v: any; s: number }>
             if (!pdtMethod) {
-              list = (DB as any[]).filter(v => Number(v?.is_pdt) === 1).map(v => ({ v, s: 0 }))
+              list = pdtVarieties.map(v => ({ v, s: 0 }))
                 .sort((a, b) => String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
             } else {
-              list = (DB as any[]).filter(v => Number(v?.is_pdt) === 1).map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
+              list = pdtVarieties.map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
                 .filter(x => x.s >= 1)
                 .sort((a, b) => b.s - a.s || String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
             }
@@ -679,7 +647,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                   const on = pdtSelected?.id === v.id
                   return (
                     <TouchableOpacity key={v.id} onPress={() => setPdtSelected(v)} activeOpacity={0.9} style={[st.pill, on && st.pillActive]}>
-                      {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                      {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                       <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
                       {pdtMethod && s > 0 ? <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text> : null}
                     </TouchableOpacity>
@@ -694,8 +662,10 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           {pdtSelected && (
             <View style={{ marginTop: 10 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                {IMAGES[pdtSelected.id] ? <Image source={IMAGES[pdtSelected.id]} style={{ width: 56, height: 56, borderRadius: 12 }} /> : null}
-                <Tip>Variété : <Text style={st.tipStrong}>{String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}</Text></Tip>
+                {imgSrc(pdtSelected.id) ? <Image source={imgSrc(pdtSelected.id)} style={{ width: 56, height: 56, borderRadius: 12 }} /> : null}
+                <View style={st.tipBox}>
+                  <Text style={st.tipText}>Variété : <Text style={st.tipStrong}>{String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}</Text></Text>
+                </View>
               </View>
               {!!pdtSelected.pdt_texture && (<Row left="Chair" right={String(pdtSelected.pdt_texture)} />)}
               <View style={{ marginTop: 8, gap: 4 }}>
@@ -735,26 +705,24 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           </View>
 
           {showPastaUsages && (() => {
-            if (pastaUsages.length === 0) {
+            const rows = pastaUsages
+            if (rows.length === 0) {
               return <Text style={{ color: '#666' }}>Aucun usage configuré.</Text>
             }
 
             // Regroupement par numéro
-            const groups: Record<number, typeof pastaUsages> = {}
-            for (const u of pastaUsages) {
-              groups[u.num] = groups[u.num] ? [...groups[u.num], u] : [u]
-            }
+            const groups: Record<number, typeof rows> = {}
+            for (const u of rows) groups[u.num] = groups[u.num] ? [...groups[u.num], u] : [u]
             const nums = Object.keys(groups).map(n => Number(n)).sort((a, b) => a - b)
 
-            // Mode "sélectionné" : masquer les autres usages
+            // Mode "sélectionné" : 1 seul usage visible
             if (pastaUsageSelId) {
-              const u = pastaUsages.find(x => x.row.id === pastaUsageSelId)
-              if (!u) return null
+              const u = rows.find(x => x.row.id === pastaUsageSelId)!
               const n = u.num
               const color = PALETTE9[(n - 1) % PALETTE9.length]
               const text = u.row.label || `Usage ${n}`
               const infoTxt = infoTextFor(u.row, u.num).trim()
-              const showInfo = hasInfo(u.row, u.num)
+              const showInfo = !!infoTxt
 
               return (
                 <View style={st.pillsWrap}>
@@ -764,7 +732,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                     onPress={() => setPastaUsageSelId(null)}
                     style={[st.pill, { borderColor: color, backgroundColor: color }]}
                   >
-                    {IMAGES[u.row.id] ? <Image source={IMAGES[u.row.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                    {imgSrc(u.row.id) ? <Image source={imgSrc(u.row.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                     <Text
                       style={[
                         st.pillText,
@@ -794,7 +762,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                   return arr.map(u => {
                     const text = u.row.label || `Usage ${n}`
                     const infoTxt = infoTextFor(u.row, u.num).trim()
-                    const showInfo = hasInfo(u.row, u.num)
+                    const showInfo = !!infoTxt
                     return (
                       <TouchableOpacity
                         key={u.row.id}
@@ -802,7 +770,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                         onPress={() => setPastaUsageSelId(prev => prev === u.row.id ? null : u.row.id)}
                         style={[st.pill, { borderColor: color, backgroundColor: '#FFE4F6' }]}
                       >
-                        {IMAGES[u.row.id] ? <Image source={IMAGES[u.row.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                        {imgSrc(u.row.id) ? <Image source={imgSrc(u.row.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                         <Text
                           style={[
                             st.pillText,
@@ -853,7 +821,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                       const on = pastaSelected?.id === v.id
                       return (
                         <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
-                          {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                          {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                           <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
                         </TouchableOpacity>
                       )
@@ -864,7 +832,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
             )
           })()}
 
-          {/* 3) Choisir une variété — toutes */}
+          {/* 3) Choisir une variété — TOUTES */}
           <Text style={[st.sTitle, { marginBottom: 6, marginTop: 8 }]}>Choisir une variété</Text>
           {(() => {
             const allList = pastaVarieties
@@ -878,7 +846,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                     const on = pastaSelected?.id === v.id
                     return (
                       <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
-                        {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                        {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                         <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
                       </TouchableOpacity>
                     )
@@ -912,7 +880,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                           const color = PALETTE9[(u.num - 1) % PALETTE9.length]
                           const text = u.row.label || `Usage ${u.num}`
                           const infoTxt = infoTextFor(u.row, u.num).trim()
-                          const showInfo = hasInfo(u.row, u.num)
+                          const showInfo = !!infoTxt
                           return (
                             <View key={`u-${u.row.id}`} style={[st.pill, { borderColor: color, backgroundColor: '#FFE4F6' }]}>
                               <Text style={[st.pillText, { color, fontWeight: u.isGen ? '900' : '800', fontSize: u.isGen ? 16 : 14 }]} numberOfLines={1}>
@@ -961,11 +929,11 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
             })}
           </View>
 
-          {/* Variétés correspondant à l’usage sélectionné (tri ⭐⭐⭐ → ⭐ → aucune) */}
+          {/* Variétés correspondant à l’usage sélectionné (tri ★★★ → ★★ → ★) */}
           {tomatoUsageSelKey && (() => {
-            const usage = TOMATO_USAGES.find(u => u.key === tomatoUsageSelKey)!
+            const u = TOMATO_USAGES.find(x => x.key === tomatoUsageSelKey)!
             const list = tomatoVarieties
-              .map(v => ({ v, s: firstInt(v?.[usage.col]) ?? 0, name: String(v.label ?? v.id) }))
+              .map(v => ({ v, s: firstInt(v?.[u.col]) ?? 0, name: String(v.label ?? v.id) }))
               .filter(x => x.s >= 1)
               .sort((a, b) => (b.s - a.s) || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
 
@@ -984,7 +952,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                           style={[st.pill, on && st.pillActive]}
                           onPress={() => setTomatoSelected(v)}
                         >
-                          {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                          {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                           <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{String(v.label ?? v.id)}</Text>
                           <Text style={[st.pillBadge, on && { color: '#fff' }]}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
                         </TouchableOpacity>
@@ -1009,7 +977,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
                     const on = tomatoSelected?.id === v.id
                     return (
                       <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setTomatoSelected(v)}>
-                        {IMAGES[v.id] ? <Image source={IMAGES[v.id]} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                        {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
                         <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
                       </TouchableOpacity>
                     )
@@ -1018,36 +986,31 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
                 {/* Détail variété sélectionnée */}
                 {tomatoSelected && (() => {
-                  const fams = TOMATO_FAMILIES
-                    .filter(f => hasVal(tomatoSelected?.[f.col]))
-                    .map(f => f.label)
-
-                  // Usages possibles, triés 3★ → 2★ → 1★
+                  // Famille
+                  const famCol = TOMATO_FAMILIES.find(f => hasVal(tomatoSelected?.[f.col]))
+                  const family = famCol ? famCol.label : ''
+                  // Goût
+                  const taste = String(tomatoSelected?.tmt_com ?? '').trim()
+                  // Usages
                   const usages = TOMATO_USAGES
                     .map(u => ({ u, s: firstInt(tomatoSelected?.[u.col]) ?? 0 }))
                     .filter(x => x.s >= 1)
                     .sort((a, b) => b.s - a.s)
 
-                  const taste = String(tomatoSelected?.tmt_com ?? '').trim()
-
                   return (
                     <View style={{ marginTop: 10 }}>
-                      {/* Famille en gras puis valeur en-dessous */}
-                      {fams.length > 0 && (
-                        <View style={{ marginBottom: 6 }}>
+                      {!!family && (
+                        <View style={{ marginBottom: 8 }}>
                           <Text style={st.sTitle}>Famille</Text>
-                          <Text style={{ color: '#57324B', fontWeight: '600' }}>{fams.join(', ')}</Text>
+                          <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
                         </View>
                       )}
-
-                      {/* Goût en gras puis valeur en-dessous */}
                       {!!taste && (
-                        <View style={{ marginTop: 4, marginBottom: 6 }}>
+                        <View style={{ marginBottom: 8 }}>
                           <Text style={st.sTitle}>Goût</Text>
                           <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
                         </View>
                       )}
-
                       {usages.length > 0 && (
                         <View style={{ marginTop: 4 }}>
                           <Text style={st.sTitle}>Usages possibles</Text>
@@ -1070,122 +1033,267 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
         </View>
       )}
 
-      {/* --------- Conversions PDT --------- */}
-      {isPotato && hasPdt && (
+      {/* --------- Module OIGNONS --------- */}
+      {isOnion && (
         <View style={st.section}>
-          {d.peeled_yield ? (
-            <View>
-              <Text style={st.sTitle}>{EPL} <Text style={st.arrow}>⇆</Text> {NON_EPL}</Text>
-              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder={`Quantité ${EPL.toLowerCase()} (g)`} echoLabel={`${EPL} (g)`} />
-              <Row left={`Quantité ${NON_EPL_SHORT}`} right={fmtAllUnits(num(qtyEpl) / (d.peeled_yield || 1))} />
-              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder={`Quantité ${NON_EPL.toLowerCase()} (g)`} echoLabel={`${NON_EPL} (g)`} />
-              <Row left={`Quantité ${EPL.toLowerCase()}`} right={fmtAllUnits(num(qtyNon) * (d.peeled_yield || 1))} />
-            </View>
-          ) : null}
-
-          <View style={{ marginTop: 8 }}>
-            <Text style={st.sTitle}>Infos clés</Text>
-            {pdtS !== null && <Row left="Petite pomme de terre (S)" right={`${fmt(pdtS)} g`} />}
-            {pdtM !== null && <Row left="Pomme de terre moyenne (M)" right={`${fmt(pdtM)} g`} />}
-            {pdtL !== null && <Row left="Grosse pomme de terre (L)" right={`${fmt(pdtL)} g`} />}
-          </View>
-
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            {(['S', 'M', 'L'] as const).map(sz => {
-              const on = pdtSize === sz
+          {/* 1️⃣ Choisir un usage */}
+          <Text style={st.sTitle}>Choisir un usage</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+            {ONION_USAGES.map(u => {
+              const on = onionUsageSelKey === u.key
               return (
-                <TouchableOpacity key={sz} onPress={() => setPdtSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
-                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+                <TouchableOpacity
+                  key={u.key}
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    setOnionSelected(null)
+                    setOnionUsageSelKey(prev => prev === u.key ? null : u.key)
+                  }}
+                  style={[st.sizeBtn, on && st.sizeBtnOn]}
+                >
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{u.label}</Text>
                 </TouchableOpacity>
               )
             })}
           </View>
 
-          {pdtUnit > 0 ? (
-            <View style={{ marginTop: 12 }}>
-              <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+          {/* Variétés correspondant à l’usage sélectionné */}
+          {onionUsageSelKey && (() => {
+            const usage = ONION_USAGES.find(u => u.key === onionUsageSelKey)!
+            const list = onionVarieties
+              .map(v => ({ v, s: firstInt(v?.[usage.col]) ?? 0, name: String(v.label ?? v.id) }))
+              .filter(x => x.s >= 1)
+              .sort((a, b) => (b.s - a.s) || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
 
-              <InputWithEcho value={pdtWeightEpl} onChangeText={setPdtWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
-              {(() => {
-                const y = d.peeled_yield ?? null
-                const unitEpl = y ? pdtUnit * y : pdtUnit
-                const pieces = Math.max(0, Math.ceil(num(pdtWeightEpl) / Math.max(1, unitEpl)))
-                return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
-              })()}
+            return list.length > 0 ? (
+              <View style={st.pillsWrap}>
+                {list.map(({ v, s, name }) => {
+                  const on = onionSelected?.id === v.id
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => setOnionSelected(v)}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                    >
+                      {imgSrc(v.id) && (
+                        <Image
+                          source={imgSrc(v.id)}
+                          style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                        />
+                      )}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {name}
+                      </Text>
+                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            ) : (
+              <Text style={{ color: '#666' }}>
+                Aucune variété d’oignon référencée pour {usage.label.toLowerCase()}.
+              </Text>
+            )
+          })()}
 
-              <InputWithEcho value={pdtWeightNon} onChangeText={setPdtWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
-              <Row left="Nombre de pièces estimées" right={`${Math.max(0, Math.ceil(num(pdtWeightNon) / Math.max(1, pdtUnit)))} pièces`} />
+          {/* 2️⃣ Choisir une variété (toutes) */}
+          <Text style={[st.sTitle, { marginTop: 12, marginBottom: 6 }]}>
+            Choisir une variété
+          </Text>
+          {(() => {
+            const all = onionVarieties
+              .map(v => ({ v, name: String(v.label ?? v.id) }))
+              .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
 
-              <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
-              <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countNon) * pdtUnit)} />
-              {d.peeled_yield ? <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * pdtUnit * (d.peeled_yield || 1))} /> : null}
+            return (
+              <View style={st.pillsWrap}>
+                {all.map(({ v, name }) => {
+                  const on = onionSelected?.id === v.id
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => setOnionSelected(v)}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                    >
+                      {imgSrc(v.id) && (
+                        <Image
+                          source={imgSrc(v.id)}
+                          style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                        />
+                      )}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {name}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            )
+          })()}
 
-              <InputWithEcho value={countEpl} onChangeText={setCountEpl} placeholder="Pièces épl. (ex: 3)" echoLabel="Pièces épl." />
-              <Row left="Poids estimé non épluché" right={fmtAllUnits(num(countEpl) * pdtUnit)} />
-              {d.peeled_yield ? <Row left={`Poids estimé ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countEpl) * pdtUnit * (d.peeled_yield || 1))} /> : null}
+          {/* Détails de la variété sélectionnée */}
+          {onionSelected && (
+            <View style={{ marginTop: 10 }}>
+              <View style={{ marginBottom: 8 }}>
+                <Text style={st.sTitle}>Famille</Text>
+                <Text style={{ color: '#57324B', fontWeight: '600' }}>
+                  {String(onionSelected.onn_family ?? '—')}
+                </Text>
+              </View>
+
+              <View style={{ marginBottom: 8 }}>
+                <Text style={st.sTitle}>Goût</Text>
+                <Text style={{ color: '#57324B', fontWeight: '600' }}>
+                  {String(onionSelected.onn_com ?? '—')}
+                </Text>
+              </View>
+
+              <Text style={st.sTitle}>Usages possibles</Text>
+              <View style={{ marginTop: 4, gap: 4 }}>
+                {ONION_USAGES.map(u => {
+                  const s = firstInt(onionSelected?.[u.col]) ?? 0
+                  if (s < 1) return null
+                  return (
+                    <Row
+                      key={u.key}
+                      left={u.label}
+                      right={`${starsFor(s)} ${verdictFor(s)}`}
+                    />
+                  )
+                })}
+              </View>
             </View>
-          ) : null}
+          )}
         </View>
       )}
 
-      {/* Quantité ⇆ Poids — générique (non-PDT, non-Pâtes) */}
+      {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
       {!isPotato && !isPasta && d.avg_unit_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
-          <InputWithEcho value={genWeightEpl} onChangeText={setGenWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
+
+          <InputWithEcho
+            value={genWeightEpl}
+            onChangeText={setGenWeightEpl}
+            placeholder="Poids épl. (g)"
+            echoLabel="Épl. (g)"
+          />
           {(() => {
-            const unitEpl = (d.peeled_yield ? d.avg_unit_g! * d.peeled_yield : d.avg_unit_g!) || 0
+            const unitEpl = (d.peeled_yield ? (d.avg_unit_g || 0) * (d.peeled_yield || 1) : (d.avg_unit_g || 0))
             const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0
             return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
           })()}
-          <InputWithEcho value={genWeightNon} onChangeText={setGenWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
+
+          <InputWithEcho
+            value={genWeightNon}
+            onChangeText={setGenWeightNon}
+            placeholder="Poids non épl. (g)"
+            echoLabel="Non épl. (g)"
+          />
           {(() => {
             const unitNon = d.avg_unit_g || 0
             const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0
             return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
           })()}
-          <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
+
+          <InputWithEcho
+            value={countNon}
+            onChangeText={setCountNon}
+            placeholder="Pièces non épl. (ex: 3)"
+            echoLabel="Pièces non épl."
+          />
           <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
-          {d.peeled_yield ? <Row left={`Poids ${EPL.toLowerCase()}`} right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))} /> : null}
+          {d.peeled_yield ? (
+            <Row
+              left={`Poids ${EPL.toLowerCase()}`}
+              right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))}
+            />
+          ) : null}
         </View>
       ) : null}
 
-      {/* Céleri */}
-      {isCelery && (
+      {/* --------- Céleri --------- */}
+      {isCelery && hasCelery && (
         <View style={st.section}>
           <Text style={st.sTitle}>Infos clés</Text>
           <Row left="1 branche de céleri" right={`${fmt(celeryG!)} g`} />
-          <Text style={[st.sTitle, { marginTop: 8 }]}>Nombre de branches <Text style={st.arrow}>⇆</Text> Poids</Text>
-          <InputWithEcho value={celeryBranches} onChangeText={setCeleryBranches} placeholder="Nb de branches (ex: 2)" echoLabel="Branches" />
+
+          <Text style={[st.sTitle, { marginTop: 8 }]}>
+            Nombre de branches <Text style={st.arrow}>⇆</Text> Poids
+          </Text>
+          <InputWithEcho
+            value={celeryBranches}
+            onChangeText={setCeleryBranches}
+            placeholder="Nb de branches (ex: 2)"
+            echoLabel="Branches"
+          />
           <Row left="Poids estimé" right={fmtAllUnits(num(celeryBranches) * (celeryG || 0))} />
-          <InputWithEcho value={celeryWeight} onChangeText={setCeleryWeight} placeholder="Poids (ex: 200 g)" echoLabel="Poids (g)" />
-          <Row left="Nombre de branches estimé" right={`${Math.ceil(num(celeryWeight) / Math.max(1, (celeryG || 0)))} branches`} />
+
+          <InputWithEcho
+            value={celeryWeight}
+            onChangeText={setCeleryWeight}
+            placeholder="Poids (ex: 200 g)"
+            echoLabel="Poids (g)"
+          />
+          <Row
+            left="Nombre de branches estimé"
+            right={`${Math.ceil(num(celeryWeight) / Math.max(1, (celeryG || 0)))} branches`}
+          />
         </View>
       )}
 
-      {/* Jus */}
+      {/* --------- Jus --------- */}
       {d.juice_ml_per_unit ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Jus</Text>
-          <InputWithEcho value={countJuice} onChangeText={setCountJuice} placeholder="Nombre de pièces (ex: 2 citrons)" echoLabel="Pièces" />
-          <Row left="Volume" right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`} />
-          <InputWithEcho value={volMl} onChangeText={setVolMl} placeholder="Volume ou poids voulu (ml ou g)" echoLabel="Voulu" />
-          <Row left="Nombre de pièces estimé" right={`${fmt(Math.ceil(num(volMl) / (d.juice_ml_per_unit || 1)))} `} />
+          <InputWithEcho
+            value={countJuice}
+            onChangeText={setCountJuice}
+            placeholder="Nombre de pièces (ex: 2 citrons)"
+            echoLabel="Pièces"
+          />
+          <Row
+            left="Volume"
+            right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`}
+          />
+          <InputWithEcho
+            value={volMl}
+            onChangeText={setVolMl}
+            placeholder="Volume ou poids voulu (ml ou g)"
+            echoLabel="Voulu"
+          />
+          <Row
+            left="Nombre de pièces estimé"
+            right={`${fmt(Math.ceil(num(volMl) / Math.max(1, (d.juice_ml_per_unit || 1))))}`}
+          />
         </View>
       ) : null}
 
-      {/* Taille ⇆ Poids */}
+      {/* --------- Taille ⇆ Poids --------- */}
       {d.lgth_g ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Taille <Text style={st.arrow}>⇆</Text> Poids</Text>
-          <InputWithEcho value={lengthCm} onChangeText={setLengthCm} placeholder="Longueur (cm)" echoLabel="Longueur (cm)" />
+          <InputWithEcho
+            value={lengthCm}
+            onChangeText={setLengthCm}
+            placeholder="Longueur (cm)"
+            echoLabel="Longueur (cm)"
+          />
           <Row left="Poids estimé" right={`${fmt(num(lengthCm) * (d.lgth_g || 0))} g`} />
-          <InputWithEcho value={lenWeightG} onChangeText={setLenWeightG} placeholder="Poids (g)" echoLabel="Poids (g)" />
-          <Row left="Longueur estimée" right={`${fmt(num(lenWeightG) / (d.lgth_g || 1))} cm`} />
+
+          <InputWithEcho
+            value={lenWeightG}
+            onChangeText={setLenWeightG}
+            placeholder="Poids (g)"
+            echoLabel="Poids (g)"
+          />
+          <Row left="Longueur estimée" right={`${fmt(num(lenWeightG) / Math.max(1, (d.lgth_g || 1)))} cm`} />
         </View>
       ) : null}
 
-      {/* Cuillères ⇆ Poids */}
+      {/* --------- Cuillères ⇆ Poids --------- */}
       {(tbsp_g || tsp_g) ? (
         <View style={st.section}>
           <Text style={st.sTitle}>Cuillères <Text style={st.arrow}>⇆</Text> Poids</Text>
@@ -1194,11 +1302,14 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           <InputWithEcho value={tbsp} onChangeText={setTbsp} placeholder="Cuillères à soupe (ex: 2)" echoLabel="c. à soupe" />
           <Row left="Poids" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
           <InputWithEcho value={weightToSpoons} onChangeText={setWeightToSpoons} placeholder="Poids (g) — ex: 15" echoLabel="Poids (g)" />
-          <Row left="Équivalent" right={`${tsp_g ? `${fmt(num(weightToSpoons) / tsp_g, 2)} c. à café` : '— c. à café'}   |   ${tbsp_g ? `${fmt(num(weightToSpoons) / tbsp_g, 2)} c. à soupe` : '— c. à soupe'}`} />
+          <Row
+            left="Équivalent"
+            right={`${tsp_g ? `${fmt(num(weightToSpoons) / tsp_g, 2)} c. à café` : '— c. à café'}   |   ${tbsp_g ? `${fmt(num(weightToSpoons) / tbsp_g, 2)} c. à soupe` : '— c. à soupe'}`}
+          />
         </View>
       ) : null}
 
-      {/* Pâtes — eau & sel */}
+      {/* --------- Pâtes — eau & sel --------- */}
       {hasPasta && (
         <View style={st.section}>
           <Text style={[st.sTitle, { marginTop: 8 }]}>
@@ -1230,7 +1341,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   )
 }
 
-// -------- Styles --------
+/* ===================== Styles ===================== */
 const st = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFEEFC' },
 
@@ -1284,6 +1395,7 @@ const st = StyleSheet.create({
     maxWidth: '55%',
   },
 
+  // boutons / tailles
   sizeBtn: {
     paddingVertical: 8,
     paddingHorizontal: 14,
@@ -1296,7 +1408,7 @@ const st = StyleSheet.create({
   sizeBtnText: { fontWeight: '800', color: '#FF4FA2' },
   sizeBtnTextOn: { color: '#fff' },
 
-  // Tip
+  // Tips style (réutilisé pour l’encart PDT)
   tipBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -1309,7 +1421,6 @@ const st = StyleSheet.create({
     marginTop: 6,
     marginBottom: 4,
   },
-  tipEmoji: { fontSize: 16, marginTop: 1 },
   tipText: { color: '#57324B', fontWeight: '600', flexShrink: 1 },
   tipStrong: { color: '#FF4FA2', fontWeight: '900' },
 
@@ -1326,13 +1437,12 @@ const st = StyleSheet.create({
     borderColor: '#FFB6F9',
     gap: 6,
   },
-  pillOn: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
-  pillActive: { backgroundColor: '#FF4FA2', borderColor: '#7c3aed' }, // 👈 sélection assombrie
+  pillActive: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
   pillText: { color: '#FF4FA2', fontWeight: '800', maxWidth: 180 },
   pillTextOn: { color: '#fff' },
   pillBadge: { marginLeft: 6, fontWeight: '900', color: '#7a6680' },
 
-  // Info button
+  // Info button (usages pâtes)
   infoBtn: {
     marginLeft: 8,
     width: 20,

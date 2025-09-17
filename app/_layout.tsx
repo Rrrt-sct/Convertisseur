@@ -1,9 +1,29 @@
 // app/_layout.tsx
 import { Stack } from 'expo-router'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { preloadOptimizedImages } from '../src/preloadImages'
 import { TimerProvider } from '../src/timerContext'
 
 export default function RootLayout() {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await preloadOptimizedImages()
+      } catch (e) {
+        console.warn('⚠️ Préchargement images échoué:', e)
+      } finally {
+        setReady(true)
+      }
+    })()
+  }, [])
+
+  if (!ready) {
+    // écran vide ou splash minimal le temps de charger
+    return null
+  }
+
   return (
     <TimerProvider>
       <Stack screenOptions={{ headerShown: false }}>
