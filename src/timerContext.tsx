@@ -1,128 +1,124 @@
-// src/timerContext.ts
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+// src/timerContext.tsx — correctif tick "now"
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
+import { playBell, prepareBell } from './bell'
+
+export type TimerCtx = {
+  running: boolean
+  remainingMs: number
+  deadline: number | null
+  hasRung: boolean
+  start: (durationMs: number) => void
+  pause: () => void
+  reset: () => void
+}
+
+const TimerContext = createContext<TimerCtx | undefined>(undefined)
 
 export function msToMMSS(ms: number) {
-  const totalSec = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(totalSec / 60)
-  const s = totalSec % 60
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const m = Math.floor(total / 60)
+  const s = total % 60
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-type TimerCtx = {
-  running: boolean
-  remainingMs: number
-  durationMs: number
-  start: (totalMs: number) => void
-  pause: () => void
-  reset: () => void
-  /** compteur d'événements “fin de minuteur” pour déclencher un son ailleurs */
-  finishCount: number
-}
-
-const Ctx = createContext<TimerCtx | null>(null)
-
-export const useTimer = () => {
-  const v = useContext(Ctx)
-  if (!v) throw new Error('useTimer must be used within <TimerProvider>')
-  return v
-}
-
-export function TimerProvider({ children }: { children: React.ReactNode }) {
+export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [deadline, setDeadline] = useState<number | null>(null)
   const [running, setRunning] = useState(false)
-  const [targetTs, setTargetTs] = useState<number | null>(null)
-  const [remainingMs, setRemainingMs] = useState(0)
-  const [durationMs, setDurationMs] = useState(0)
-  const [finishCount, setFinishCount] = useState(0)
+  const [hasRung, setHasRung] = useState(false)
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // ✅ NOUVEAU : horloge interne qui force le render
+  const [now, setNow] = useState(() => Date.now())
 
-  // mise à jour de l'affichage
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const playingRef = useRef(false)
+
   useEffect(() => {
-    function clear() {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
+    prepareBell().catch(() => {})
+  }, [])
+
+  // ✅ remainingMs dépend de "now"
+  const remainingMs = useMemo(() => {
+    if (!deadline) return 0
+    return Math.max(0, deadline - now)
+  }, [deadline, now])
+
+  const start = useCallback((durationMs: number) => {
+    const dl = Date.now() + durationMs
+    setDeadline(dl)
+    setRunning(true)
+    setHasRung(false)
+    setNow(Date.now()) // reset tick de référence
+  }, [])
+
+  const pause = useCallback(() => {
+    if (deadline) {
+      const rest = Math.max(0, deadline - Date.now())
+      setDeadline(Date.now() + rest)
     }
+    setRunning(false)
+  }, [deadline])
 
-    if (running && targetTs) {
-      // tick toutes les 250 ms
-      intervalRef.current = setInterval(() => {
-        const now = Date.now()
-        const rem = Math.max(0, targetTs - now)
-        setRemainingMs(rem)
+  const reset = useCallback(() => {
+    setRunning(false)
+    setDeadline(null)
+    setHasRung(false)
+    setNow(Date.now())
+  }, [])
 
-        if (rem <= 0) {
-          clear()
-          setRunning(false)
-          setTargetTs(null)
-          setRemainingMs(0)
-          // signal “fini”
-          setFinishCount((c) => c + 1)
-        }
+  // ✅ Intervalle : on met à jour "now" (et uniquement ça)
+  useEffect(() => {
+    if (!running) {
+      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
+      return
+    }
+    if (!tickRef.current) {
+      tickRef.current = setInterval(() => {
+        setNow(Date.now())
       }, 250)
-    } else {
-      clear()
     }
+    return () => {
+      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
+    }
+  }, [running])
 
-    return () => clear()
-  }, [running, targetTs])
-
-  // Ajuste immédiatement au retour d'arrière-plan
+  // ✅ Déclenchement unique quand remainingMs atteint 0
   useEffect(() => {
-    const sub = AppState.addEventListener('change', (st) => {
-      if (st === 'active' && running && targetTs) {
-        const rem = Math.max(0, targetTs - Date.now())
-        setRemainingMs(rem)
-        if (rem <= 0) {
-          setRunning(false)
-          setTargetTs(null)
-          setRemainingMs(0)
-          setFinishCount((c) => c + 1)
-        }
-      }
+    if (!running || hasRung || !deadline) return
+    if (remainingMs > 0) return
+
+    setRunning(false)
+    setHasRung(true)
+
+    if (!playingRef.current) {
+      playingRef.current = true
+      playBell().finally(() => { playingRef.current = false })
+    }
+  }, [running, hasRung, deadline, remainingMs])
+
+  // Protection retour d’arrière-plan
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setNow(Date.now())
     })
     return () => sub.remove()
-  }, [running, targetTs])
+  }, [])
 
-  // API
-  const start = (totalMs: number) => {
-    const ms = Math.max(0, Math.floor(totalMs || 0))
-    if (ms <= 0) return
-    const now = Date.now()
-    setDurationMs(ms)
-    setTargetTs(now + ms)
-    setRemainingMs(ms) // affichage immédiat
-    setRunning(true)
-  }
+  const value = useMemo<TimerCtx>(() => ({
+    running,
+    remainingMs,
+    deadline,
+    hasRung,
+    start,
+    pause,
+    reset,
+  }), [running, remainingMs, deadline, hasRung, start, pause, reset])
 
-  const pause = () => {
-    if (!running) return
-    const rem = targetTs ? Math.max(0, targetTs - Date.now()) : remainingMs
-    setRunning(false)
-    setTargetTs(null)
-    setRemainingMs(rem)
-  }
+  return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>
+}
 
-  const reset = () => {
-    setRunning(false)
-    setTargetTs(null)
-    setRemainingMs(0)
-  }
-
-  const value = useMemo(
-    () => ({
-      running,
-      remainingMs,
-      durationMs,
-      start,
-      pause,
-      reset,
-      finishCount,
-    }),
-    [running, remainingMs, durationMs, finishCount]
-  )
-
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
+export function useTimer() {
+  const ctx = useContext(TimerContext)
+  if (!ctx) throw new Error('useTimer must be used within TimerProvider')
+  return ctx
 }

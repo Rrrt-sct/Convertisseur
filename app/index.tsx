@@ -1,29 +1,50 @@
 // app/index.tsx
 import { router } from 'expo-router'
-import React from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import React, { useMemo } from 'react'
+import {
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native'
+
+// On garde un require() (local) : avec le préchargement + require, l’affichage est instantané
+const HERO = require('../assets/hero-splash.webp') // adapte l'extension si besoin
 
 export default function HomeScreen() {
-  const { height, width } = useWindowDimensions()
+  const { height } = useWindowDimensions()
 
-  // image = ~60% de la hauteur écran, bornée
-  const IMG_H = Math.round(Math.min(640, Math.max(340, height * 0.80)))
+  // image occuppe ~80% hauteur écran, bornée
+  const IMG_H = useMemo(
+    () => Math.round(Math.min(640, Math.max(340, height * 0.8))),
+    [height]
+  )
 
-  const go = () => router.push('/ingredients') // nouvelle destination
+  const go = () => router.push('/ingredients')
 
   return (
     <View style={styles.container}>
-      {/* IMAGE – hauteur explicite pour éviter toute disparition */}
-      <TouchableOpacity style={[styles.imageWrapper, { height: IMG_H }]} onPress={go} activeOpacity={0.9}>
+      {/* IMAGE — hauteur explicite + source locale (préchargée dans _layout) */}
+      <TouchableOpacity
+        style={[styles.imageWrapper, { height: IMG_H }]}
+        onPress={go}
+        activeOpacity={0.9}
+      >
         <Image
-          // ⚠️ adapte l’extension si nécessaire (.webp/.png/.jpg)
-          source={require('../assets/hero-splash.webp')}
+          source={HERO}
+          // defaultSource améliore encore le rendu immédiat (iOS surtout)
+          defaultSource={HERO}
           style={styles.image}
-          resizeMode="contain"   // ne coupe ni haut ni bas
+          resizeMode="contain"
+          // fondu très court sur Android pour éviter effet flash
+          {...(Platform.OS === 'android' ? { fadeDuration: 80 } as any : {})}
         />
       </TouchableOpacity>
 
-      {/* BOUTON – plus haut (moins d’espace bas) */}
+      {/* BOUTON */}
       <TouchableOpacity style={styles.button} onPress={go} activeOpacity={0.9}>
         <Text style={styles.buttonText}>ENTRER</Text>
       </TouchableOpacity>
@@ -43,12 +64,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     paddingTop: 24,
-    paddingBottom: 12, // 👈 moins d’espace bas
+    paddingBottom: 12,
   },
   imageWrapper: {
     width: '100%',
     marginTop: 8,
-    marginBottom: 12,  // 👈 bouton remonte
+    marginBottom: 12,
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -61,11 +82,9 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 2,
     borderColor: BRUN,
-    paddingVertical: 10,     // fin
-    paddingHorizontal: 56,   // allongé
-    // remonte visuellement le bouton
+    paddingVertical: 10,
+    paddingHorizontal: 56,
     marginBottom: 8,
-    // petite ombre douce
     shadowColor: '#000',
     shadowOpacity: 0.12,
     shadowRadius: 10,
