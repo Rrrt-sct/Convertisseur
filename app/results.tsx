@@ -1,4 +1,4 @@
-// app/results.tsx — refactor: suppression des triggers audio locaux
+// app/results.tsx
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useMemo, useState } from 'react'
 import {
@@ -56,8 +56,7 @@ const PDT_METHODS = [
   { label: 'Rôties au four',    keys: ['roties', 'rotie', 'roti', 'roast', 'oties'] },
   { label: 'Potage',            keys: ['potage', 'soupe'] },
 ] as const
-// @ts-ignore
-type PdtMethod = typeof PDT_METHODS[number]
+type PdtMethod = (typeof PDT_METHODS)[number]
 
 function hasVal(v: any) { return v !== undefined && v !== null && String(v).trim() !== '' }
 
@@ -224,7 +223,7 @@ function infoTextFor(row: any, n: number): string {
 /* ========= Composant principal ========= */
 
 export default function Results() {
-  const { running, hasRung, remainingMs } = useTimer()
+  const { running, remainingMs } = useTimer()
   const { items } = useLocalSearchParams<{ items?: string }>()
   const ids: string[] = useMemo(() => {
     try { return items ? JSON.parse(items) : [] } catch { return [] }
@@ -234,10 +233,6 @@ export default function Results() {
     const map = Object.fromEntries((DB as Item[]).map(d => [d.id, d]))
     return ids.map(id => map[id]).filter(Boolean)
   }, [ids])
-
-  // ⚠️ IMPORTANT : AUCUN déclenchement de son ici.
-  // Le contexte (timerContext) s'en charge. On affiche seulement l'état.
-  const showBanner = running || remainingMs > 0 || hasRung
 
   // Modal d’info global (pour usages pâtes)
   const [infoModal, setInfoModal] = useState<{ title: string; text: string } | null>(null)
@@ -257,11 +252,9 @@ export default function Results() {
           </View>
         </View>
 
-        {showBanner && (
-          <TouchableOpacity onPress={() => router.push('/timer')} style={[st.timerBanner, !running && hasRung && st.timerBannerDone]} activeOpacity={0.9}>
-            <Text style={st.timerBannerText}>
-              {running ? `⏱ Temps restant : ${msToMMSS(remainingMs)} — toucher pour ouvrir` : '✅ Minuteur terminé — toucher pour ouvrir'}
-            </Text>
+        {running && (
+          <TouchableOpacity onPress={() => router.push('/timer')} style={st.timerBanner} activeOpacity={0.9}>
+            <Text style={st.timerBannerText}>⏱ Temps restant : {msToMMSS(remainingMs)} — toucher pour ouvrir</Text>
           </TouchableOpacity>
         )}
 
@@ -485,7 +478,6 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
     infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
   }
 
-
   /* ----- Variétés / Usages ----- */
   const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
   const pastaVarieties = useMemo(() => {
@@ -536,43 +528,1020 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
           {infoRows}
         </View>
       )}
-{/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
-{(() => {
-  const y = toNumMaybe(d.peeled_yield)
-  if (!y || y <= 0) return null
 
-  // à partir d’un poids ÉPLUCHÉ, on remonte le NON ÉPLUCHÉ : non = epl / y
-  const nonFromEpl = num(qtyEpl) / y
-  // à partir d’un poids NON ÉPLUCHÉ, on calcule l’ÉPLUCHÉ : epl = non * y
-  const eplFromNon = num(qtyNon) * y
+      {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
+      {(() => {
+        const y = toNumMaybe(d.peeled_yield)
+        if (!y || y <= 0) return null
+
+        // à partir d’un poids ÉPLUCHÉ, on remonte le NON ÉPLUCHÉ : non = epl / y
+        const nonFromEpl = num(qtyEpl) / y
+        // à partir d’un poids NON ÉPLUCHÉ, on calcule l’ÉPLUCHÉ : epl = non * y
+        const eplFromNon = num(qtyNon) * y
+
+        return (
+          <View style={st.section}>
+            <Text style={st.sTitle}>
+              Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+            </Text>
+
+            <InputWithEcho
+              value={qtyEpl}
+              onChangeText={setQtyEpl}
+              placeholder="Quantité épluchée (g)"
+              echoLabel="Épluchée (g)"
+            />
+            <Row left="Équiv. non épluché" right={fmtAllUnits(nonFromEpl)} />
+
+            <InputWithEcho
+              value={qtyNon}
+              onChangeText={setQtyNon}
+              placeholder="Quantité non épluchée (g)"
+              echoLabel="Non épluchée (g)"
+            />
+            <Row left="Équiv. épluché" right={fmtAllUnits(eplFromNon)} />
+          </View>
+        )
+      })()}
+
+      {/* ========= Module Œufs ========= */}
+      {(() => {
+        const eggS = toNumMaybe(d.egg_s) ?? null
+        const eggM = toNumMaybe(d.egg_m) ?? null
+        const eggL = toNumMaybe(d.egg_l) ?? null
+        const whitePct = toNumMaybe(d.whte_pctge) ?? null
+        const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
+        const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
+
+        if (!hasEggs) return null
+
+        return <EggsSection d={d} />
+      })()}
+
+      {/* --------- Pommes de terre --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
+        if (!isPotato) return null
+        return <PotatoSection d={d} openInfo={openInfo} />
+      })()}
+
+      {/* --------- Module PÂTES --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
+        if (!isPasta) return null
+        return <PastaSection d={d} openInfo={openInfo} />
+      })()}
+
+      {/* --------- Module TOMATES --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isTomato = ['tomate', 'tomates'].includes(normId)
+        if (!isTomato) return null
+        return <TomatoSection d={d} />
+      })()}
+
+      {/* --------- Module OIGNONS --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isOnion = ['oignon', 'oignons'].includes(normId)
+        if (!isOnion) return null
+        return <OnionSection d={d} />
+      })()}
+
+      {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
+        const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
+        if (isPotato || isPasta || !d.avg_unit_g) return null
+        return <GenericConversions d={d} />
+      })()}
+
+      {/* --------- Céleri --------- */}
+      {(() => {
+        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isCelery = normId === 'celeri'
+        const celeryG = toNumMaybe(d.clr_lgth) ?? null
+        if (!isCelery || celeryG === null) return null
+        return <CelerySection d={d} />
+      })()}
+
+      {/* --------- Jus --------- */}
+      {d.juice_ml_per_unit ? <JuiceSection d={d} /> : null}
+
+      {/* --------- Taille ⇆ Poids --------- */}
+      {d.lgth_g ? <LengthWeightSection d={d} /> : null}
+
+      {/* --------- Cuillères ⇆ Poids --------- */}
+      {(d.tbsp_g || d.tsp_g) ? <SpoonsSection d={d} /> : null}
+
+      {/* --------- Pâtes — eau & sel --------- */}
+      {(() => {
+        const pastaW = toNumMaybe(d.psta_wter)
+        const pastaS = toNumMaybe(d.psta_slt)
+        const hasPasta = pastaW !== null || pastaS !== null
+        if (!hasPasta) return null
+        return <PastaWaterSaltSection d={d} />
+      })()}
+    </View>
+  )
+}
+
+/* ========= Sections réutilisables (découpées pour lisibilité) ========= */
+
+function EggsSection({ d }: { d: Item }) {
+  const [eggSize, setEggSize] = useState<'S' | 'M' | 'L'>('S')
+  const [eggTargetTotal, setEggTargetTotal] = useState('')
+  const [eggTargetWhite, setEggTargetWhite] = useState('')
+  const [eggTargetYolk, setEggTargetYolk] = useState('')
+
+  const eggS = toNumMaybe(d.egg_s) ?? 0
+  const eggM = toNumMaybe(d.egg_m) ?? 0
+  const eggL = toNumMaybe(d.egg_l) ?? 0
+  const whitePct = toNumMaybe(d.whte_pctge) ?? 0
+  const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? 0
+  const eggUnit = eggSize === 'S' ? eggS : eggSize === 'M' ? eggM : eggL
 
   return (
     <View style={st.section}>
-      <Text style={st.sTitle}>
-        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-      </Text>
+      <Text style={st.sTitle}>Infos clés</Text>
+      <Row left="Œuf petit (S)" right="< 50 g" />
+      <Row left="Œuf moyen (M)" right="50–60 g" />
+      <Row left="Œuf gros (L)" right="60–70 g" />
+      <View style={{ height: 6 }} />
+      <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+      <Row left="Pochés" right="2 min" />
+      <Row left="À la coque" right="3 min" />
+      <Row left="Durs" right="9 min" />
 
-      <InputWithEcho
-        value={qtyEpl}
-        onChangeText={setQtyEpl}
-        placeholder="Quantité épluchée (g)"
-        echoLabel="Épluchée (g)"
-      />
-      <Row left="Équiv. non épluché" right={fmtAllUnits(nonFromEpl)} />
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+        {(['S', 'M', 'L'] as const).map(sz => {
+          const on = eggSize === sz
+          return (
+            <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
+              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
 
-      <InputWithEcho
-        value={qtyNon}
-        onChangeText={setQtyNon}
-        placeholder="Quantité non épluchée (g)"
-        echoLabel="Non épluchée (g)"
-      />
-      <Row left="Équiv. épluché" right={fmtAllUnits(eplFromNon)} />
+      <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
+
+      <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
+      {(() => {
+        const sumPct = whitePct + yolkPct
+        const denom = (eggUnit || 0) * sumPct
+        const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+        return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+      })()}
+
+      <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
+      {(() => {
+        const denom = (eggUnit || 0) * whitePct
+        const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+        return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+      })()}
+
+      <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
+      {(() => {
+        const denom = (eggUnit || 0) * yolkPct
+        const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+        return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+      })()}
     </View>
   )
-})()}
+}
 
-      {/* ========= Module Œufs ========= */}
-      {/* ... (reste inchangé) ... */}
+function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
+  const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null)
+  const [pdtSelected, setPdtSelected] = useState<any | null>(null)
+
+  const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+        {PDT_METHODS.map(m => {
+          const on = pdtMethod?.label === m.label
+          return (
+            <TouchableOpacity
+              key={m.label}
+              onPress={() => { setPdtMethod(prev => (prev?.label === m.label ? null : m)); setPdtSelected(null) }}
+              activeOpacity={0.9}
+              style={[st.sizeBtn, on && st.sizeBtnOn]}
+            >
+              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{m.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {pdtMethod?.label && PdtAdvice[pdtMethod.label] ? (
+        <View style={{ marginBottom: 10 }}>{PdtAdvice[pdtMethod.label]}</View>
+      ) : null}
+
+      <Text style={[st.sTitle, { marginBottom: 6 }]}>Choisir une variété</Text>
+
+      {(() => {
+        let list: Array<{ v: any; s: number }>
+        if (!pdtMethod) {
+          list = pdtVarieties.map(v => ({ v, s: 0 }))
+            .sort((a, b) => String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
+        } else {
+          list = pdtVarieties.map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
+            .filter(x => x.s >= 1)
+            .sort((a, b) => b.s - a.s || String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
+        }
+
+        return list.length > 0 ? (
+          <View style={st.pillsWrap}>
+            {list.map(({ v, s }) => {
+              const name = String(v.label ?? v.pdt_variety ?? v.id)
+              const on = pdtSelected?.id === v.id
+              return (
+                <TouchableOpacity key={v.id} onPress={() => setPdtSelected(v)} activeOpacity={0.9} style={[st.pill, on && st.pillActive]}>
+                  {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                  {pdtMethod && s > 0 ? <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text> : null}
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        ) : (
+          <Text style={{ color: '#666' }}>{pdtMethod ? `Aucune variété référencée pour ${pdtMethod.label.toLowerCase()}.` : 'Aucune variété trouvée.'}</Text>
+        )
+      })()}
+
+      {pdtSelected && (
+        <View style={{ marginTop: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            {imgSrc(pdtSelected.id) ? <Image source={imgSrc(pdtSelected.id)} style={{ width: 56, height: 56, borderRadius: 12 }} /> : null}
+            <View style={st.tipBox}>
+              <Text style={st.tipText}>Variété : <Text style={st.tipStrong}>{String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}</Text></Text>
+            </View>
+          </View>
+          {!!pdtSelected.pdt_texture && (<Row left="Chair" right={String(pdtSelected.pdt_texture)} />)}
+          <View style={{ marginTop: 8, gap: 4 }}>
+            {PDT_METHODS.map(m => {
+              const s = scoreFor(pdtSelected, m)
+              if (s < 1) return null
+              return <Row key={m.label} left={m.label} right={`${starsFor(s)} ${verdictFor(s)}`} />
+            })}
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function PastaSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
+  const [showPastaUsages, setShowPastaUsages] = useState(false)
+  const [pastaUsageSelId, setPastaUsageSelId] = useState<string | null>(null)
+  const [pastaSelected, setPastaSelected] = useState<any | null>(null)
+
+  const pastaVarieties = useMemo(() => {
+    const hasAnyPst = (row: any) =>
+      ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
+    return (DB as any[]).filter(v => hasAnyPst(v))
+  }, [])
+  const pastaUsages = useMemo(() => {
+    const rows = (DB as any[]).filter(r =>
+      ['pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'].some(k => hasVal(r?.[k]))
+    )
+    return rows.map(r => {
+      const nums = [
+        'pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'
+      ].map(k => firstInt(r?.[k])).filter((n): n is number => n !== null)
+      const numMain = nums[0] ?? 0
+      const flags = {
+        lg: hasVal(r?.pfct_lg_pst),
+        shrt: hasVal(r?.pfct_shrt_pst),
+        sml: hasVal(r?.pfct_sml_pst),
+        flf: hasVal(r?.pfct_flf_pst),
+        ovn: hasVal(r?.pfct_ovn_pst),
+      }
+      const isGen = hasVal(r?.gnrc_sls)
+      return { row: r, num: numMain, flags, isGen }
+    }).filter(x => x.num > 0)
+  }, [])
+
+  const selectedUsage = useMemo(
+    () => pastaUsages.find(u => u.row?.id === pastaUsageSelId) || null,
+    [pastaUsages, pastaUsageSelId]
+  )
+
+  // 1) Infos clés eau/sel
+  const hasPasta = toNumMaybe(d.psta_wter) !== null || toNumMaybe(d.psta_slt) !== null
+
+  return (
+    <View style={st.section}>
+      {hasPasta && (
+        <>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="Pâtes réussies 🇮🇹" right="1 L d’eau + 10 g gros sel / 100 g pâtes" />
+        </>
+      )}
+
+      {/* 2) Choisir un usage */}
+      <View style={{ marginTop: 8, marginBottom: 6 }}>
+        <TouchableOpacity
+          onPress={() => { setShowPastaUsages(x => !x); if (!showPastaUsages) { setPastaUsageSelId(null); setPastaSelected(null) } }}
+          style={[st.sizeBtn, showPastaUsages && st.sizeBtnOn]}
+          activeOpacity={0.9}
+        >
+          <Text style={[st.sizeBtnText, showPastaUsages && st.sizeBtnTextOn]}>
+            {showPastaUsages ? 'Masquer les usages' : 'Choisir un usage'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {showPastaUsages && (() => {
+        const rows = pastaUsages
+        if (rows.length === 0) {
+          return <Text style={{ color: '#666' }}>Aucun usage configuré.</Text>
+        }
+
+        // Regroupement par numéro
+        const groups: Record<number, typeof rows> = {}
+        for (const u of rows) groups[u.num] = groups[u.num] ? [...groups[u.num], u] : [u]
+        const nums = Object.keys(groups).map(n => Number(n)).sort((a, b) => a - b)
+
+        // Mode "sélectionné" : 1 seul usage visible
+        if (pastaUsageSelId) {
+          const u = rows.find(x => x.row.id === pastaUsageSelId)!
+          const n = u.num
+          const color = PALETTE9[(n - 1) % PALETTE9.length]
+          const text = u.row.label || `Usage ${n}`
+          const infoTxt = infoTextFor(u.row, u.num).trim()
+          const showInfo = !!infoTxt
+
+          return (
+            <View style={st.pillsWrap}>
+              <TouchableOpacity
+                key={u.row.id}
+                activeOpacity={0.9}
+                onPress={() => setPastaUsageSelId(null)}
+                style={[st.pill, { borderColor: color, backgroundColor: color }]}
+              >
+                {imgSrc(u.row.id) ? <Image source={imgSrc(u.row.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                <Text
+                  style={[
+                    st.pillText,
+                    { color: '#fff', fontWeight: u.isGen ? '900' : '800', fontSize: u.isGen ? 16 : 14 }
+                  ]}
+                  numberOfLines={1}
+                >
+                  {text}
+                </Text>
+                <InfoButton
+                  tint={color}
+                  variant="light"
+                  disabled={!showInfo}
+                  onPress={() => openInfo(text, infoTxt || 'Pas d’information supplémentaire.')}
+                />
+              </TouchableOpacity>
+            </View>
+          )
+        }
+
+        // Mode "liste complète"
+        return (
+          <View style={st.pillsWrap}>
+            {nums.map(n => {
+              const color = PALETTE9[(n - 1) % PALETTE9.length]
+              const arr = groups[n].slice().sort((a, b) => (b.isGen ? 1 : 0) - (a.isGen ? 1 : 0)) // générique d'abord
+              return arr.map(u => {
+                const text = u.row.label || `Usage ${n}`
+                const infoTxt = infoTextFor(u.row, u.num).trim()
+                const showInfo = !!infoTxt
+                return (
+                  <TouchableOpacity
+                    key={u.row.id}
+                    activeOpacity={0.9}
+                    onPress={() => setPastaUsageSelId(prev => prev === u.row.id ? null : u.row.id)}
+                    style={[st.pill, { borderColor: color, backgroundColor: '#FFE4F6' }]}
+                  >
+                    {imgSrc(u.row.id) ? <Image source={imgSrc(u.row.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                    <Text
+                      style={[
+                        st.pillText,
+                        { color: color, fontWeight: u.isGen ? '900' : '800', fontSize: u.isGen ? 16 : 14 }
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {text}
+                    </Text>
+                    <InfoButton
+                      tint={color}
+                      variant="solid"
+                      disabled={!showInfo}
+                      onPress={() => openInfo(text, infoTxt || 'Pas d’information supplémentaire.')}
+                    />
+                  </TouchableOpacity>
+                )
+              })
+            })}
+          </View>
+        )
+      })()}
+
+      {/* VARIÉTÉS compatibles POUR L’USAGE SÉLECTIONNÉ */}
+      {selectedUsage && (() => {
+        const flags = selectedUsage.flags
+        const typesMatching = [
+          flags.lg   ? 'pst_lg'   : null,
+          flags.shrt ? 'pst_shrt' : null,
+          flags.sml  ? 'pst_sml'  : null,
+          flags.flf  ? 'pst_flf'  : null,
+          flags.ovn  ? 'pst_ovn'  : null,
+        ].filter(Boolean) as string[]
+
+        const list = pastaVarieties
+          .filter(row => typesMatching.some(pst => hasVal(row?.[pst])))
+          .map(v => ({ v, name: String(v.label ?? v.pasta_variety ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+        return (
+          <View style={{ marginTop: 8 }}>
+            <Text style={[st.sTitle, { marginBottom: 6 }]}>Variétés compatibles (usage sélectionné)</Text>
+            {list.length === 0 ? (
+              <Text style={{ color: '#666' }}>Aucune variété trouvée.</Text>
+            ) : (
+              <View style={st.pillsWrap}>
+                {list.map(({ v, name }) => {
+                  const on = pastaSelected?.id === v.id
+                  return (
+                    <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
+                      {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            )}
+          </View>
+        )
+      })()}
+
+      {/* 3) Choisir une variété — TOUTES */}
+      <Text style={[st.sTitle, { marginBottom: 6, marginTop: 8 }]}>Choisir une variété</Text>
+      {(() => {
+        const allList = pastaVarieties
+          .map(v => ({ v, name: String(v.label ?? v.pasta_variety ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+        return (
+          <>
+            <View style={st.pillsWrap}>
+              {allList.map(({ v, name }) => {
+                const on = pastaSelected?.id === v.id
+                return (
+                  <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setPastaSelected(v)}>
+                    {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                    <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            {/* Détail variété → usages compatibles */}
+            {pastaSelected && (() => {
+              const enabledTypes = PASTA_TYPES.filter(t => hasVal(pastaSelected?.[t.pst]))
+              if (enabledTypes.length === 0) return null
+
+              const compat = pastaUsages.filter(u =>
+                (u.flags.lg   && enabledTypes.some(t => t.pst === 'pst_lg'))   ||
+                (u.flags.shrt && enabledTypes.some(t => t.pst === 'pst_shrt')) ||
+                (u.flags.sml  && enabledTypes.some(t => t.pst === 'pst_sml'))  ||
+                (u.flags.flf  && enabledTypes.some(t => t.pst === 'pst_flf'))  ||
+                (u.flags.ovn  && enabledTypes.some(t => t.pst === 'pst_ovn'))
+              )
+
+              if (compat.length === 0) return null
+
+              const ordered = compat
+                .slice()
+                .sort((a, b) => (a.num - b.num) || ((b.isGen?1:0) - (a.isGen?1:0)))
+
+              return (
+                <View style={{ marginTop: 10 }}>
+                  <Text style={[st.sTitle, { marginBottom: 6 }]}>Usages compatibles</Text>
+                  <View style={st.pillsWrap}>
+                    {ordered.map(u => {
+                      const color = PALETTE9[(u.num - 1) % PALETTE9.length]
+                      const text = u.row.label || `Usage ${u.num}`
+                      const infoTxt = infoTextFor(u.row, u.num).trim()
+                      const showInfo = !!infoTxt
+                      return (
+                        <View key={`u-${u.row.id}`} style={[st.pill, { borderColor: color, backgroundColor: '#FFE4F6' }]}>
+                          <Text style={[st.pillText, { color, fontWeight: u.isGen ? '900' : '800', fontSize: u.isGen ? 16 : 14 }]} numberOfLines={1}>
+                            {text}
+                          </Text>
+                          <InfoButton
+                            tint={color}
+                            variant="solid"
+                            disabled={!showInfo}
+                            onPress={() => openInfo(text, infoTxt || 'Pas d’information supplémentaire.')}
+                          />
+                        </View>
+                      )
+                    })}
+                  </View>
+                </View>
+              )
+            })()}
+          </>
+        )
+      })()}
+    </View>
+  )
+}
+
+function TomatoSection({ d }: { d: Item }) {
+  const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
+  const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
+
+  const tomatoVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_tmt)), [])
+
+  return (
+    <View style={st.section}>
+      {/* 1️⃣ Choisir un usage */}
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+        {TOMATO_USAGES.map(u => {
+          const on = tomatoUsageSelKey === u.key
+          return (
+            <TouchableOpacity
+              key={u.key}
+              activeOpacity={0.9}
+              onPress={() => {
+                setTomatoSelected(null)
+                setTomatoUsageSelKey(prev => prev === u.key ? null : u.key)
+              }}
+              style={[st.sizeBtn, on && st.sizeBtnOn]}
+            >
+              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{u.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {/* Variétés correspondant à l’usage sélectionné (tri ★★★ → ★★ → ★) */}
+      {tomatoUsageSelKey && (() => {
+        const u = TOMATO_USAGES.find(x => x.key === tomatoUsageSelKey)!
+        const list = tomatoVarieties
+          .map(v => ({ v, s: firstInt(v?.[u.col]) ?? 0, name: String(v.label ?? v.id) }))
+          .filter(x => x.s >= 1)
+          .sort((a, b) => (b.s - a.s) || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+        return (
+          <View style={{ marginTop: 6 }}>
+            {list.length === 0 ? (
+              <Text style={{ color: '#666' }}>Aucune variété notée pour cet usage.</Text>
+            ) : (
+              <View style={st.pillsWrap}>
+                {list.map(({ v, s }) => {
+                  const on = tomatoSelected?.id === v.id
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                      onPress={() => setTomatoSelected(v)}
+                    >
+                      {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{String(v.label ?? v.id)}</Text>
+                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            )}
+          </View>
+        )
+      })()}
+
+      {/* 2️⃣ Choisir une variété (toutes) */}
+      <Text style={[st.sTitle, { marginTop: 8, marginBottom: 6 }]}>Choisir une variété</Text>
+      {(() => {
+        const all = tomatoVarieties
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+        return (
+          <>
+            <View style={st.pillsWrap}>
+              {all.map(({ v, name }) => {
+                const on = tomatoSelected?.id === v.id
+                return (
+                  <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setTomatoSelected(v)}>
+                    {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                    <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+
+            {/* Détail variété sélectionnée */}
+            {tomatoSelected && (() => {
+              // Famille
+              const famCol = TOMATO_FAMILIES.find(f => hasVal(tomatoSelected?.[f.col]))
+              const family = famCol ? famCol.label : ''
+              // Goût
+              const taste = String(tomatoSelected?.tmt_com ?? '').trim()
+              // Usages
+              const usages = TOMATO_USAGES
+                .map(u => ({ u, s: firstInt(tomatoSelected?.[u.col]) ?? 0 }))
+                .filter(x => x.s >= 1)
+                .sort((a, b) => b.s - a.s)
+
+              return (
+                <View style={{ marginTop: 10 }}>
+                  {!!family && (
+                    <View style={{ marginBottom: 8 }}>
+                      <Text style={st.sTitle}>Famille</Text>
+                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
+                    </View>
+                  )}
+                  {!!taste && (
+                    <View style={{ marginBottom: 8 }}>
+                      <Text style={st.sTitle}>Goût</Text>
+                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
+                    </View>
+                  )}
+                  {usages.length > 0 && (
+                    <View style={{ marginTop: 4 }}>
+                      <Text style={st.sTitle}>Usages possibles</Text>
+                      <View style={st.pillsWrap}>
+                        {usages.map(({ u, s }) => (
+                          <View key={`tu-${u.key}`} style={st.pill}>
+                            <Text style={st.pillText}>{u.label}</Text>
+                            <Text style={st.pillBadge}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )
+            })()}
+          </>
+        )
+      })()}
+    </View>
+  )
+}
+
+function OnionSection({ d }: { d: Item }) {
+  const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
+  const [onionSelected, setOnionSelected] = useState<any | null>(null)
+
+  const onionVarieties  = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_onn)), [])
+
+  return (
+    <View style={st.section}>
+      {/* 1️⃣ Choisir un usage */}
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+        {ONION_USAGES.map(u => {
+          const on = onionUsageSelKey === u.key
+          return (
+            <TouchableOpacity
+              key={u.key}
+              activeOpacity={0.9}
+              onPress={() => {
+                setOnionSelected(null)
+                setOnionUsageSelKey(prev => prev === u.key ? null : u.key)
+              }}
+              style={[st.sizeBtn, on && st.sizeBtnOn]}
+            >
+              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{u.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {/* Variétés correspondant à l’usage sélectionné */}
+      {onionUsageSelKey && (() => {
+        const usage = ONION_USAGES.find(u => u.key === onionUsageSelKey)!
+        const list = onionVarieties
+          .map(v => ({ v, s: firstInt(v?.[usage.col]) ?? 0, name: String(v.label ?? v.id) }))
+          .filter(x => x.s >= 1)
+          .sort((a, b) => (b.s - a.s) || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+        return list.length > 0 ? (
+          <View style={st.pillsWrap}>
+            {list.map(({ v, s, name }) => {
+              const on = onionSelected?.id === v.id
+              return (
+                <TouchableOpacity
+                  key={v.id}
+                  onPress={() => setOnionSelected(v)}
+                  activeOpacity={0.9}
+                  style={[st.pill, on && st.pillActive]}
+                >
+                  {imgSrc(v.id) && (
+                    <Image
+                      source={imgSrc(v.id)}
+                      style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                    />
+                  )}
+                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                    {name}
+                  </Text>
+                  <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        ) : (
+          <Text style={{ color: '#666' }}>
+            Aucune variété d’oignon référencée pour {usage.label.toLowerCase()}.
+          </Text>
+        )
+      })()}
+
+      {/* 2️⃣ Choisir une variété (toutes) */}
+      <Text style={[st.sTitle, { marginTop: 12, marginBottom: 6 }]}>
+        Choisir une variété
+      </Text>
+      {(() => {
+        const all = onionVarieties
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+
+        return (
+          <View style={st.pillsWrap}>
+            {all.map(({ v, name }) => {
+              const on = onionSelected?.id === v.id
+              return (
+                <TouchableOpacity
+                  key={v.id}
+                  onPress={() => setOnionSelected(v)}
+                  activeOpacity={0.9}
+                  style={[st.pill, on && st.pillActive]}
+                >
+                  {imgSrc(v.id) && (
+                    <Image
+                      source={imgSrc(v.id)}
+                      style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                    />
+                  )}
+                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                    {name}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        )
+      })()}
+
+      {/* Détails de la variété sélectionnée */}
+      {onionSelected && (
+        <View style={{ marginTop: 10 }}>
+          <View style={{ marginBottom: 8 }}>
+            <Text style={st.sTitle}>Famille</Text>
+            <Text style={{ color: '#57324B', fontWeight: '600' }}>
+              {String(onionSelected.onn_family ?? '—')}
+            </Text>
+          </View>
+
+          <View style={{ marginBottom: 8 }}>
+            <Text style={st.sTitle}>Goût</Text>
+            <Text style={{ color: '#57324B', fontWeight: '600' }}>
+              {String(onionSelected.onn_com ?? '—')}
+            </Text>
+          </View>
+
+          <Text style={st.sTitle}>Usages possibles</Text>
+          <View style={{ marginTop: 4, gap: 4 }}>
+            {ONION_USAGES.map(u => {
+              const s = firstInt(onionSelected?.[u.col]) ?? 0
+              if (s < 1) return null
+              return (
+                <Row
+                  key={u.key}
+                  left={u.label}
+                  right={`${starsFor(s)} ${verdictFor(s)}`}
+                />
+              )
+            })}
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function GenericConversions({ d }: { d: Item }) {
+  const [genWeightEpl, setGenWeightEpl] = useState('')
+  const [genWeightNon, setGenWeightNon] = useState('')
+  const [countNon, setCountNon] = useState('')
+
+  const EPL = 'épluché'
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+
+      <InputWithEcho
+        value={genWeightEpl}
+        onChangeText={setGenWeightEpl}
+        placeholder="Poids épl. (g)"
+        echoLabel="Épl. (g)"
+      />
+      {(() => {
+        const unitEpl = (d.peeled_yield ? (d.avg_unit_g || 0) * (d.peeled_yield || 1) : (d.avg_unit_g || 0))
+        const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0
+        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+      })()}
+
+      <InputWithEcho
+        value={genWeightNon}
+        onChangeText={setGenWeightNon}
+        placeholder="Poids non épl. (g)"
+        echoLabel="Non épl. (g)"
+      />
+      {(() => {
+        const unitNon = d.avg_unit_g || 0
+        const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0
+        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+      })()}
+
+      <InputWithEcho
+        value={countNon}
+        onChangeText={setCountNon}
+        placeholder="Pièces non épl. (ex: 3)"
+        echoLabel="Pièces non épl."
+      />
+      <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
+      {d.peeled_yield ? (
+        <Row
+          left={`Poids ${EPL}`}
+          right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))}
+        />
+      ) : null}
+    </View>
+  )
+}
+
+function CelerySection({ d }: { d: Item }) {
+  const [celeryBranches, setCeleryBranches] = useState('')
+  const [celeryWeight, setCeleryWeight] = useState('')
+  const celeryG = toNumMaybe(d.clr_lgth) ?? 0
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Infos clés</Text>
+      <Row left="1 branche de céleri" right={`${fmt(celeryG)} g`} />
+
+      <Text style={[st.sTitle, { marginTop: 8 }]}>
+        Nombre de branches <Text style={st.arrow}>⇆</Text> Poids
+      </Text>
+      <InputWithEcho
+        value={celeryBranches}
+        onChangeText={setCeleryBranches}
+        placeholder="Nb de branches (ex: 2)"
+        echoLabel="Branches"
+      />
+      <Row left="Poids estimé" right={fmtAllUnits(num(celeryBranches) * celeryG)} />
+
+      <InputWithEcho
+        value={celeryWeight}
+        onChangeText={setCeleryWeight}
+        placeholder="Poids (ex: 200 g)"
+        echoLabel="Poids (g)"
+      />
+      <Row
+        left="Nombre de branches estimé"
+        right={`${Math.ceil(num(celeryWeight) / Math.max(1, celeryG))} branches`}
+      />
+    </View>
+  )
+}
+
+function JuiceSection({ d }: { d: Item }) {
+  const [countJuice, setCountJuice] = useState('')
+  const [volMl, setVolMl] = useState('')
+  const density = d.density_g_ml ?? 1
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Jus</Text>
+      <InputWithEcho
+        value={countJuice}
+        onChangeText={setCountJuice}
+        placeholder="Nombre de pièces (ex: 2 citrons)"
+        echoLabel="Pièces"
+      />
+      <Row
+        left="Volume"
+        right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`}
+      />
+      <InputWithEcho
+        value={volMl}
+        onChangeText={setVolMl}
+        placeholder="Volume ou poids voulu (ml ou g)"
+        echoLabel="Voulu"
+      />
+      <Row
+        left="Nombre de pièces estimé"
+        right={`${fmt(Math.ceil(num(volMl) / Math.max(1, (d.juice_ml_per_unit || 1))))}`}
+      />
+      {!!d.juice_ml_per_unit && (
+        <Row
+          left="≈ Poids (g)"
+          right={`${fmt(num(volMl) * density)} g`}
+        />
+      )}
+    </View>
+  )
+}
+
+function LengthWeightSection({ d }: { d: Item }) {
+  const [lengthCm, setLengthCm] = useState('')
+  const [lenWeightG, setLenWeightG] = useState('')
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Taille <Text style={st.arrow}>⇆</Text> Poids</Text>
+      <InputWithEcho
+        value={lengthCm}
+        onChangeText={setLengthCm}
+        placeholder="Longueur (cm)"
+        echoLabel="Longueur (cm)"
+      />
+      <Row left="Poids estimé" right={`${fmt(num(lengthCm) * (d.lgth_g || 0))} g`} />
+
+      <InputWithEcho
+        value={lenWeightG}
+        onChangeText={setLenWeightG}
+        placeholder="Poids (g)"
+        echoLabel="Poids (g)"
+      />
+      <Row left="Longueur estimée" right={`${fmt(num(lenWeightG) / Math.max(1, (d.lgth_g || 1)))} cm`} />
+    </View>
+  )
+}
+
+function SpoonsSection({ d }: { d: Item }) {
+  const [tsp, setTsp] = useState('')
+  const [tbsp, setTbsp] = useState('')
+  const [weightToSpoons, setWeightToSpoons] = useState('')
+
+  const tsp_g = d.tsp_g ?? (d.tbsp_g ? d.tbsp_g / 3 : null)
+  const tbsp_g = d.tbsp_g ?? (tsp_g ? tsp_g * 3 : null)
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Cuillères <Text style={st.arrow}>⇆</Text> Poids</Text>
+      <InputWithEcho value={tsp} onChangeText={setTsp} placeholder="Cuillères à café (ex: 2)" echoLabel="c. à café" />
+      <Row left="Poids" right={fmtAllUnits(num(tsp) * (tsp_g || 0))} />
+      <InputWithEcho value={tbsp} onChangeText={setTbsp} placeholder="Cuillères à soupe (ex: 2)" echoLabel="c. à soupe" />
+      <Row left="Poids" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
+      <InputWithEcho value={weightToSpoons} onChangeText={setWeightToSpoons} placeholder="Poids (g) — ex: 15" echoLabel="Poids (g)" />
+      <Row
+        left="Équivalent"
+        right={`${tsp_g ? `${fmt(num(weightToSpoons) / tsp_g, 2)} c. à café` : '— c. à café'}   |   ${tbsp_g ? `${fmt(num(weightToSpoons) / tbsp_g, 2)} c. à soupe` : '— c. à soupe'}`}
+      />
+    </View>
+  )
+}
+
+function PastaWaterSaltSection({ d }: { d: Item }) {
+  const [pastaG, setPastaG] = useState('')
+  const [waterL, setWaterL] = useState('')
+  const pastaW = toNumMaybe(d.psta_wter)
+  const pastaS = toNumMaybe(d.psta_slt)
+
+  return (
+    <View style={st.section}>
+      <Text style={[st.sTitle, { marginTop: 8 }]}>
+        Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
+      </Text>
+      <InputWithEcho value={pastaG} onChangeText={setPastaG} placeholder="Qtité de pâtes (g)" echoLabel="Pâtes (g)" />
+      {(() => {
+        const g = num(pastaG)
+        const L = g * (pastaW ?? 0)
+        const cl = L * 10
+        const ml = L * 1000
+        const saltG = (pastaS ?? 0) * g
+        return (
+          <>
+            <Row left="Quantité d'eau" right={`${fmt(L, 3)} l  |  ${fmt(cl, 1)} cl  |  ${fmt(ml, 0)} ml`} />
+            <Row left="Quantité de sel" right={fmtAllUnits(saltG)} />
+          </>
+        )
+      })()}
+      <InputWithEcho value={waterL} onChangeText={setWaterL} placeholder="Quantité d'eau (l)" echoLabel="Eau (l)" />
+      {(() => {
+        const L2 = num(waterL)
+        const saltG2 = L2 * (pastaS ?? 0) * 100
+        return <Row left="Quantité de sel" right={fmtAllUnits(saltG2)} />
+      })()}
     </View>
   )
 }
@@ -595,7 +1564,6 @@ const st = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
   },
-  timerBannerDone: { backgroundColor: '#88e29c' },
   timerBannerText: { color: '#fff', fontWeight: '900', textAlign: 'center' },
 
   navLink: { color: '#7c3aed', fontWeight: '900', fontSize: 18 },
