@@ -1,137 +1,480 @@
-// app/universel.tsx
-// Convertisseur universel : masses, volumes (US/UK), longueurs, températures, métrique ↔ impérial,
-// et poids ↔ volume via densité
 import { router } from 'expo-router'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native'
 
-// ---------- Helpers ----------
-const onlyDigitsDot = (s: string) => s.replace(/[^0-9.,-]/g, '').replace(',', '.')
-const num = (s: string) => {
-  const n = Number(onlyDigitsDot(s))
-  return Number.isFinite(n) ? n : 0
+/** ===== Helpers ===== */
+const toNum = (s: string): number => {
+  const n = Number((s ?? '').toString().replace(',', '.'))
+  return Number.isFinite(n) ? n : NaN
 }
-const fmt = (n: number, d = 3) => {
-  if (!Number.isFinite(n)) return '0'
-  const s = n.toFixed(d)
-  return s.replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1')
-}
-
-// ---------- Units & factors ----------
-// Base: g for mass
-const MASS_FACTORS: Record<string, number> = {
-  mg: 0.001,
-  g: 1,
-  kg: 1000,
-  oz: 28.349523125, // avoirdupois ounce
-  lb: 453.59237,
-}
-const MASS_LABELS: Record<string, string> = { mg: 'mg', g: 'g', kg: 'kg', oz: 'oz', lb: 'lb' }
-const MASS_ORDER = ['mg', 'g', 'kg', 'oz', 'lb'] as const
-
-// Volumes base mL; factors depend on US vs UK (Imperial)
-const VOL_FACTORS_US = {
-  ml: 1,
-  l: 1000,
-  tsp: 4.92892159375,   // teaspoon (US)
-  tbsp: 14.78676478125, // tablespoon (US)
-  floz: 29.5735295625,  // fluid ounce (US)
-  cup: 236.5882365,     // US legal cup
-  pt: 473.176473,       // pint (US)
-  qt: 946.352946,       // quart (US)
-  gal: 3785.411784,     // gallon (US)
-} as const
-const VOL_FACTORS_UK = {
-  ml: 1,
-  l: 1000,
-  tsp: 5,                // teaspoon (metric in UK kitchens)
-  tbsp: 15,              // tablespoon (metric in UK kitchens)
-  floz: 28.4130625,      // imperial fluid ounce
-  cup: 250,              // metric cup (commune au UK/AU; l'impérial strict n'a pas de "cup")
-  pt: 568.26125,         // pint (imperial)
-  qt: 1136.5225,         // quart (imperial)
-  gal: 4546.09,          // gallon (imperial)
-} as const
-const VOL_LABELS: Record<string, string> = {
-  ml: 'ml', l: 'l', tsp: 'c. à café (tsp)', tbsp: 'c. à soupe (tbsp)', floz: 'fl oz', cup: 'cup', pt: 'pint', qt: 'quart', gal: 'gallon',
-}
-const VOL_ORDER = ['ml', 'l', 'tsp', 'tbsp', 'floz', 'cup', 'pt', 'qt', 'gal'] as const
-
-// Lengths base metre
-const LEN_FACTORS: Record<string, number> = {
-  mm: 0.001,
-  cm: 0.01,
-  m: 1,
-  in: 0.0254,
-  ft: 0.3048,
-  yd: 0.9144,
-}
-const LEN_LABELS: Record<string, string> = { mm: 'mm', cm: 'cm', m: 'm', in: 'in', ft: 'ft', yd: 'yd' }
-const LEN_ORDER = ['mm', 'cm', 'm', 'in', 'ft', 'yd'] as const
-
-// ---------- Converters ----------
-function convertMass(value: number, from: string): Record<string, number> {
-  const base = value * (MASS_FACTORS[from] ?? 1)
-  const out: Record<string, number> = {}
-  MASS_ORDER.forEach(u => { out[u] = base / MASS_FACTORS[u] })
-  return out
-}
-function convertVol(value: number, from: string, system: 'US' | 'UK'): Record<string, number> {
-  const FACT = system === 'US' ? VOL_FACTORS_US : VOL_FACTORS_UK
-  const base = value * (FACT[from as keyof typeof FACT] ?? 1)
-  const out: Record<string, number> = {}
-  VOL_ORDER.forEach(u => { out[u] = base / FACT[u as keyof typeof FACT] })
-  return out
-}
-function convertLen(value: number, from: string): Record<string, number> {
-  const base = value * (LEN_FACTORS[from] ?? 1)
-  const out: Record<string, number> = {}
-  LEN_ORDER.forEach(u => { out[u] = base / LEN_FACTORS[u] })
-  return out
+const fmt = (n: number, d = 3): string => {
+  if (!Number.isFinite(n)) return '—'
+  const x = Number(n.toFixed(d))
+  const s = String(x)
+  return s.replace(/\.?0+$/, '')
 }
 
-// Temperature conversions
-function cFromAny(v: number, unit: 'C'|'F'|'K') {
-  if (unit === 'C') return v
-  if (unit === 'F') return (v - 32) * 5/9
-  return v - 273.15 // K
+/** ====== Masses/Poids (mg, g, kg, oz, lb) ====== */
+// base: g
+type MassUnit = 'mg' | 'g' | 'kg' | 'oz' | 'lb'
+const massToG = (u: MassUnit, v: number): number => {
+  switch (u) {
+    case 'mg': return v / 1000
+    case 'g':  return v
+    case 'kg': return v * 1000
+    case 'oz': return v * 28.349523125
+    case 'lb': return v * 453.59237
+  }
 }
-function tAll(value: number, from: 'C'|'F'|'K') {
-  const C = cFromAny(value, from)
-  const F = C * 9/5 + 32
-  const K = C + 273.15
-  return { C, F, K }
+const gToMass = (u: MassUnit, g: number): number => {
+  switch (u) {
+    case 'mg': return g * 1000
+    case 'g':  return g
+    case 'kg': return g / 1000
+    case 'oz': return g / 28.349523125
+    case 'lb': return g / 453.59237
+  }
 }
 
-// ----- UI small atoms -----
-function Input({ value, onChangeText, placeholder }: { value: string; onChangeText: (t: string) => void; placeholder: string }) {
+/** ====== Volumes (métrique + US/UK) ====== */
+// base: mL
+const ML_PER_CL = 10
+const L_TO_ML = 1000
+// US
+const US_TSP_TO_ML  = 4.92892159375
+const US_TBSP_TO_ML = US_TSP_TO_ML * 3
+const US_CUP_TO_ML  = 240 // valeur culinaire usuelle
+const US_FL_OZ_TO_ML = 29.5735295625
+const US_PINT_TO_ML  = 473.176473
+const US_QUART_TO_ML = 946.352946
+const US_GAL_TO_ML   = 3785.411784
+// UK (Impérial)
+const UK_FL_OZ_TO_ML = 28.4130625
+const UK_PINT_TO_ML  = 568.26125
+const UK_QUART_TO_ML = 1136.5225
+const UK_GAL_TO_ML   = 4546.09
+
+const VOL_UNITS = ['ml','cl','l','tsp','tbsp','fl oz','cup','pt','qt','gal'] as const
+type VolUnit = typeof VOL_UNITS[number]
+type VolSystem = 'metric' | 'us' | 'uk'
+
+const volToMl = (sys: VolSystem, u: VolUnit, v: number): number => {
+  if (u === 'ml') return v
+  if (u === 'cl') return v * ML_PER_CL
+  if (u === 'l')  return v * L_TO_ML
+  if (sys === 'us') {
+    switch (u) {
+      case 'tsp':   return v * US_TSP_TO_ML
+      case 'tbsp':  return v * US_TBSP_TO_ML
+      case 'fl oz': return v * US_FL_OZ_TO_ML
+      case 'cup':   return v * US_CUP_TO_ML
+      case 'pt':    return v * US_PINT_TO_ML
+      case 'qt':    return v * US_QUART_TO_ML
+      case 'gal':   return v * US_GAL_TO_ML
+      default: return NaN
+    }
+  } else if (sys === 'uk') {
+    switch (u) {
+      case 'tsp':   return v * 5 // usage pratique
+      case 'tbsp':  return v * 15
+      case 'fl oz': return v * UK_FL_OZ_TO_ML
+      case 'cup':   return v * 250 // repère général
+      case 'pt':    return v * UK_PINT_TO_ML
+      case 'qt':    return v * UK_QUART_TO_ML
+      case 'gal':   return v * UK_GAL_TO_ML
+      default: return NaN
+    }
+  }
+  return NaN
+}
+const mlToVol = (sys: VolSystem, u: VolUnit, ml: number): number => {
+  if (u === 'ml') return ml
+  if (u === 'cl') return ml / ML_PER_CL
+  if (u === 'l')  return ml / L_TO_ML
+  if (sys === 'us') {
+    switch (u) {
+      case 'tsp':   return ml / US_TSP_TO_ML
+      case 'tbsp':  return ml / US_TBSP_TO_ML
+      case 'fl oz': return ml / US_FL_OZ_TO_ML
+      case 'cup':   return ml / US_CUP_TO_ML
+      case 'pt':    return ml / US_PINT_TO_ML
+      case 'qt':    return ml / US_QUART_TO_ML
+      case 'gal':   return ml / US_GAL_TO_ML
+      default: return NaN
+    }
+  } else if (sys === 'uk') {
+    switch (u) {
+      case 'tsp':   return ml / 5
+      case 'tbsp':  return ml / 15
+      case 'fl oz': return ml / UK_FL_OZ_TO_ML
+      case 'cup':   return ml / 250
+      case 'pt':    return ml / UK_PINT_TO_ML
+      case 'qt':    return ml / UK_QUART_TO_ML
+      case 'gal':   return ml / UK_GAL_TO_ML
+      default: return NaN
+    }
+  }
+  return NaN
+}
+
+/** ====== Températures (°C ⇆ °F ⇆ K) + Thermostat ====== */
+const CtoK = (c: number) => c + 273.15
+const FtoK = (f: number) => (f - 32) * 5/9 + 273.15
+const KtoC = (k: number) => k - 273.15
+const KtoF = (k: number) => (k - 273.15) * 9/5 + 32
+// Thermostat four (approx française courante) : °C ≈ th × 30
+const thToC = (th: number) => th * 30
+const cToTh = (c: number) => c / 30
+
+/** ====== Longueurs (mm, cm, m, in, ft) ====== */
+// base: m
+type LenUnit = 'mm' | 'cm' | 'm' | 'in' | 'ft'
+const lenToM = (unit: LenUnit, v: number): number => {
+  switch (unit) {
+    case 'mm': return v / 1000
+    case 'cm': return v / 100
+    case 'm':  return v
+    case 'in': return v * 0.0254
+    case 'ft': return v * 0.3048
+  }
+}
+const mToLen = (unit: LenUnit, m: number): number => {
+  switch (unit) {
+    case 'mm': return m * 1000
+    case 'cm': return m * 100
+    case 'm':  return m
+    case 'in': return m / 0.0254
+    case 'ft': return m / 0.3048
+  }
+}
+
+/** ====== UI ====== */
+export default function UniversalConverter(): JSX.Element {
+  /** Masses */
+  const MassUnits: readonly MassUnit[] = ['mg','g','kg','oz','lb']
+  const [mUnitA, setMUnitA] = useState<MassUnit>('g')
+  const [mUnitB, setMUnitB] = useState<MassUnit>('oz')
+  const [mA, setMA] = useState<string>('')
+  const [mB, setMB] = useState<string>('')
+  const syncMassFromA = (v: string) => {
+    setMA(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setMB(''); return }
+    const g = massToG(mUnitA, n)
+    setMB(fmt(gToMass(mUnitB, g)))
+  }
+  const syncMassFromB = (v: string) => {
+    setMB(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setMA(''); return }
+    const g = massToG(mUnitB, n)
+    setMA(fmt(gToMass(mUnitA, g)))
+  }
+
+  /** Volumes */
+  const VolUnits: readonly VolUnit[] = VOL_UNITS
+  const [volSys, setVolSys] = useState<VolSystem>('us') // 'metric' | 'us' | 'uk'
+  const [vUnitA, setVUnitA] = useState<VolUnit>('ml')
+  const [vUnitB, setVUnitB] = useState<VolUnit>('cup')
+  const [vA, setVA] = useState<string>('')
+  const [vB, setVB] = useState<string>('')
+  const syncVolFromA = (val: string, unit?: VolUnit) => {
+    const u = unit ?? vUnitA
+    setVA(val)
+    const n = toNum(val)
+    if (!Number.isFinite(n)) { setVB(''); return }
+    const ml = volToMl(volSys, u, n)
+    setVB(fmt(mlToVol(volSys, vUnitB, ml)))
+  }
+  const syncVolFromB = (val: string, unit?: VolUnit) => {
+    const u = unit ?? vUnitB
+    setVB(val)
+    const n = toNum(val)
+    if (!Number.isFinite(n)) { setVA(''); return }
+    const ml = volToMl(volSys, u, n)
+    setVA(fmt(mlToVol(volSys, vUnitA, ml)))
+  }
+  const onChangeVolSystem = (sys: VolSystem) => {
+    setVolSys(sys)
+    if (vA) syncVolFromA(vA)
+    else if (vB) syncVolFromB(vB)
+  }
+
+  /** Températures + Thermostat */
+  const [c, setC] = useState<string>('')   // °C
+  const [f, setF] = useState<string>('')   // °F
+  const [k, setK] = useState<string>('')   // Kelvin
+  const [th, setTh] = useState<string>('') // thermostat
+  const setFromC = (v: string) => {
+    setC(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setF(''); setK(''); setTh(''); return }
+    const K = CtoK(n)
+    setF(fmt(KtoF(K)))
+    setK(fmt(K))
+    setTh(fmt(cToTh(n), 2))
+  }
+  const setFromF = (v: string) => {
+    setF(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setC(''); setK(''); setTh(''); return }
+    const K = FtoK(n)
+    const cVal = KtoC(K)
+    setC(fmt(cVal))
+    setK(fmt(K))
+    setTh(fmt(cToTh(cVal), 2))
+  }
+  const setFromK = (v: string) => {
+    setK(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setC(''); setF(''); setTh(''); return }
+    const cVal = KtoC(n)
+    setC(fmt(cVal))
+    setF(fmt(KtoF(n)))
+    setTh(fmt(cToTh(cVal), 2))
+  }
+  const setFromTh = (v: string) => {
+    setTh(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setC(''); setF(''); setK(''); return }
+    const cVal = thToC(n)
+    const K = CtoK(cVal)
+    setC(fmt(cVal))
+    setF(fmt(KtoF(K)))
+    setK(fmt(K))
+  }
+
+  /** Longueurs */
+  const LenUnits: readonly LenUnit[] = ['mm','cm','m','in','ft']
+  const [lenUnitA, setLenUnitA] = useState<LenUnit>('cm')
+  const [lenUnitB, setLenUnitB] = useState<LenUnit>('in')
+  const [lenA, setLenA] = useState<string>('')
+  const [lenB, setLenB] = useState<string>('')
+  const syncLenFromA = (v: string) => {
+    setLenA(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setLenB(''); return }
+    const m = lenToM(lenUnitA, n)
+    setLenB(fmt(mToLen(lenUnitB, m)))
+  }
+  const syncLenFromB = (v: string) => {
+    setLenB(v)
+    const n = toNum(v)
+    if (!Number.isFinite(n)) { setLenA(''); return }
+    const m = lenToM(lenUnitB, n)
+    setLenA(fmt(mToLen(lenUnitA, m)))
+  }
+
   return (
-    <TextInput
-      style={st.input}
-      keyboardType="numeric"
-      value={value}
-      onChangeText={(t) => onChangeText(onlyDigitsDot(t))}
-      placeholder={placeholder}
-      placeholderTextColor="#ff8fcd"
-    />
+    <View style={{ flex: 1 }}>
+      <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
+        {/* Header compact avec actions wrap */}
+        <View style={st.headerWrap}>
+          <Text style={st.h1}>Convertisseur universel</Text>
+          <View style={st.actionsWrap}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={st.actionLink}>↩︎ Retour</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 1) Masses / Poids */}
+        <View style={st.card}>
+          <Text style={st.sTitle}>Masses / Poids</Text>
+          <View style={st.dualCol}>
+            {/* Entrée = clair */}
+            <UnitChips
+              units={MassUnits}
+              sel={mUnitA}
+              onSel={(u) => { setMUnitA(u); if (mA) syncMassFromA(mA) }}
+              variant="input"
+            />
+            {/* Sortie = foncé */}
+            <UnitChips
+              units={MassUnits}
+              sel={mUnitB}
+              onSel={(u) => { setMUnitB(u); if (mB) syncMassFromB(mB) }}
+              variant="output"
+            />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{mUnitA}</Text>
+            <TextInput
+              style={st.input}
+              value={mA}
+              onChangeText={syncMassFromA}
+              placeholder="ex: 250"
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{mUnitB}</Text>
+            <TextInput
+              style={st.input}
+              value={mB}
+              onChangeText={syncMassFromB}
+              placeholder="ex: 8.82"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
+        {/* 2) Volumes */}
+        <View style={st.card}>
+          <Text style={st.sTitle}>Volumes</Text>
+
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+            {(['metric','us','uk'] as const).map((s) => {
+              const on = volSys === s
+              return (
+                <TouchableOpacity key={s} onPress={() => onChangeVolSystem(s)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
+                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>
+                    {s === 'metric' ? 'Métrique' : s.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+
+          <View style={st.dualCol}>
+            {/* Entrée = clair */}
+            <UnitChips
+              units={VolUnits}
+              sel={vUnitA}
+              onSel={(u) => { setVUnitA(u); if (vA) syncVolFromA(vA, u) }}
+              variant="input"
+            />
+            {/* Sortie = foncé */}
+            <UnitChips
+              units={VolUnits}
+              sel={vUnitB}
+              onSel={(u) => { setVUnitB(u); if (vB) syncVolFromB(vB, u) }}
+              variant="output"
+            />
+          </View>
+
+          <View style={st.row}>
+            <Text style={st.k}>{vUnitA}</Text>
+            <TextInput
+              style={st.input}
+              value={vA}
+              onChangeText={(t) => syncVolFromA(t)}
+              placeholder="ex: 500"
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{vUnitB}</Text>
+            <TextInput
+              style={st.input}
+              value={vB}
+              onChangeText={(t) => syncVolFromB(t)}
+              placeholder="ex: 2.08"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
+        {/* 3) Températures + Thermostat */}
+        <View style={st.card}>
+          <Text style={st.sTitle}>Températures</Text>
+          <View style={st.row}>
+            <Text style={st.k}>°C</Text>
+            <TextInput style={st.input} value={c} onChangeText={setFromC} placeholder="ex: 180" keyboardType="numeric" />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>°F</Text>
+            <TextInput style={st.input} value={f} onChangeText={setFromF} placeholder="ex: 356" keyboardType="numeric" />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>K</Text>
+            <TextInput style={st.input} value={k} onChangeText={setFromK} placeholder="ex: 453.15" keyboardType="numeric" />
+          </View>
+
+          <View style={{ height: 8 }} />
+          <Text style={[st.sTitle, { marginBottom: 6 }]}>Thermostat four (≈ ×30 °C)</Text>
+          <View style={st.row}>
+            <Text style={st.k}>Th.</Text>
+            <TextInput style={st.input} value={th} onChangeText={setFromTh} placeholder="ex: 6" keyboardType="numeric" />
+          </View>
+        </View>
+
+        {/* 4) Longueurs */}
+        <View style={st.card}>
+          <Text style={st.sTitle}>Longueurs</Text>
+          <View style={st.dualCol}>
+            {/* Entrée = clair */}
+            <UnitChips
+              units={LenUnits}
+              sel={lenUnitA}
+              onSel={(u) => { setLenUnitA(u); if (lenA) syncLenFromA(lenA) }}
+              variant="input"
+            />
+            {/* Sortie = foncé */}
+            <UnitChips
+              units={LenUnits}
+              sel={lenUnitB}
+              onSel={(u) => { setLenUnitB(u); if (lenB) syncLenFromB(lenB) }}
+              variant="output"
+            />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{lenUnitA}</Text>
+            <TextInput style={st.input} value={lenA} onChangeText={syncLenFromA} placeholder="ex: 10" keyboardType="numeric" />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{lenUnitB}</Text>
+            <TextInput style={st.input} value={lenB} onChangeText={syncLenFromB} placeholder="ex: 3.94" keyboardType="numeric" />
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   )
 }
 
-function Segmented<T extends string>({ options, value, onChange }: { options: { label: string; value: T }[]; value: T; onChange: (v: T) => void }) {
+type UnitChipsProps<T extends string> = {
+  units: readonly T[]
+  sel: T
+  onSel: (u: T) => void
+  /** 'input' => clair par défaut, 'output' => foncé par défaut */
+  variant?: 'input' | 'output'
+}
+
+function UnitChips<T extends string>({
+  units,
+  sel,
+  onSel,
+  variant = 'input',
+}: UnitChipsProps<T>): JSX.Element {
+  const isInput = variant === 'input'
   return (
-    <View style={st.segmentWrap}>
-      {options.map(opt => {
-        const on = value === opt.value
+    <View style={st.chipsRow}>
+      {units.map((u) => {
+        const selected = sel === u
+
+        // style par défaut (selon input/output)
+        const baseChip = isInput ? st.chipLight : st.chipDark
+        const baseTxt  = isInput ? st.chipLightTxt : st.chipDarkTxt
+
+        // si sélectionné → override gris
+        const chipStyle = selected ? st.chipSelected : baseChip
+        const txtStyle  = selected ? st.chipSelectedTxt : baseTxt
+
         return (
-          <TouchableOpacity key={opt.value} onPress={() => onChange(opt.value)} activeOpacity={0.9} style={[st.segmentBtn, on && st.segmentBtnOn]}>
-            <Text style={[st.segmentTxt, on && st.segmentTxtOn]} numberOfLines={1}>{opt.label}</Text>
+          <TouchableOpacity
+            key={u}
+            onPress={() => onSel(u)}
+            activeOpacity={0.9}
+            style={[st.chip, chipStyle]}
+          >
+            <Text style={[st.chipTxt, txtStyle]}>{u}</Text>
           </TouchableOpacity>
         )
       })}
@@ -139,228 +482,44 @@ function Segmented<T extends string>({ options, value, onChange }: { options: { 
   )
 }
 
-// ---------- Screen ----------
-export default function UniversalConverter() {
-  // Volume system
-  const [volSystem, setVolSystem] = useState<'US'|'UK'>('US')
 
-  // Mass
-  const [massVal, setMassVal] = useState('')
-  const [massUnit, setMassUnit] = useState<(typeof MASS_ORDER)[number]>('g')
-  const massRes = useMemo(() => convertMass(num(massVal), massUnit), [massVal, massUnit])
-
-  // Volume
-  const [volVal, setVolVal] = useState('')
-  const [volUnit, setVolUnit] = useState<(typeof VOL_ORDER)[number]>('ml')
-  const volRes = useMemo(() => convertVol(num(volVal), volUnit, volSystem), [volVal, volUnit, volSystem])
-
-  // Length
-  const [lenVal, setLenVal] = useState('')
-  const [lenUnit, setLenUnit] = useState<(typeof LEN_ORDER)[number]>('cm')
-  const lenRes = useMemo(() => convertLen(num(lenVal), lenUnit), [lenVal, lenUnit])
-
-  // Temperature
-  const [tVal, setTVal] = useState('')
-  const [tUnit, setTUnit] = useState<'C'|'F'|'K'>('C')
-  const tRes = useMemo(() => tAll(num(tVal), tUnit), [tVal, tUnit])
-
-  // Weight ↔ Volume with density (g/mL)
-  const [density, setDensity] = useState('1') // default eau ~1 g/mL
-  const [w2vVal, setW2vVal] = useState('') // grams
-  const [v2wVal, setV2wVal] = useState('') // mL
-
-  const dens = Math.max(0, num(density) || 0)
-  const w2v_mL = dens > 0 ? num(w2vVal) / dens : 0
-  const v2w_g = dens > 0 ? num(v2wVal) * dens : 0
-
-  const volNote = volSystem === 'UK'
-    ? 'Système UK : cuillère = 5/15 mL, fl oz imp = 28,41 mL, pint imp = 568 mL (cup = 250 mL par convention).'
-    : 'Système US : tsp = 4,93 mL, tbsp = 14,79 mL, fl oz = 29,57 mL, cup = 236,59 mL.'
-
-  return (
-    <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
-      <View style={st.headerRow}>
-        <Text style={st.h1}>Convertisseur universel</Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={st.navLink}>↩︎ Retour</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* ===== Volumes ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Volumes</Text>
-        <Segmented options={[{label:'US', value:'US'},{label:'UK', value:'UK'}]} value={volSystem} onChange={setVolSystem} />
-        <View style={st.rowGap}>
-          <Input value={volVal} onChangeText={setVolVal} placeholder="Entrez une quantité" />
-          <Segmented
-            options={VOL_ORDER.map(u => ({ label: VOL_LABELS[u], value: u }))}
-            value={volUnit}
-            onChange={setVolUnit}
-          />
-        </View>
-        <View style={st.resWrap}>
-          {VOL_ORDER.map((u) => (
-            <View key={u} style={st.resRow}>
-              <Text style={st.k}>{VOL_LABELS[u]}</Text>
-              <Text style={st.v}>{fmt(volRes[u] ?? 0)}</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={st.helpTxt}>{volNote}</Text>
-      </View>
-
-      {/* ===== Masses ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Masses</Text>
-        <View style={st.rowGap}>
-          <Input value={massVal} onChangeText={setMassVal} placeholder="Entrez une quantité" />
-          <Segmented
-            options={MASS_ORDER.map(u => ({ label: MASS_LABELS[u], value: u }))}
-            value={massUnit}
-            onChange={setMassUnit}
-          />
-        </View>
-        <View style={st.resWrap}>
-          {MASS_ORDER.map((u) => (
-            <View key={u} style={st.resRow}>
-              <Text style={st.k}>{MASS_LABELS[u]}</Text>
-              <Text style={st.v}>{fmt(massRes[u] ?? 0)}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* ===== Longueurs ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Longueurs</Text>
-        <View style={st.rowGap}>
-          <Input value={lenVal} onChangeText={setLenVal} placeholder="Entrez une longueur" />
-          <Segmented
-            options={LEN_ORDER.map(u => ({ label: LEN_LABELS[u], value: u }))}
-            value={lenUnit}
-            onChange={setLenUnit}
-          />
-        </View>
-        <View style={st.resWrap}>
-          {LEN_ORDER.map((u) => (
-            <View key={u} style={st.resRow}>
-              <Text style={st.k}>{LEN_LABELS[u]}</Text>
-              <Text style={st.v}>{fmt(lenRes[u] ?? 0)}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* ===== Températures ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Températures</Text>
-        <View style={st.rowGap}>
-          <Input value={tVal} onChangeText={setTVal} placeholder="Entrez une température" />
-          <Segmented options={[{label:'°C', value:'C'},{label:'°F', value:'F'},{label:'K', value:'K'}]} value={tUnit} onChange={setTUnit} />
-        </View>
-        <View style={st.resWrap}>
-          <View style={st.resRow}><Text style={st.k}>°C</Text><Text style={st.v}>{fmt(tRes.C, 2)}</Text></View>
-          <View style={st.resRow}><Text style={st.k}>°F</Text><Text style={st.v}>{fmt(tRes.F, 2)}</Text></View>
-          <View style={st.resRow}><Text style={st.k}>K</Text><Text style={st.v}>{fmt(tRes.K, 2)}</Text></View>
-        </View>
-      </View>
-
-      {/* ===== Poids ↔ Volume (avec densité) ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Poids ⇆ Volume (avec densité)</Text>
-        <Text style={st.sub}>Densité (g/mL) — ex : eau = 1, huile ≈ 0,92, miel ≈ 1,42</Text>
-        <Input value={density} onChangeText={setDensity} placeholder="1" />
-
-        <View style={st.dualRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={st.sTitle}>Poids → Volume</Text>
-            <Input value={w2vVal} onChangeText={setW2vVal} placeholder="Poids (g)" />
-            <KV k="Volume estimé" v={`${fmt(w2v_mL)} mL | ${fmt(w2v_mL / 1000)} L`} />
-          </View>
-          <View style={{ width: 14 }} />
-          <View style={{ flex: 1 }}>
-            <Text style={st.sTitle}>Volume → Poids</Text>
-            <Input value={v2wVal} onChangeText={setV2wVal} placeholder="Volume (mL)" />
-            <KV k="Poids estimé" v={`${fmt(v2w_g)} g | ${fmt(v2w_g / 1000)} kg`} />
-          </View>
-        </View>
-      </View>
-
-      {/* ===== Raccourcis métrique ↔ impérial ===== */}
-      <View style={st.card}>
-        <Text style={st.h2}>Métrique ↔ Impérial (raccourcis)</Text>
-        <View style={st.quickGrid}>
-          <QuickRow labelLeft="Gramme → Once" leftUnit="g" rightUnit="oz" factorLeftToRight={1 / (MASS_FACTORS.oz)} />
-          <QuickRow labelLeft="Kilogramme → Livre" leftUnit="kg" rightUnit="lb" factorLeftToRight={MASS_FACTORS.kg / MASS_FACTORS.lb} />
-          <QuickRow labelLeft="Millilitre → fl oz (US)" leftUnit="ml" rightUnit="fl oz" factorLeftToRight={1 / VOL_FACTORS_US.floz} />
-          <QuickRow labelLeft="Millilitre → fl oz (UK)" leftUnit="ml" rightUnit="fl oz imp" factorLeftToRight={1 / VOL_FACTORS_UK.floz} />
-          <QuickRow labelLeft="Litre → pint (US)" leftUnit="l" rightUnit="pt" factorLeftToRight={1000 / VOL_FACTORS_US.pt} />
-          <QuickRow labelLeft="Litre → pint (UK)" leftUnit="l" rightUnit="pt imp" factorLeftToRight={1000 / VOL_FACTORS_UK.pt} />
-        </View>
-        <Text style={st.helpTxt}>Astuce : chaque rangée est bidirectionnelle (saisissez à gauche ou à droite).</Text>
-      </View>
-
-      <View style={{ height: 40 }} />
-    </ScrollView>
-  )
-}
-
-function KV({ k, v }: { k: string; v: string }) {
-  return (
-    <View style={st.resRow}>
-      <Text style={st.k}>{k}</Text>
-      <Text style={st.v}>{v}</Text>
-    </View>
-  )
-}
-
-function QuickRow({ labelLeft, leftUnit, rightUnit, factorLeftToRight }: { labelLeft: string; leftUnit: string; rightUnit: string; factorLeftToRight: number }) {
-  const [left, setLeft] = useState('')
-  const [right, setRight] = useState('')
-
-  const onLeft = (t: string) => {
-    const v = num(t)
-    setLeft(onlyDigitsDot(t))
-    setRight(v || v === 0 ? (t.trim() === '' ? '' : fmt(v * factorLeftToRight)) : '')
-  }
-  const onRight = (t: string) => {
-    const v = num(t)
-    setRight(onlyDigitsDot(t))
-    setLeft(v || v === 0 ? (t.trim() === '' ? '' : fmt(v / factorLeftToRight)) : '')
-  }
-
-  return (
-    <View style={st.quickRow}>
-      <Text style={st.k}>{labelLeft}</Text>
-      <View style={st.bidirWrap}>
-        <TextInput value={left} onChangeText={onLeft} keyboardType="numeric" placeholder={`en ${leftUnit}`} placeholderTextColor="#ff8fcd" style={[st.input, { flex: 1 }]} />
-        <Text style={st.arrow}>⇆</Text>
-        <TextInput value={right} onChangeText={onRight} keyboardType="numeric" placeholder={`en ${rightUnit}`} placeholderTextColor="#ff8fcd" style={[st.input, { flex: 1 }]} />
-      </View>
-    </View>
-  )
-}
-
-// ---------- Styles ----------
 const st = StyleSheet.create({
+  
+  // gris clair pour l’état sélectionné
+chipSelected:   { backgroundColor: '#E5E7EB', borderColor: '#D1D5DB' }, // gray-200 / gray-300
+chipSelectedTxt:{ color: '#374151' }, // gray-700
   container: { flex: 1, backgroundColor: '#FFEEFC' },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingHorizontal: 16 },
+
+  headerWrap: { marginBottom: 12 },
   h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
-  navLink: { color: '#7c3aed', fontWeight: '900', fontSize: 18 },
+  actionsWrap: {
+    marginTop: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    alignItems: 'center',
+  },
+  actionLink: { fontWeight: '900', color: '#7c3aed' },
 
-  card: { backgroundColor: '#fff', borderRadius: 18, padding: 14, marginHorizontal: 16, marginBottom: 14, shadowColor: '#FF8FCD', shadowOpacity: 0.16, shadowRadius: 8, elevation: 5 },
-  h2: { fontSize: 18, fontWeight: '900', color: '#FF4FA2', marginBottom: 8 },
-  sub: { color: '#57324B', fontWeight: '600', marginBottom: 6 },
-  helpTxt: { color: '#8a587c', fontStyle: 'italic', marginTop: 6 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 14,
+    shadowColor: '#FF8FCD',
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+  },
 
-  rowGap: { gap: 10 },
+  sTitle: { fontWeight: '900', color: '#444', marginBottom: 8 },
 
-  resWrap: { marginTop: 8, gap: 6 },
-  resRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 2 },
-  k: { color: '#555', fontWeight: '700' },
-  v: { color: '#222', fontWeight: '900' },
-
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 8 },
+  k: { color: '#57324B', fontWeight: '800', minWidth: 56 },
   input: {
+    flex: 1,
     backgroundColor: '#FFF0FA',
     borderRadius: 14,
     borderWidth: 2,
@@ -371,16 +530,46 @@ const st = StyleSheet.create({
     color: '#FF4FA2',
   },
 
-  segmentWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  segmentBtn: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 2, borderColor: '#FFB6F9', backgroundColor: '#FFE4F6' },
-  segmentBtnOn: { borderColor: '#FF4FA2', backgroundColor: '#FF92E0' },
-  segmentTxt: { color: '#FF4FA2', fontWeight: '800' },
-  segmentTxtOn: { color: '#fff' },
+  // empile les 2 colonnes de chips sur mobile
+  dualCol: { gap: 6, marginBottom: 8 },
 
-  quickGrid: { gap: 10 },
-  quickRow: { marginTop: 6 },
-  bidirWrap: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  arrow: { fontSize: 18, fontWeight: '900', color: '#FF4FA2' },
+  // ===== Chips (unités) : clair / foncé + inversion à la sélection =====
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
 
-  dualRow: { flexDirection: 'row', marginTop: 8 },
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 2,
+  },
+  chipTxt: { fontWeight: '800', fontSize: 14 },
+
+  // clair (entrée)
+  chipLight: { backgroundColor: '#FFE4F6', borderColor: '#FFB6F9' },
+  chipLightTxt: { color: '#FF4FA2' },
+
+  // foncé (sortie)
+  chipDark: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
+  chipDarkTxt: { color: '#fff' },
+
+  // Boutons pill "système" (on garde l'ancien style)
+  sizeBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+    backgroundColor: '#FFE4F6',
+  },
+  sizeBtnOn: { borderColor: '#FF4FA2', backgroundColor: '#FF92E0' },
+  sizeBtnText: { fontWeight: '800', color: '#FF4FA2', fontSize: 14 },
+  sizeBtnTextOn: { color: '#fff' },
+  // gris clair pour chips sélectionnées
+chipSelected: {
+  backgroundColor: '#E5E7EB', // gray-200
+  borderColor: '#D1D5DB',     // gray-300
+},
+chipSelectedTxt: {
+  color: '#374151',           // gray-700
+},
 })

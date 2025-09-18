@@ -240,17 +240,21 @@ export default function Results() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
-        <View style={st.headerRow}>
-          <Text style={st.h1}>Convertisseurs</Text>
-          <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => router.push('/timer')}>
-              <Text style={st.navLink}>⏱️ Minuteur</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={st.navLink}>↩︎ Modifier</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <View style={st.headerWrap}>
+  <Text style={st.h1}>Convertisseurs</Text>
+
+  <View style={st.actionsWrap}>
+    <TouchableOpacity onPress={() => router.push('/timer')}>
+      <Text style={st.actionLink}>⏱️ Minuteur</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => router.push('/universel')}>
+      <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => router.back()}>
+      <Text style={st.actionLinkSecondary}>↩︎ Modifier</Text>
+    </TouchableOpacity>
+  </View>
+</View>
 
         {running && (
           <TouchableOpacity onPress={() => router.push('/timer')} style={st.timerBanner} activeOpacity={0.9}>
@@ -1553,6 +1557,31 @@ const st = StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
 
+  headerWrap: {
+    marginBottom: 12,
+  },
+  h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
+
+  actionsWrap: {
+    marginTop: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    alignItems: 'center',
+  },
+  actionLink: {
+    fontWeight: '900',            // gras
+    color: '#7c3aed',
+    fontSize: 16,                 // un poil plus petit pour tenir
+  },
+  actionLinkSecondary: {
+    fontWeight: '800',
+    color: '#7c3aed',
+    fontSize: 16,
+    opacity: 0.9,
+  },
+  
+
   timerBanner: {
     backgroundColor: '#FF92E0',
     borderRadius: 16,
@@ -1704,4 +1733,4 @@ const st = StyleSheet.create({
   },
   closeBtnTxt: { fontWeight: '900', fontSize: 12, color: '#7a3c84' },
   infoBody: { color: '#57324B', lineHeight: 20, fontWeight: '600' },
-})
+} )

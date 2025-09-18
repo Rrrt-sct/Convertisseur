@@ -35,6 +35,7 @@ export default function RootLayout() {
           options={{ headerShown: true, title: 'Convertisseurs' }}
         />
         <Stack.Screen name="timer" options={{ headerShown: false }} />
+        <Stack.Screen name="universel" options={{ headerShown: true, title: 'Convertisseur universel' }} />
       </Stack>
     </TimerProvider>
   )
