@@ -17,6 +17,8 @@ export const IMAGE_MAP: Record<string, ImageEntry> = {
   'gingembre_racine': { detail: require('../assets/illustrations_opt/gingembre_racine.webp'), thumb: require('../assets/illustrations_opt/gingembre_racine_t.webp') },
   'grenade': { detail: require('../assets/illustrations_opt/grenade.webp'), thumb: require('../assets/illustrations_opt/grenade_t.webp') },
   'gros_sel': { detail: require('../assets/illustrations_opt/gros_sel.webp'), thumb: require('../assets/illustrations_opt/gros_sel_t.webp') },
+  'haricot': { detail: require('../assets/illustrations_opt/haricot.webp'), thumb: require('../assets/illustrations_opt/haricot_t.webp') },
+  'haricots_verts': { detail: require('../assets/illustrations_opt/haricots_verts.webp'), thumb: require('../assets/illustrations_opt/haricots_verts_t.webp') },
   'huile': { detail: require('../assets/illustrations_opt/huile.webp'), thumb: require('../assets/illustrations_opt/huile_t.webp') },
   'noisette': { detail: require('../assets/illustrations_opt/noisette.webp'), thumb: require('../assets/illustrations_opt/noisette_t.webp') },
   'oeuf': { detail: require('../assets/illustrations_opt/oeuf.webp'), thumb: require('../assets/illustrations_opt/oeuf_t.webp') },
@@ -30,6 +32,7 @@ export const IMAGE_MAP: Record<string, ImageEntry> = {
   'sucre': { detail: require('../assets/illustrations_opt/sucre.webp'), thumb: require('../assets/illustrations_opt/sucre_t.webp') },
   'the': { detail: require('../assets/illustrations_opt/the.webp'), thumb: require('../assets/illustrations_opt/the_t.webp') },
   'tomate': { detail: require('../assets/illustrations_opt/tomate.webp'), thumb: require('../assets/illustrations_opt/tomate_t.webp') },
+  'volaille': { detail: require('../assets/illustrations_opt/volaille.webp'), thumb: require('../assets/illustrations_opt/volaille_t.webp') },
 };
 
 export const getImage = (id: string) => IMAGE_MAP[id]?.detail;

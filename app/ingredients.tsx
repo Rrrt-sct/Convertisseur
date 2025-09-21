@@ -117,6 +117,7 @@ export default function IngredientsScreen() {
       if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label })) return false
       if (isTomatoVarietyRow(raw)) return false
       if (isOnionVarietyRow(raw)) return false
+      if (raw.is_chckn) return false
       return true
     })
 

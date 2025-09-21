@@ -582,6 +582,15 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
         return <EggsSection d={d} />
       })()}
 
+{/* --------- Module VOLAILLE --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isChicken = normId === 'volaille'
+  if (!isChicken) return null
+  return <ChickenSection d={d} />
+})()}
+
+
       {/* --------- Pommes de terre --------- */}
       {(() => {
         const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
@@ -1549,6 +1558,72 @@ function PastaWaterSaltSection({ d }: { d: Item }) {
     </View>
   )
 }
+
+function ChickenSection({ d }: { d: Item }) {
+  const [selectedVar, setSelectedVar] = useState<any | null>(null)
+  const [weight, setWeight] = useState('')
+
+  // Liste des variétés de volaille dans le CSV
+  const chickenVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_chckn)), [])
+
+  const w = num(weight)
+  const cookTime = selectedVar && w >= 400
+    ? w / 100 * (toNumMaybe(selectedVar.chckn_tme) ?? 0)
+    : null
+
+  return (
+    <View style={st.section}>
+      {/* 1️⃣ Infos clés */}
+      <Text style={st.sTitle}>Infos clés</Text>
+      <Text style={{ color: '#57324B', fontWeight: '600', marginBottom: 10 }}>
+        Les températures et temps de cuisson sont donnés à titre indicatif. 
+        Il est impératif de surveiller la cuisson. 
+        La meilleure méthode pour la cuisson des volailles reste l'utilisation d'un thermomètre de cuisson.
+      </Text>
+
+      {/* 2️⃣ Choix de la variété */}
+      <Text style={[st.sTitle, { marginBottom: 6 }]}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {chickenVarieties.map(v => {
+          const on = selectedVar?.id === v.id
+          const name = String(v.label ?? v.id)
+          return (
+            <TouchableOpacity
+              key={v.id}
+              onPress={() => setSelectedVar(v)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              {imgSrc(v.id) ? (
+                <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+              ) : null}
+              <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {/* 3️⃣ Affichage infos de la variété sélectionnée */}
+      {selectedVar && (
+        <View style={{ marginTop: 10 }}>
+          <Row left="Température du four" right={`${selectedVar.chckn_tp ?? '—'} °C`} />
+
+          <InputWithEcho
+            value={weight}
+            onChangeText={setWeight}
+            placeholder="Poids label (g)"
+            echoLabel="Poids (g)"
+          />
+
+          {cookTime !== null && (
+            <Row left="Temps de cuisson estimé" right={`${fmt(cookTime)} min`} />
+          )}
+        </View>
+      )}
+    </View>
+  )
+}
+
 
 /* ===================== Styles ===================== */
 const st = StyleSheet.create({
