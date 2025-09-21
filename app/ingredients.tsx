@@ -144,7 +144,18 @@ export default function IngredientsScreen() {
 
   return (
     <View style={st.container}>
-      <Text style={st.title}>🧺 Ingrédients</Text>
+      {/* Header + actions (même mise en forme que le convertisseur) */}
+      <View style={st.headerWrap}>
+        <Text style={st.h1}>🧺 Ingrédients</Text>
+        <View style={st.actionsWrap}>
+          <TouchableOpacity onPress={() => router.push('/timer')}>
+            <Text style={st.actionLink}>⏱️ Minuteur</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/universel')}>
+            <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <View style={st.card}>
         <TextInput
@@ -199,7 +210,20 @@ export default function IngredientsScreen() {
 
 const st = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFEEFC', padding: 18, paddingTop: 36 },
-  title: { fontSize: 26, fontWeight: '900', color: '#FF4FA2', marginBottom: 14 },
+
+  // === mêmes styles que la page convertisseur ===
+  headerWrap: { marginBottom: 12 },
+  h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
+  actionsWrap: {
+    marginTop: 6,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    alignItems: 'center',
+  },
+  actionLink: { fontWeight: '900', color: '#7c3aed', fontSize: 16 },
+
+  // === carte principale ===
   card: {
     flex: 1,
     backgroundColor: '#fff',

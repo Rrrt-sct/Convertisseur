@@ -1,5 +1,6 @@
+// app/universel.tsx
 import { router } from 'expo-router'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -11,207 +12,158 @@ import {
 
 /** ===== Helpers ===== */
 const toNum = (s: string): number => {
-  const n = Number((s ?? '').toString().replace(',', '.'))
+  const cleaned = (s ?? '')
+    .toString()
+    .replace(/\u00A0/g, '')  // NBSP
+    .replace(/\s+/g, '')     // espaces
+    .replace(',', '.')
+  const n = Number(cleaned)
   return Number.isFinite(n) ? n : NaN
 }
-const fmt = (n: number, d = 3): string => {
-  if (!Number.isFinite(n)) return '—'
-  const x = Number(n.toFixed(d))
-  const s = String(x)
-  return s.replace(/\.?0+$/, '')
-}
 
-/** ====== Masses/Poids (mg, g, kg, oz, lb) ====== */
-// base: g
+// Affichage propre: pas d’espaces de regroupement, décimales utiles, pas de trim “00”
+const nf = new Intl.NumberFormat('fr-FR', {
+  useGrouping: false,
+  maximumFractionDigits: 6,
+})
+const fmt = (n: number): string => (Number.isFinite(n) ? nf.format(n) : '')
+const safeFmt = (n: number) => (Number.isFinite(n) ? fmt(n) : '')
+
+/** ===== Masses (base = gramme) via ratios ===== */
 type MassUnit = 'mg' | 'g' | 'kg' | 'oz' | 'lb'
-const massToG = (u: MassUnit, v: number): number => {
-  switch (u) {
-    case 'mg': return v / 1000
-    case 'g':  return v
-    case 'kg': return v * 1000
-    case 'oz': return v * 28.349523125
-    case 'lb': return v * 453.59237
-  }
+const MASS_LABEL: Record<MassUnit, string> = {
+  mg: 'Milligrammes (mg)',
+  g: 'Grammes (g)',
+  kg: 'Kilogrammes (kg)',
+  oz: 'Onces (oz)',
+  lb: 'Livres (lb)',
 }
-const gToMass = (u: MassUnit, g: number): number => {
-  switch (u) {
-    case 'mg': return g * 1000
-    case 'g':  return g
-    case 'kg': return g / 1000
-    case 'oz': return g / 28.349523125
-    case 'lb': return g / 453.59237
-  }
+// grammes par unité (1 <u> = G_PER[u] grammes)
+const G_PER: Record<MassUnit, number> = {
+  mg: 0.001,
+  g: 1,
+  kg: 1000,
+  oz: 28.349523125,
+  lb: 453.59237,
 }
+const convertByFactor = <U extends string>(
+  value: number,
+  from: U,
+  to: U,
+  factors: Record<U, number>,
+) => value * (factors[from] / factors[to])
 
-/** ====== Volumes (métrique + US/UK) ====== */
-// base: mL
-const ML_PER_CL = 10
-const L_TO_ML = 1000
-// US
-const US_TSP_TO_ML  = 4.92892159375
-const US_TBSP_TO_ML = US_TSP_TO_ML * 3
-const US_CUP_TO_ML  = 240 // valeur culinaire usuelle
-const US_FL_OZ_TO_ML = 29.5735295625
-const US_PINT_TO_ML  = 473.176473
-const US_QUART_TO_ML = 946.352946
-const US_GAL_TO_ML   = 3785.411784
-// UK (Impérial)
-const UK_FL_OZ_TO_ML = 28.4130625
-const UK_PINT_TO_ML  = 568.26125
-const UK_QUART_TO_ML = 1136.5225
-const UK_GAL_TO_ML   = 4546.09
-
+/** ===== Volumes (base = millilitre) via ratios par système ===== */
 const VOL_UNITS = ['ml','cl','l','tsp','tbsp','fl oz','cup','pt','qt','gal'] as const
 type VolUnit = typeof VOL_UNITS[number]
 type VolSystem = 'metric' | 'us' | 'uk'
-
-const volToMl = (sys: VolSystem, u: VolUnit, v: number): number => {
-  if (u === 'ml') return v
-  if (u === 'cl') return v * ML_PER_CL
-  if (u === 'l')  return v * L_TO_ML
+const VOL_LABEL: Record<VolUnit, string> = {
+  ml: 'Millilitres (ml)',
+  cl: 'Centilitres (cl)',
+  l:  'Litres (l)',
+  tsp: 'Cuillères à café (tsp)',
+  tbsp: 'Cuillères à soupe (tbsp)',
+  'fl oz': 'Onces fluides (fl oz)',
+  cup: 'Tasses (cup)',
+  pt: 'Pintes (pt)',
+  qt: 'Quarts (qt)',
+  gal: 'Gallons (gal)',
+}
+// mL par unité selon système
+const getMlPer = (sys: VolSystem): Record<VolUnit, number> => {
+  const common: Record<VolUnit, number> = {
+    ml: 1,
+    cl: 10,
+    l: 1000,
+    tsp: NaN,
+    tbsp: NaN,
+    'fl oz': NaN,
+    cup: NaN,
+    pt: NaN,
+    qt: NaN,
+    gal: NaN,
+  }
   if (sys === 'us') {
-    switch (u) {
-      case 'tsp':   return v * US_TSP_TO_ML
-      case 'tbsp':  return v * US_TBSP_TO_ML
-      case 'fl oz': return v * US_FL_OZ_TO_ML
-      case 'cup':   return v * US_CUP_TO_ML
-      case 'pt':    return v * US_PINT_TO_ML
-      case 'qt':    return v * US_QUART_TO_ML
-      case 'gal':   return v * US_GAL_TO_ML
-      default: return NaN
-    }
-  } else if (sys === 'uk') {
-    switch (u) {
-      case 'tsp':   return v * 5 // usage pratique
-      case 'tbsp':  return v * 15
-      case 'fl oz': return v * UK_FL_OZ_TO_ML
-      case 'cup':   return v * 250 // repère général
-      case 'pt':    return v * UK_PINT_TO_ML
-      case 'qt':    return v * UK_QUART_TO_ML
-      case 'gal':   return v * UK_GAL_TO_ML
-      default: return NaN
+    return {
+      ...common,
+      tsp: 4.92892159375,
+      tbsp: 14.78676478125,
+      'fl oz': 29.5735295625,
+      cup: 240,
+      pt: 473.176473,
+      qt: 946.352946,
+      gal: 3785.411784,
     }
   }
-  return NaN
-}
-const mlToVol = (sys: VolSystem, u: VolUnit, ml: number): number => {
-  if (u === 'ml') return ml
-  if (u === 'cl') return ml / ML_PER_CL
-  if (u === 'l')  return ml / L_TO_ML
-  if (sys === 'us') {
-    switch (u) {
-      case 'tsp':   return ml / US_TSP_TO_ML
-      case 'tbsp':  return ml / US_TBSP_TO_ML
-      case 'fl oz': return ml / US_FL_OZ_TO_ML
-      case 'cup':   return ml / US_CUP_TO_ML
-      case 'pt':    return ml / US_PINT_TO_ML
-      case 'qt':    return ml / US_QUART_TO_ML
-      case 'gal':   return ml / US_GAL_TO_ML
-      default: return NaN
-    }
-  } else if (sys === 'uk') {
-    switch (u) {
-      case 'tsp':   return ml / 5
-      case 'tbsp':  return ml / 15
-      case 'fl oz': return ml / UK_FL_OZ_TO_ML
-      case 'cup':   return ml / 250
-      case 'pt':    return ml / UK_PINT_TO_ML
-      case 'qt':    return ml / UK_QUART_TO_ML
-      case 'gal':   return ml / UK_GAL_TO_ML
-      default: return NaN
+  if (sys === 'uk') {
+    return {
+      ...common,
+      tsp: 5,
+      tbsp: 15,
+      'fl oz': 28.4130625,
+      cup: 250,
+      pt: 568.26125,
+      qt: 1136.5225,
+      gal: 4546.09,
     }
   }
-  return NaN
+  return common // metric
 }
 
-/** ====== Températures (°C ⇆ °F ⇆ K) + Thermostat ====== */
+/** ===== Températures + Thermostat ===== */
 const CtoK = (c: number) => c + 273.15
 const FtoK = (f: number) => (f - 32) * 5/9 + 273.15
 const KtoC = (k: number) => k - 273.15
 const KtoF = (k: number) => (k - 273.15) * 9/5 + 32
-// Thermostat four (approx française courante) : °C ≈ th × 30
+// Thermostat four (fr) : °C = th × 30
 const thToC = (th: number) => th * 30
 const cToTh = (c: number) => c / 30
 
-/** ====== Longueurs (mm, cm, m, in, ft) ====== */
-// base: m
-type LenUnit = 'mm' | 'cm' | 'm' | 'in' | 'ft'
-const lenToM = (unit: LenUnit, v: number): number => {
-  switch (unit) {
-    case 'mm': return v / 1000
-    case 'cm': return v / 100
-    case 'm':  return v
-    case 'in': return v * 0.0254
-    case 'ft': return v * 0.3048
-  }
+/** ===== Longueurs (base = m) via ratios ===== */
+type LenUnit = 'mm' | 'cm' | 'm' | 'km' | 'in' | 'ft' | 'yd' | 'mi'
+const LEN_LABEL: Record<LenUnit, string> = {
+  mm: 'Millimètres (mm)',
+  cm: 'Centimètres (cm)',
+  m:  'Mètres (m)',
+  km: 'Kilomètres (km)',
+  in: 'Pouces (in)',
+  ft: 'Pieds (ft)',
+  yd: 'Yards (yd)',
+  mi: 'Miles (mi)',
 }
-const mToLen = (unit: LenUnit, m: number): number => {
-  switch (unit) {
-    case 'mm': return m * 1000
-    case 'cm': return m * 100
-    case 'm':  return m
-    case 'in': return m / 0.0254
-    case 'ft': return m / 0.3048
-  }
+// mètres par unité
+const M_PER: Record<LenUnit, number> = {
+  mm: 0.001,
+  cm: 0.01,
+  m: 1,
+  km: 1000,
+  in: 0.0254,
+  ft: 0.3048,
+  yd: 0.9144,
+  mi: 1609.344,
 }
 
-/** ====== UI ====== */
+/** ===== UI ===== */
 export default function UniversalConverter(): JSX.Element {
   /** Masses */
   const MassUnits: readonly MassUnit[] = ['mg','g','kg','oz','lb']
   const [mUnitA, setMUnitA] = useState<MassUnit>('g')
   const [mUnitB, setMUnitB] = useState<MassUnit>('oz')
   const [mA, setMA] = useState<string>('')
-  const [mB, setMB] = useState<string>('')
-  const syncMassFromA = (v: string) => {
-    setMA(v)
-    const n = toNum(v)
-    if (!Number.isFinite(n)) { setMB(''); return }
-    const g = massToG(mUnitA, n)
-    setMB(fmt(gToMass(mUnitB, g)))
-  }
-  const syncMassFromB = (v: string) => {
-    setMB(v)
-    const n = toNum(v)
-    if (!Number.isFinite(n)) { setMA(''); return }
-    const g = massToG(mUnitB, n)
-    setMA(fmt(gToMass(mUnitA, g)))
-  }
 
   /** Volumes */
   const VolUnits: readonly VolUnit[] = VOL_UNITS
-  const [volSys, setVolSys] = useState<VolSystem>('us') // 'metric' | 'us' | 'uk'
+  const [volSys, setVolSys] = useState<VolSystem>('us')
   const [vUnitA, setVUnitA] = useState<VolUnit>('ml')
   const [vUnitB, setVUnitB] = useState<VolUnit>('cup')
   const [vA, setVA] = useState<string>('')
-  const [vB, setVB] = useState<string>('')
-  const syncVolFromA = (val: string, unit?: VolUnit) => {
-    const u = unit ?? vUnitA
-    setVA(val)
-    const n = toNum(val)
-    if (!Number.isFinite(n)) { setVB(''); return }
-    const ml = volToMl(volSys, u, n)
-    setVB(fmt(mlToVol(volSys, vUnitB, ml)))
-  }
-  const syncVolFromB = (val: string, unit?: VolUnit) => {
-    const u = unit ?? vUnitB
-    setVB(val)
-    const n = toNum(val)
-    if (!Number.isFinite(n)) { setVA(''); return }
-    const ml = volToMl(volSys, u, n)
-    setVA(fmt(mlToVol(volSys, vUnitA, ml)))
-  }
-  const onChangeVolSystem = (sys: VolSystem) => {
-    setVolSys(sys)
-    if (vA) syncVolFromA(vA)
-    else if (vB) syncVolFromB(vB)
-  }
 
   /** Températures + Thermostat */
   const [c, setC] = useState<string>('')   // °C
   const [f, setF] = useState<string>('')   // °F
-  const [k, setK] = useState<string>('')   // Kelvin
+  const [k, setK] = useState<string>('')   // K
   const [th, setTh] = useState<string>('') // thermostat
+
   const setFromC = (v: string) => {
     setC(v)
     const n = toNum(v)
@@ -219,7 +171,7 @@ export default function UniversalConverter(): JSX.Element {
     const K = CtoK(n)
     setF(fmt(KtoF(K)))
     setK(fmt(K))
-    setTh(fmt(cToTh(n), 2))
+    setTh(fmt(cToTh(n)))
   }
   const setFromF = (v: string) => {
     setF(v)
@@ -229,7 +181,7 @@ export default function UniversalConverter(): JSX.Element {
     const cVal = KtoC(K)
     setC(fmt(cVal))
     setK(fmt(K))
-    setTh(fmt(cToTh(cVal), 2))
+    setTh(fmt(cToTh(cVal)))
   }
   const setFromK = (v: string) => {
     setK(v)
@@ -238,44 +190,56 @@ export default function UniversalConverter(): JSX.Element {
     const cVal = KtoC(n)
     setC(fmt(cVal))
     setF(fmt(KtoF(n)))
-    setTh(fmt(cToTh(cVal), 2))
+    setTh(fmt(cToTh(cVal)))
   }
   const setFromTh = (v: string) => {
     setTh(v)
     const n = toNum(v)
     if (!Number.isFinite(n)) { setC(''); setF(''); setK(''); return }
-    const cVal = thToC(n)
+    const cVal = thToC(n) // 8 -> 240°C
     const K = CtoK(cVal)
     setC(fmt(cVal))
     setF(fmt(KtoF(K)))
     setK(fmt(K))
   }
 
-  /** Longueurs */
-  const LenUnits: readonly LenUnit[] = ['mm','cm','m','in','ft']
+  /** Sorties dérivées (calculées à l’affichage) */
+  const mOut = (() => {
+    const n = toNum(mA)
+    if (!Number.isFinite(n)) return ''
+    const out = convertByFactor(n, mUnitA, mUnitB, G_PER)
+    return safeFmt(out)
+  })()
+
+  const vOut = (() => {
+    const n = toNum(vA)
+    if (!Number.isFinite(n)) return ''
+    const ML_PER = getMlPer(volSys)
+    if (!Number.isFinite(ML_PER[vUnitA]) || !Number.isFinite(ML_PER[vUnitB])) return ''
+    const out = convertByFactor(n, vUnitA, vUnitB, ML_PER)
+    return safeFmt(out)
+  })()
+
   const [lenUnitA, setLenUnitA] = useState<LenUnit>('cm')
   const [lenUnitB, setLenUnitB] = useState<LenUnit>('in')
   const [lenA, setLenA] = useState<string>('')
-  const [lenB, setLenB] = useState<string>('')
-  const syncLenFromA = (v: string) => {
-    setLenA(v)
-    const n = toNum(v)
-    if (!Number.isFinite(n)) { setLenB(''); return }
-    const m = lenToM(lenUnitA, n)
-    setLenB(fmt(mToLen(lenUnitB, m)))
-  }
-  const syncLenFromB = (v: string) => {
-    setLenB(v)
-    const n = toNum(v)
-    if (!Number.isFinite(n)) { setLenA(''); return }
-    const m = lenToM(lenUnitB, n)
-    setLenA(fmt(mToLen(lenUnitA, m)))
-  }
+  const lenOut = (() => {
+    const n = toNum(lenA)
+    if (!Number.isFinite(n)) return ''
+    const out = convertByFactor(n, lenUnitA, lenUnitB, M_PER)
+    return safeFmt(out)
+  })()
+
+  /** Labels */
+  const massUnitsLabeled = useMemo(() => MassUnits.map(u => ({ key: u, label: MASS_LABEL[u] })), [])
+  const volUnitsLabeled  = useMemo(() => VolUnits.map(u => ({ key: u, label: VOL_LABEL[u] })), [])
+  const lenUnitsLabeled  = useMemo(() => (['mm','cm','m','km','in','ft','yd','mi'] as LenUnit[])
+    .map(u => ({ key: u, label: LEN_LABEL[u] })), [])
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
-        {/* Header compact avec actions wrap */}
+        {/* Header */}
         <View style={st.headerWrap}>
           <Text style={st.h1}>Convertisseur universel</Text>
           <View style={st.actionsWrap}>
@@ -288,41 +252,31 @@ export default function UniversalConverter(): JSX.Element {
         {/* 1) Masses / Poids */}
         <View style={st.card}>
           <Text style={st.sTitle}>Masses / Poids</Text>
+
           <View style={st.dualCol}>
-            {/* Entrée = clair */}
-            <UnitChips
-              units={MassUnits}
-              sel={mUnitA}
-              onSel={(u) => { setMUnitA(u); if (mA) syncMassFromA(mA) }}
-              variant="input"
-            />
-            {/* Sortie = foncé */}
-            <UnitChips
-              units={MassUnits}
-              sel={mUnitB}
-              onSel={(u) => { setMUnitB(u); if (mB) syncMassFromB(mB) }}
-              variant="output"
-            />
+            <UnitChips role="A" items={massUnitsLabeled} selected={mUnitA} onSelect={setMUnitA} />
+            <UnitChips role="B" items={massUnitsLabeled} selected={mUnitB} onSelect={setMUnitB} />
           </View>
+
+          {/* Entrée */}
           <View style={st.row}>
-            <Text style={st.k}>{mUnitA}</Text>
+            <Text style={st.k}>{MASS_LABEL[mUnitA]}</Text>
             <TextInput
               style={st.input}
               value={mA}
-              onChangeText={syncMassFromA}
-              placeholder="ex: 250"
+              onChangeText={setMA}
+              placeholder="ex: 850"
               keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
             />
           </View>
+
+          {/* Résultat : View + Text (pas de curseur, pas de sélection) */}
           <View style={st.row}>
-            <Text style={st.k}>{mUnitB}</Text>
-            <TextInput
-              style={st.input}
-              value={mB}
-              onChangeText={syncMassFromB}
-              placeholder="ex: 8.82"
-              keyboardType="numeric"
-            />
+            <Text style={st.k}>{MASS_LABEL[mUnitB]}</Text>
+            <View style={[st.input, st.inputReadonly]}>
+              <Text style={st.resultText}>{mOut || '—'}</Text>
+            </View>
           </View>
         </View>
 
@@ -334,8 +288,13 @@ export default function UniversalConverter(): JSX.Element {
             {(['metric','us','uk'] as const).map((s) => {
               const on = volSys === s
               return (
-                <TouchableOpacity key={s} onPress={() => onChangeVolSystem(s)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
-                  <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>
+                <TouchableOpacity
+                  key={s}
+                  onPress={() => setVolSys(s)}
+                  activeOpacity={0.9}
+                  style={[st.chipSys, on && st.chipSysOn]}
+                >
+                  <Text style={[st.chipSysTxt, on && st.chipSysTxtOn]}>
                     {s === 'metric' ? 'Métrique' : s.toUpperCase()}
                   </Text>
                 </TouchableOpacity>
@@ -344,41 +303,26 @@ export default function UniversalConverter(): JSX.Element {
           </View>
 
           <View style={st.dualCol}>
-            {/* Entrée = clair */}
-            <UnitChips
-              units={VolUnits}
-              sel={vUnitA}
-              onSel={(u) => { setVUnitA(u); if (vA) syncVolFromA(vA, u) }}
-              variant="input"
-            />
-            {/* Sortie = foncé */}
-            <UnitChips
-              units={VolUnits}
-              sel={vUnitB}
-              onSel={(u) => { setVUnitB(u); if (vB) syncVolFromB(vB, u) }}
-              variant="output"
-            />
+            <UnitChips role="A" items={volUnitsLabeled} selected={vUnitA} onSelect={setVUnitA} />
+            <UnitChips role="B" items={volUnitsLabeled} selected={vUnitB} onSelect={setVUnitB} />
           </View>
 
           <View style={st.row}>
-            <Text style={st.k}>{vUnitA}</Text>
+            <Text style={st.k}>{VOL_LABEL[vUnitA]}</Text>
             <TextInput
               style={st.input}
               value={vA}
-              onChangeText={(t) => syncVolFromA(t)}
+              onChangeText={setVA}
               placeholder="ex: 500"
               keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
             />
           </View>
           <View style={st.row}>
-            <Text style={st.k}>{vUnitB}</Text>
-            <TextInput
-              style={st.input}
-              value={vB}
-              onChangeText={(t) => syncVolFromB(t)}
-              placeholder="ex: 2.08"
-              keyboardType="numeric"
-            />
+            <Text style={st.k}>{VOL_LABEL[vUnitB]}</Text>
+            <View style={[st.input, st.inputReadonly]}>
+              <Text style={st.resultText}>{vOut || '—'}</Text>
+            </View>
           </View>
         </View>
 
@@ -386,23 +330,51 @@ export default function UniversalConverter(): JSX.Element {
         <View style={st.card}>
           <Text style={st.sTitle}>Températures</Text>
           <View style={st.row}>
-            <Text style={st.k}>°C</Text>
-            <TextInput style={st.input} value={c} onChangeText={setFromC} placeholder="ex: 180" keyboardType="numeric" />
+            <Text style={st.k}>Degrés Celsius (°C)</Text>
+            <TextInput
+              style={st.input}
+              value={c}
+              onChangeText={setFromC}
+              placeholder="ex: 180"
+              keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
+            />
           </View>
           <View style={st.row}>
-            <Text style={st.k}>°F</Text>
-            <TextInput style={st.input} value={f} onChangeText={setFromF} placeholder="ex: 356" keyboardType="numeric" />
+            <Text style={st.k}>Degrés Fahrenheit (°F)</Text>
+            <TextInput
+              style={st.input}
+              value={f}
+              onChangeText={setFromF}
+              placeholder="ex: 356"
+              keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
+            />
           </View>
           <View style={st.row}>
-            <Text style={st.k}>K</Text>
-            <TextInput style={st.input} value={k} onChangeText={setFromK} placeholder="ex: 453.15" keyboardType="numeric" />
+            <Text style={st.k}>Kelvin (K)</Text>
+            <TextInput
+              style={st.input}
+              value={k}
+              onChangeText={setFromK}
+              placeholder="ex: 453.15"
+              keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
+            />
           </View>
 
           <View style={{ height: 8 }} />
           <Text style={[st.sTitle, { marginBottom: 6 }]}>Thermostat four (≈ ×30 °C)</Text>
           <View style={st.row}>
-            <Text style={st.k}>Th.</Text>
-            <TextInput style={st.input} value={th} onChangeText={setFromTh} placeholder="ex: 6" keyboardType="numeric" />
+            <Text style={st.k}>Thermostat</Text>
+            <TextInput
+              style={st.input}
+              value={th}
+              onChangeText={setFromTh}
+              placeholder="ex: 8"
+              keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
+            />
           </View>
         </View>
 
@@ -410,28 +382,25 @@ export default function UniversalConverter(): JSX.Element {
         <View style={st.card}>
           <Text style={st.sTitle}>Longueurs</Text>
           <View style={st.dualCol}>
-            {/* Entrée = clair */}
-            <UnitChips
-              units={LenUnits}
-              sel={lenUnitA}
-              onSel={(u) => { setLenUnitA(u); if (lenA) syncLenFromA(lenA) }}
-              variant="input"
-            />
-            {/* Sortie = foncé */}
-            <UnitChips
-              units={LenUnits}
-              sel={lenUnitB}
-              onSel={(u) => { setLenUnitB(u); if (lenB) syncLenFromB(lenB) }}
-              variant="output"
+            <UnitChips role="A" items={lenUnitsLabeled} selected={lenUnitA} onSelect={setLenUnitA} />
+            <UnitChips role="B" items={lenUnitsLabeled} selected={lenUnitB} onSelect={setLenUnitB} />
+          </View>
+          <View style={st.row}>
+            <Text style={st.k}>{LEN_LABEL[lenUnitA]}</Text>
+            <TextInput
+              style={st.input}
+              value={lenA}
+              onChangeText={setLenA}
+              placeholder="ex: 10"
+              keyboardType="numeric"
+              placeholderTextColor="#FF92E0"
             />
           </View>
           <View style={st.row}>
-            <Text style={st.k}>{lenUnitA}</Text>
-            <TextInput style={st.input} value={lenA} onChangeText={syncLenFromA} placeholder="ex: 10" keyboardType="numeric" />
-          </View>
-          <View style={st.row}>
-            <Text style={st.k}>{lenUnitB}</Text>
-            <TextInput style={st.input} value={lenB} onChangeText={syncLenFromB} placeholder="ex: 3.94" keyboardType="numeric" />
+            <Text style={st.k}>{LEN_LABEL[lenUnitB]}</Text>
+            <View style={[st.input, st.inputReadonly]}>
+              <Text style={st.resultText}>{lenOut || '—'}</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -439,42 +408,32 @@ export default function UniversalConverter(): JSX.Element {
   )
 }
 
-type UnitChipsProps<T extends string> = {
-  units: readonly T[]
-  sel: T
-  onSel: (u: T) => void
-  /** 'input' => clair par défaut, 'output' => foncé par défaut */
-  variant?: 'input' | 'output'
-}
-
-function UnitChips<T extends string>({
-  units,
-  sel,
-  onSel,
-  variant = 'input',
-}: UnitChipsProps<T>): JSX.Element {
-  const isInput = variant === 'input'
+/** ==== Chips d’unité ==== */
+type ChipItem<T extends string> = { key: T; label: string }
+function UnitChips<T extends string>(props: {
+  role: 'A' | 'B'
+  items: readonly ChipItem<T>[]
+  selected: T
+  onSelect: (u: T) => void
+}) {
+  const { role, items, selected, onSelect } = props
+  const isA = role === 'A'
   return (
     <View style={st.chipsRow}>
-      {units.map((u) => {
-        const selected = sel === u
-
-        // style par défaut (selon input/output)
-        const baseChip = isInput ? st.chipLight : st.chipDark
-        const baseTxt  = isInput ? st.chipLightTxt : st.chipDarkTxt
-
-        // si sélectionné → override gris
-        const chipStyle = selected ? st.chipSelected : baseChip
-        const txtStyle  = selected ? st.chipSelectedTxt : baseTxt
-
+      {items.map(({ key, label }) => {
+        const on = selected === key
+        const baseStyle = isA ? st.sizeBtnA : st.sizeBtnB
+        const textStyle = isA ? st.sizeBtnTextA : st.sizeBtnTextB
         return (
           <TouchableOpacity
-            key={u}
-            onPress={() => onSel(u)}
+            key={String(key)}
+            onPress={() => onSelect(key)}
             activeOpacity={0.9}
-            style={[st.chip, chipStyle]}
+            style={[baseStyle, on && st.sizeBtnOnSel]}
           >
-            <Text style={[st.chipTxt, txtStyle]}>{u}</Text>
+            <Text style={[textStyle, on && st.sizeBtnTextOnSel]} numberOfLines={1}>
+              {label}
+            </Text>
           </TouchableOpacity>
         )
       })}
@@ -482,12 +441,7 @@ function UnitChips<T extends string>({
   )
 }
 
-
 const st = StyleSheet.create({
-  
-  // gris clair pour l’état sélectionné
-chipSelected:   { backgroundColor: '#E5E7EB', borderColor: '#D1D5DB' }, // gray-200 / gray-300
-chipSelectedTxt:{ color: '#374151' }, // gray-700
   container: { flex: 1, backgroundColor: '#FFEEFC' },
 
   headerWrap: { marginBottom: 12 },
@@ -516,8 +470,20 @@ chipSelectedTxt:{ color: '#374151' }, // gray-700
 
   sTitle: { fontWeight: '900', color: '#444', marginBottom: 8 },
 
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 8 },
-  k: { color: '#57324B', fontWeight: '800', minWidth: 56 },
+  // rangées alignées quelles que soient les longueurs de libellés
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  k: {
+    color: '#57324B',
+    fontWeight: '800',
+    minWidth: 160,    // un peu plus large pour éviter les retours à la ligne
+    maxWidth: 200,    // borne haute pour garder l’alignement
+    flexShrink: 1,
+  },
   input: {
     flex: 1,
     backgroundColor: '#FFF0FA',
@@ -529,31 +495,19 @@ chipSelectedTxt:{ color: '#374151' }, // gray-700
     fontSize: 16,
     color: '#FF4FA2',
   },
-
-  // empile les 2 colonnes de chips sur mobile
-  dualCol: { gap: 6, marginBottom: 8 },
-
-  // ===== Chips (unités) : clair / foncé + inversion à la sélection =====
-  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-
-  chip: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    borderWidth: 2,
+  // "Résultat" : même look que l’input mais non interactif
+  inputReadonly: {
+    justifyContent: 'center',
+    opacity: 0.97,
   },
-  chipTxt: { fontWeight: '800', fontSize: 14 },
+  resultText: {
+    color: '#FF4FA2',
+    fontSize: 16,
+    fontWeight: '700',
+  },
 
-  // clair (entrée)
-  chipLight: { backgroundColor: '#FFE4F6', borderColor: '#FFB6F9' },
-  chipLightTxt: { color: '#FF4FA2' },
-
-  // foncé (sortie)
-  chipDark: { backgroundColor: '#FF92E0', borderColor: '#FF4FA2' },
-  chipDarkTxt: { color: '#fff' },
-
-  // Boutons pill "système" (on garde l'ancien style)
-  sizeBtn: {
+  // Système (volumes)
+  chipSys: {
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 999,
@@ -561,15 +515,36 @@ chipSelectedTxt:{ color: '#374151' }, // gray-700
     borderColor: '#FFB6F9',
     backgroundColor: '#FFE4F6',
   },
-  sizeBtnOn: { borderColor: '#FF4FA2', backgroundColor: '#FF92E0' },
-  sizeBtnText: { fontWeight: '800', color: '#FF4FA2', fontSize: 14 },
-  sizeBtnTextOn: { color: '#fff' },
-  // gris clair pour chips sélectionnées
-chipSelected: {
-  backgroundColor: '#E5E7EB', // gray-200
-  borderColor: '#D1D5DB',     // gray-300
-},
-chipSelectedTxt: {
-  color: '#374151',           // gray-700
-},
+  chipSysOn: { borderColor: '#FF4FA2', backgroundColor: '#FF92E0' },
+  chipSysTxt: { fontWeight: '800', color: '#FF4FA2' },
+  chipSysTxtOn: { color: '#fff' },
+
+  dualCol: { gap: 6, marginBottom: 8 },
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+
+  // Ligne A claire
+  sizeBtnA: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+    backgroundColor: '#FFE4F6',
+  },
+  sizeBtnTextA: { fontWeight: '800', color: '#FF4FA2', fontSize: 14 },
+
+  // Ligne B foncée
+  sizeBtnB: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#FF4FA2',
+    backgroundColor: '#FF92E0',
+  },
+  sizeBtnTextB: { fontWeight: '800', color: '#fff', fontSize: 14 },
+
+  // Sélection (gris clair)
+  sizeBtnOnSel: { backgroundColor: '#EAEAEA', borderColor: '#CFCFCF' },
+  sizeBtnTextOnSel: { color: '#333' },
 })
