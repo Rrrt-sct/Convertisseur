@@ -12,6 +12,7 @@ export const IMAGE_MAP: Record<string, ImageEntry> = {
   'cumin_moulu': { detail: require('../assets/illustrations_opt/cumin_moulu.webp'), thumb: require('../assets/illustrations_opt/cumin_moulu_t.webp') },
   'eau': { detail: require('../assets/illustrations_opt/eau.webp'), thumb: require('../assets/illustrations_opt/eau_t.webp') },
   'echalote': { detail: require('../assets/illustrations_opt/echalote.webp'), thumb: require('../assets/illustrations_opt/echalote_t.webp') },
+  'epices': { detail: require('../assets/illustrations_opt/epices.webp'), thumb: require('../assets/illustrations_opt/epices_t.webp') },
   'farine': { detail: require('../assets/illustrations_opt/farine.webp'), thumb: require('../assets/illustrations_opt/farine_t.webp') },
   'gingembre_moulu': { detail: require('../assets/illustrations_opt/gingembre_moulu.webp'), thumb: require('../assets/illustrations_opt/gingembre_moulu_t.webp') },
   'gingembre_racine': { detail: require('../assets/illustrations_opt/gingembre_racine.webp'), thumb: require('../assets/illustrations_opt/gingembre_racine_t.webp') },

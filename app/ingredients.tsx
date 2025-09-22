@@ -118,6 +118,7 @@ export default function IngredientsScreen() {
       if (isTomatoVarietyRow(raw)) return false
       if (isOnionVarietyRow(raw)) return false
       if (raw.is_chckn) return false
+      if (toBoolNum(raw.is_spc) === 1) return false  // n’exclut que les vraies épices
       return true
     })
 

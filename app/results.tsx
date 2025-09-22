@@ -60,6 +60,13 @@ type PdtMethod = (typeof PDT_METHODS)[number]
 
 function hasVal(v: any) { return v !== undefined && v !== null && String(v).trim() !== '' }
 
+/** Helper booléen pour flags CSV (1/true/x/oui/yes) */
+function isTrue(v: any) {
+  const s = (v ?? '').toString().trim().toLowerCase()
+  return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes'
+}
+
+
 function scoreFor(row: any, method: PdtMethod): number {
   for (const k of method.keys) {
     const raw = row?.[k]
@@ -588,6 +595,14 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isChicken = normId === 'volaille'
   if (!isChicken) return null
   return <ChickenSection d={d} />
+})()}
+
+{/* --------- Module ÉPICES --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isSpices = normId === 'epices' || normId === 'epice'
+  if (!isSpices) return null
+  return <SpicesSection d={d} />
 })()}
 
 
@@ -1623,6 +1638,95 @@ function ChickenSection({ d }: { d: Item }) {
     </View>
   )
 }
+
+function SpicesSection({ d }: { d: Item }) {
+  const [selectedSpice, setSelectedSpice] = useState<any | null>(null)
+  const [tsp, setTsp] = useState('')
+  const [tbsp, setTbsp] = useState('')
+  const [weightToSpoons, setWeightToSpoons] = useState('')
+
+  // ⚠️ NE GARDER QUE LES ÉPICES (is_spc = 1/true/x/oui/yes)
+  const spices = useMemo(
+    () => (DB as any[]).filter(v => isTrue(v?.is_spc)),
+    []
+  )
+
+  // Poids d’1 c. à soupe pour l’épice sélectionnée (spc_tbsp_g)
+  const tbsp_g = selectedSpice ? (toNumMaybe(selectedSpice.spc_tbsp_g) ?? null) : null
+  const tsp_g  = tbsp_g ? (tbsp_g / 3) : null
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>Choisir une épice</Text>
+
+      {/* Liste des épices en puces */}
+      <View style={st.pillsWrap}>
+        {spices
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = selectedSpice?.id === v.id
+            return (
+              <TouchableOpacity
+                key={v.id}
+                activeOpacity={0.9}
+                onPress={() => setSelectedSpice(v)}
+                style={[st.pill, on && st.pillActive]}
+              >
+                {imgSrc(v.id) ? (
+                  <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+              </TouchableOpacity>
+            )
+          })}
+      </View>
+
+      {/* Conversion Cuillères ⇆ Poids */}
+      {selectedSpice && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={st.sTitle}>Cuillères <Text style={st.arrow}>⇆</Text> Poids</Text>
+
+          <InputWithEcho
+            value={tsp}
+            onChangeText={setTsp}
+            placeholder="Cuillères à café (ex: 2)"
+            echoLabel="c. à café"
+          />
+          <Row left="Poids" right={fmtAllUnits(num(tsp) * (tsp_g || 0))} />
+
+          <InputWithEcho
+            value={tbsp}
+            onChangeText={setTbsp}
+            placeholder="Cuillères à soupe (ex: 2)"
+            echoLabel="c. à soupe"
+          />
+          <Row left="Poids" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
+
+          <InputWithEcho
+            value={weightToSpoons}
+            onChangeText={setWeightToSpoons}
+            placeholder="Poids (g) — ex: 15"
+            echoLabel="Poids (g)"
+          />
+          <Row
+            left="Équivalent"
+            right={`${tsp_g ? `${fmt(num(weightToSpoons) / tsp_g, 2)} c. à café` : '— c. à café'}   |   ${tbsp_g ? `${fmt(num(weightToSpoons) / tbsp_g, 2)} c. à soupe` : '— c. à soupe'}`}
+          />
+
+          <View style={st.tipBox}>
+            <Text style={st.tipText}>
+              Référence pour <Text style={st.tipStrong}>{String(selectedSpice.label ?? selectedSpice.id)}</Text> :
+              1 c. à soupe ≈ <Text style={st.tipStrong}>{tbsp_g ? fmt(tbsp_g) : '—'} g</Text>
+              {tsp_g ? ` • 1 c. à café ≈ ${fmt(tsp_g)} g` : ''}
+            </Text>
+          </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
 
 
 /* ===================== Styles ===================== */
