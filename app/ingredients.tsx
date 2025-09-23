@@ -109,18 +109,21 @@ export default function IngredientsScreen() {
       (Array.isArray(RAW) ? RAW : []).map((r: any) => [String(r?.id ?? ''), r])
     )
 
-    // Exclure :
+    // Exclure
     const noVarieties = base.filter((x) => {
-      const raw = rawById[x.id] || {}
-      if ((x.is_pdt ?? 0) === 1) return false
-      if (isPastaVarietyRow(raw)) return false
-      if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label })) return false
-      if (isTomatoVarietyRow(raw)) return false
-      if (isOnionVarietyRow(raw)) return false
-      if (raw.is_chckn) return false
-      if (toBoolNum(raw.is_spc) === 1) return false  // n’exclut que les vraies épices
-      return true
-    })
+  const raw = rawById[x.id] || {}
+
+  if ((x.is_pdt ?? 0) === 1) return false
+  if (isPastaVarietyRow(raw)) return false
+  if (hasPastaUsages(raw) && !isGenericPastaRow({ id: x.id, label: x.label })) return false
+  if (isTomatoVarietyRow(raw)) return false
+  if (isOnionVarietyRow(raw)) return false
+  if (raw.is_chckn) return false
+  if (hasVal(raw.is_choux)) return false     // choux: cachés
+  if (hasVal(raw.is_spc)) return false       // épices: cachées  ⬅️ AJOUT
+  return true
+})
+
 
     const sorted = noVarieties.sort((a, b) =>
       (a.label ?? '').localeCompare(b.label ?? '', 'fr', { sensitivity: 'base' }),
@@ -146,7 +149,7 @@ export default function IngredientsScreen() {
 
   return (
     <View style={st.container}>
-      {/* Header + actions (même mise en forme que le convertisseur) */}
+      {/* Header + actions */}
       <View style={st.headerWrap}>
         <Text style={st.h1}>🧺 Ingrédients</Text>
         <View style={st.actionsWrap}>
@@ -213,7 +216,6 @@ export default function IngredientsScreen() {
 const st = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFEEFC', padding: 18, paddingTop: 36 },
 
-  // === mêmes styles que la page convertisseur ===
   headerWrap: { marginBottom: 12 },
   h1: { fontSize: 24, fontWeight: '900', color: '#FF4FA2' },
   actionsWrap: {
@@ -225,7 +227,6 @@ const st = StyleSheet.create({
   },
   actionLink: { fontWeight: '900', color: '#7c3aed', fontSize: 16 },
 
-  // === carte principale ===
   card: {
     flex: 1,
     backgroundColor: '#fff',

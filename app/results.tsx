@@ -419,6 +419,9 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
   const isTomato = ['tomate', 'tomates'].includes(normId)
   const isOnion = ['oignon', 'oignons'].includes(normId)
+  const isAvocado = ['avocat', 'avocats'].includes(normId)
+  const isPepper  = ['poivron', 'poivrons'].includes(normId)
+
 
   // Accord "épluché / épluchée"
   const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
@@ -484,8 +487,21 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
   if (d.peeled_yield && d.avg_unit_g) {
-    infoRows.push(<Row key="peeled" left={`Poids ${EPL.toLowerCase()} (×${fmt(d.peeled_yield)})`} right={`${fmt((d.avg_unit_g || 0) * (d.peeled_yield || 1))} g`} />)
-  }
+  const special =
+    isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
+    isAvocado ? ' (Avocat pelé et dénoyauté)' :
+    isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
+                ` (×${fmt(d.peeled_yield)})`
+
+  infoRows.push(
+    <Row
+      key="peeled"
+      left={`Poids ${EPL.toLowerCase()}${special}`}
+      right={`${fmt((d.avg_unit_g || 0) * (d.peeled_yield || 1))} g`}
+    />
+  )
+}
+
   if (d.juice_ml_per_unit) {
     infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
   }
@@ -554,8 +570,16 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
         return (
           <View style={st.section}>
             <Text style={st.sTitle}>
-              Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-            </Text>
+  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+  <Text>
+    {isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)'
+      : isAvocado ? ' (Avocat pelé et dénoyauté)'
+      : isPepper  ? ' (Poivron équeuté, épépiné, non pelé)'
+      : ''}
+  </Text>
+</Text>
+
+
 
             <InputWithEcho
               value={qtyEpl}
@@ -638,6 +662,15 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
         if (!isOnion) return null
         return <OnionSection d={d} />
       })()}
+
+      {/* --------- Module CHOUX --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isCabbage = normId === 'choux' || normId === 'chou'
+  if (!isCabbage) return null
+  return <CabbageSection d={d} />
+})()}
+
 
       {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
       {(() => {
@@ -1315,7 +1348,6 @@ function TomatoSection({ d }: { d: Item }) {
   )
 }
 
-
            
 function OnionSection({ d }: { d: Item }) {
   const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
@@ -1816,6 +1848,94 @@ function SpicesSection({ d }: { d: Item }) {
               {tsp_g ? ` • 1 c. à café ≈ ${fmt(tsp_g)} g` : ''}
             </Text>
           </View>
+        </View>
+      )}
+    </View>
+  )
+}
+
+function CabbageSection({ d }: { d: Item }) {
+  const [selected, setSelected] = useState<any | null>(null)
+
+  // Toutes les variétés où la colonne is_choux est remplie
+  const cabbageVarieties = useMemo(
+    () => (DB as any[]).filter(v => hasVal(v?.is_choux)),
+    []
+  )
+
+  // On fusionne les données génériques (d) et celles de la variété (selected)
+  // pour alimenter les convertisseurs avec les valeurs spécifiques si dispo
+  const dd = useMemo(() => {
+    if (!selected) return d
+    // priorité aux valeurs de la variété si elles existent
+    return { ...d, ...selected } as Item
+  }, [d, selected])
+
+  // Petites infos clés utiles
+  const avgNon = toNumMaybe(dd.avg_unit_g)
+  const peelY  = toNumMaybe(dd.peeled_yield)
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null
+
+  return (
+    <View style={st.section}>
+      {/* 1️⃣ Choisir une variété */}
+      <Text style={st.sTitle}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {cabbageVarieties
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = selected?.id === v.id
+            return (
+              <TouchableOpacity
+                key={v.id}
+                activeOpacity={0.9}
+                onPress={() => setSelected(v)}
+                style={[st.pill, on && st.pillActive]}
+              >
+                {imgSrc(v.id) ? (
+                  <Image
+                    source={imgSrc(v.id)}
+                    style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                  />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                  {name}
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+      </View>
+
+      {/* 2️⃣ Détails de la variété sélectionnée */}
+      {selected && (
+        <View style={{ marginTop: 10 }}>
+          {/* Infos clés */}
+          <Text style={st.sTitle}>Infos clés</Text>
+          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+          {avgEpl !== null && (
+            <Row
+              left="Poids épluché (préparation standard)"
+              right={`${fmt(avgEpl)} g`}
+            />
+          )}
+
+          {/* 3️⃣ Convertisseurs adaptés à la variété */}
+          {/* Quantité ⇆ Poids, pièces, etc. */}
+          {(toNumMaybe(dd.avg_unit_g) !== null) && (
+            <GenericConversions d={dd} />
+          )}
+
+          {/* Jus (si la variété en a – au cas où certaines entrées contiennent du jus) */}
+          {toNumMaybe(dd.juice_ml_per_unit) !== null ? <JuiceSection d={dd} /> : null}
+
+          {/* Taille ⇆ Poids */}
+          {toNumMaybe(dd.lgth_g) !== null ? <LengthWeightSection d={dd} /> : null}
+
+          {/* Cuillères ⇆ Poids */}
+          {(toNumMaybe(dd.tbsp_g) !== null || toNumMaybe(dd.tsp_g) !== null) ? (
+            <SpoonsSection d={dd} />
+          ) : null}
         </View>
       )}
     </View>
