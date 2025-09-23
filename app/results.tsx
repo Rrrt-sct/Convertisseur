@@ -407,6 +407,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
   const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
 
+  
   // OIGNONS — états UI
   const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
   const [onionSelected, setOnionSelected] = useState<any | null>(null)
@@ -1089,10 +1090,19 @@ function PastaSection({ d, openInfo }: { d: Item; openInfo: (title: string, text
 }
 
 function TomatoSection({ d }: { d: Item }) {
-  const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
+  const [tomatoUsageSelKey, setTomatoUsageSelKey] =
+    useState<null | typeof TOMATO_USAGES[number]['key']>(null)
   const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
 
-  const tomatoVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_tmt)), [])
+  // Champs des convertisseurs
+  const [tmtGenWeight, setTmtGenWeight] = useState('')
+  const [tmtQtyEpl, setTmtQtyEpl] = useState('')
+  const [tmtQtyNon, setTmtQtyNon] = useState('')
+
+  const tomatoVarieties = useMemo(
+    () => (DB as any[]).filter(v => hasVal(v?.is_tmt)),
+    []
+  )
 
   return (
     <View style={st.section}>
@@ -1107,7 +1117,7 @@ function TomatoSection({ d }: { d: Item }) {
               activeOpacity={0.9}
               onPress={() => {
                 setTomatoSelected(null)
-                setTomatoUsageSelKey(prev => prev === u.key ? null : u.key)
+                setTomatoUsageSelKey(prev => (prev === u.key ? null : u.key))
               }}
               style={[st.sizeBtn, on && st.sizeBtnOn]}
             >
@@ -1140,9 +1150,15 @@ function TomatoSection({ d }: { d: Item }) {
                       style={[st.pill, on && st.pillActive]}
                       onPress={() => setTomatoSelected(v)}
                     >
-                      {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{String(v.label ?? v.id)}</Text>
-                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                      {imgSrc(v.id)
+                        ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                        : null}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {String(v.label ?? v.id)}
+                      </Text>
+                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>
+                        {s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}
+                      </Text>
                     </TouchableOpacity>
                   )
                 })}
@@ -1164,9 +1180,18 @@ function TomatoSection({ d }: { d: Item }) {
               {all.map(({ v, name }) => {
                 const on = tomatoSelected?.id === v.id
                 return (
-                  <TouchableOpacity key={v.id} activeOpacity={0.9} style={[st.pill, on && st.pillActive]} onPress={() => setTomatoSelected(v)}>
-                    {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                    <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                  <TouchableOpacity
+                    key={v.id}
+                    activeOpacity={0.9}
+                    style={[st.pill, on && st.pillActive]}
+                    onPress={() => setTomatoSelected(v)}
+                  >
+                    {imgSrc(v.id)
+                      ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                      : null}
+                    <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                      {name}
+                    </Text>
                   </TouchableOpacity>
                 )
               })}
@@ -1174,44 +1199,112 @@ function TomatoSection({ d }: { d: Item }) {
 
             {/* Détail variété sélectionnée */}
             {tomatoSelected && (() => {
-              // Famille
+              // --------- Métadonnées ---------
               const famCol = TOMATO_FAMILIES.find(f => hasVal(tomatoSelected?.[f.col]))
               const family = famCol ? famCol.label : ''
-              // Goût
-              const taste = String(tomatoSelected?.tmt_com ?? '').trim()
-              // Usages
+              const taste  = String(tomatoSelected?.tmt_com ?? '').trim()
+
               const usages = TOMATO_USAGES
                 .map(u => ({ u, s: firstInt(tomatoSelected?.[u.col]) ?? 0 }))
                 .filter(x => x.s >= 1)
                 .sort((a, b) => b.s - a.s)
 
+              // --------- Références de poids ---------
+              // Poids moyen non épluché (priorité aux données spécifiques variété)
+              const avgNon = toNumMaybe(tomatoSelected?.tmt_spcfc_wght)
+                          ?? toNumMaybe(d.avg_unit_g)
+                          ?? 0
+              // Rendement éventuel pour estimer le poids épluché (s'il existe)
+              const peelY  = toNumMaybe(tomatoSelected?.tmt_spcfc_peel)
+                          ?? toNumMaybe(d.peeled_yield)
+                          ?? null
+              const avgEpl = peelY ? avgNon * peelY : null
+
               return (
                 <View style={{ marginTop: 10 }}>
-                  {!!family && (
-                    <View style={{ marginBottom: 8 }}>
-                      <Text style={st.sTitle}>Famille</Text>
-                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
-                    </View>
-                  )}
-                  {!!taste && (
-                    <View style={{ marginBottom: 8 }}>
-                      <Text style={st.sTitle}>Goût</Text>
-                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
-                    </View>
-                  )}
+                  {/* Usages possibles */}
                   {usages.length > 0 && (
-                    <View style={{ marginTop: 4 }}>
+                    <View style={{ marginTop: 4, marginBottom: 12 }}>
                       <Text style={st.sTitle}>Usages possibles</Text>
                       <View style={st.pillsWrap}>
                         {usages.map(({ u, s }) => (
                           <View key={`tu-${u.key}`} style={st.pill}>
                             <Text style={st.pillText}>{u.label}</Text>
-                            <Text style={st.pillBadge}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
+                            <Text style={st.pillBadge}>
+                              {s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}
+                            </Text>
                           </View>
                         ))}
                       </View>
                     </View>
                   )}
+
+                  {/* Infos clés (après usages, avant convertisseurs) */}
+                  <Text style={st.sTitle}>Infos clés</Text>
+                  <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />
+                  {avgEpl !== null && (
+                    <Row
+                      left="Poids épluché (tomate équeutée et époinçonnée, non pelée)"
+                      right={`${fmt(avgEpl)} g`}
+                    />
+                  )}
+                  {!!family && (
+                    <View style={{ marginTop: 8 }}>
+                      <Text style={st.sTitle}>Famille</Text>
+                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
+                    </View>
+                  )}
+                  {!!taste && (
+                    <View style={{ marginTop: 8 }}>
+                      <Text style={st.sTitle}>Goût</Text>
+                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
+                    </View>
+                  )}
+
+                  {/* ===== 1) Quantité ⇆ Poids ===== */}
+                  <View style={[st.section, { marginTop: 10 }]}>
+                    <Text style={st.sTitle}>
+                      Quantité <Text style={st.arrow}>⇆</Text> Poids
+                    </Text>
+
+                    <InputWithEcho
+                      value={tmtGenWeight}
+                      onChangeText={setTmtGenWeight}
+                      placeholder="Poids (g) — ex: 250"
+                      echoLabel="Poids (g)"
+                    />
+                    {(() => {
+                      const unitRef = avgEpl ?? avgNon
+                      const pieces = unitRef > 0 ? Math.ceil(num(tmtGenWeight) / unitRef) : 0
+                      return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
+                    })()}
+                  </View>
+
+                  {/* ===== 2) Épluché ⇆ Non épluché ===== */}
+                  {peelY ? (
+                    <View style={st.section}>
+                      <Text style={st.sTitle}>
+                        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+                        <Text>{' '}(Tomate équeutée et époinçonnée, non pelée)</Text>
+                      </Text>
+
+                      <InputWithEcho
+                        value={tmtQtyEpl}
+                        onChangeText={setTmtQtyEpl}
+                        placeholder="Quantité épluchée (g)"
+                        echoLabel="Épluchée (g)"
+                      />
+                      <Row left="Équiv. non épluché" right={fmtAllUnits(num(tmtQtyEpl) / peelY)} />
+
+                      <InputWithEcho
+                        value={tmtQtyNon}
+                        onChangeText={setTmtQtyNon}
+                        placeholder="Quantité non épluchée (g)"
+                        echoLabel="Non épluchée (g)"
+                      />
+                      <Row left="Équiv. épluché" right={fmtAllUnits(num(tmtQtyNon) * peelY)} />
+                    </View>
+                  ) : null}
                 </View>
               )
             })()}
@@ -1222,6 +1315,8 @@ function TomatoSection({ d }: { d: Item }) {
   )
 }
 
+
+           
 function OnionSection({ d }: { d: Item }) {
   const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
   const [onionSelected, setOnionSelected] = useState<any | null>(null)
