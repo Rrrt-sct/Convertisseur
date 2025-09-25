@@ -94,6 +94,12 @@ function isTomatoVarietyRow(row: any) {
 function isOnionVarietyRow(row: any) {
   return hasVal(row?.is_onn)
 }
+/** Variété de pommes */
+function isAppleVarietyRow(row: any) {
+  const v = row?.is_appl
+  return v !== undefined && v !== null && String(v).trim() !== ''
+}
+
 
 export default function IngredientsScreen() {
   const [q, setQ] = useState('')
@@ -121,6 +127,7 @@ export default function IngredientsScreen() {
   if (raw.is_chckn) return false
   if (hasVal(raw.is_choux)) return false     // choux: cachés
   if (hasVal(raw.is_spc)) return false       // épices: cachées  ⬅️ AJOUT
+  if (isAppleVarietyRow(raw)) return false
   return true
 })
 

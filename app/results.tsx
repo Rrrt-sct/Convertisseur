@@ -164,6 +164,8 @@ type Item = {
   olg_tm?: string | number | null
   rbs_tp?: string | number | null
   rbs_tm?: string | number | null
+  appl_spcfc_wght?: number | null
+  is_appl?: any
 }
 
 // -------- Helpers génériques --------
@@ -421,6 +423,9 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isOnion = ['oignon', 'oignons'].includes(normId)
   const isAvocado = ['avocat', 'avocats'].includes(normId)
   const isPepper  = ['poivron', 'poivrons'].includes(normId)
+  const isApple  = ['pomme', 'pommes'].includes(normId)
+  
+
 
 
   // Accord "épluché / épluchée"
@@ -486,7 +491,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
-  if (d.peeled_yield && d.avg_unit_g) {
+  if (!isApple && d.peeled_yield && d.avg_unit_g) {
   const special =
     isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
     isAvocado ? ' (Avocat pelé et dénoyauté)' :
@@ -559,6 +564,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
       {(() => {
+        if (isApple) return null  // on gère ça dans le module Pomme
         const y = toNumMaybe(d.peeled_yield)
         if (!y || y <= 0) return null
 
@@ -671,15 +677,25 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   return <CabbageSection d={d} />
 })()}
 
+ {/* --------- Module POMMES --------- */}
+ {(() => {
+   const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+   const isApple = ['pomme', 'pommes'].includes(normId)
+   if (!isApple) return null
+   return <AppleSection d={d} />
+ })()}
+
+
 
       {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
-      {(() => {
-        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-        const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
-        const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
-        if (isPotato || isPasta || !d.avg_unit_g) return null
-        return <GenericConversions d={d} />
-      })()}
+     {(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
+  const isPasta  = ['pates', 'pâtes', 'pasta'].includes(normId)
+  const isApple  = ['pomme', 'pommes'].includes(normId)
+  if (isPotato || isPasta || isApple || !d.avg_unit_g) return null
+  return <GenericConversions d={d} />
+})()}
 
       {/* --------- Céleri --------- */}
       {(() => {
@@ -712,6 +728,63 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 }
 
 /* ========= Sections réutilisables (découpées pour lisibilité) ========= */
+
+// ↓↓↓ ajoute ceci quelque part dans results.tsx (par ex. juste avant EggsSection) ↓↓↓
+function GenericConversions({ d }: { d: Item }) {
+  // États locaux (on ne dépend pas de ceux d’IngredientCard)
+  const [genWeightEpl, setGenWeightEpl] = React.useState('');
+  const [genWeightNon, setGenWeightNon] = React.useState('');
+  const [countNon,     setCountNon]     = React.useState('');
+
+  const avgNon = toNumMaybe(d.avg_unit_g);          // poids moyen d'1 pièce non épluchée
+  const peelY  = toNumMaybe(d.peeled_yield);        // rendement épluché (ex: 0.9)
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
+
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>
+        Quantité <Text style={st.arrow}>⇆</Text> Poids
+      </Text>
+
+      {/* Poids épluché → Nb pièces estimées (si on a un rendement) */}
+      <InputWithEcho
+        value={genWeightEpl}
+        onChangeText={setGenWeightEpl}
+        placeholder="Poids épluché (g)"
+        echoLabel="Épluché (g)"
+      />
+      {(() => {
+        const unitRef = (avgEpl ?? avgNon ?? 0);
+        const pieces = unitRef > 0 ? Math.ceil(num(genWeightEpl) / unitRef) : 0;
+        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+      })()}
+
+      {/* Poids non épluché → Nb pièces estimées */}
+      <InputWithEcho
+        value={genWeightNon}
+        onChangeText={setGenWeightNon}
+        placeholder="Poids non épluché (g)"
+        echoLabel="Non épluché (g)"
+      />
+      {(() => {
+        const unitNon = avgNon ?? 0;
+        const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0;
+        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+      })()}
+
+      {/* Nb pièces non épluchées → Poids */}
+      <InputWithEcho
+        value={countNon}
+        onChangeText={setCountNon}
+        placeholder="Pièces non épl. (ex: 3)"
+        echoLabel="Pièces non épl."
+      />
+      <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0))} />
+      {peelY ? <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)} /> : null}
+    </View>
+  );
+}
+
 
 function EggsSection({ d }: { d: Item }) {
   const [eggSize, setEggSize] = useState<'S' | 'M' | 'L'>('S')
@@ -1491,57 +1564,6 @@ function OnionSection({ d }: { d: Item }) {
   )
 }
 
-function GenericConversions({ d }: { d: Item }) {
-  const [genWeightEpl, setGenWeightEpl] = useState('')
-  const [genWeightNon, setGenWeightNon] = useState('')
-  const [countNon, setCountNon] = useState('')
-
-  const EPL = 'épluché'
-
-  return (
-    <View style={st.section}>
-      <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
-
-      <InputWithEcho
-        value={genWeightEpl}
-        onChangeText={setGenWeightEpl}
-        placeholder="Poids épl. (g)"
-        echoLabel="Épl. (g)"
-      />
-      {(() => {
-        const unitEpl = (d.peeled_yield ? (d.avg_unit_g || 0) * (d.peeled_yield || 1) : (d.avg_unit_g || 0))
-        const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0
-        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
-      })()}
-
-      <InputWithEcho
-        value={genWeightNon}
-        onChangeText={setGenWeightNon}
-        placeholder="Poids non épl. (g)"
-        echoLabel="Non épl. (g)"
-      />
-      {(() => {
-        const unitNon = d.avg_unit_g || 0
-        const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0
-        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
-      })()}
-
-      <InputWithEcho
-        value={countNon}
-        onChangeText={setCountNon}
-        placeholder="Pièces non épl. (ex: 3)"
-        echoLabel="Pièces non épl."
-      />
-      <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0))} />
-      {d.peeled_yield ? (
-        <Row
-          left={`Poids ${EPL}`}
-          right={fmtAllUnits(num(countNon) * (d.avg_unit_g || 0) * (d.peeled_yield || 1))}
-        />
-      ) : null}
-    </View>
-  )
-}
 
 function CelerySection({ d }: { d: Item }) {
   const [celeryBranches, setCeleryBranches] = useState('')
@@ -1942,6 +1964,102 @@ function CabbageSection({ d }: { d: Item }) {
   )
 }
 
+function AppleSection({ d }: { d: Item }) {
+  const [selected, setSelected] = React.useState<any | null>(null);
+
+  // Variétés de pommes = lignes où is_appl est renseigné
+  const appleVars = React.useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_appl)), []);
+
+  // Fusion: priorité aux champs spécifiques variété
+  const dd = React.useMemo(() => {
+    if (!selected) return d;
+    const avgUnit = toNumMaybe((selected as any).appl_spcfc_wght) ?? toNumMaybe(d.avg_unit_g) ?? null;
+    const peelY   = toNumMaybe((selected as any).peeled_yield)    ?? toNumMaybe(d.peeled_yield) ?? null;
+    return { ...d, ...selected, avg_unit_g: avgUnit, peeled_yield: peelY } as Item;
+  }, [d, selected]);
+
+  const avgNon = toNumMaybe(dd.avg_unit_g);
+  const peelY  = toNumMaybe(dd.peeled_yield);
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
+
+  // Champs pour les convertisseurs (ordre 1 → 2 → 3)
+  const [genWeightEpl, setGenWeightEpl] = React.useState('');
+  const [genWeightNon, setGenWeightNon] = React.useState('');
+  const [countNon, setCountNon]         = React.useState('');
+  const [qtyEpl, setQtyEpl]             = React.useState('');
+  const [qtyNon, setQtyNon]             = React.useState('');
+
+  return (
+    <View style={st.section}>
+      {/* Choisir une variété */}
+      <Text style={st.sTitle}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {appleVars
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = selected?.id === v.id;
+            return (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setSelected(v)}
+                activeOpacity={0.9}
+                style={[st.pill, on && st.pillActive]}
+              >
+                {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+              </TouchableOpacity>
+            );
+          })}
+      </View>
+
+      {/* 1 / 2 / 3 seulement après choix de variété */}
+      {selected && (
+        <View style={{ marginTop: 10 }}>
+          {/* 1️⃣ Infos clés */}
+          <Text style={st.sTitle}>Infos clés</Text>
+          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+          {avgEpl !== null && (<Row left="Poids épluché (préparation standard)" right={`${fmt(avgEpl)} g`} />)}
+
+          {/* 2️⃣ Quantité ⇆ Poids (3 barres) */}
+          <View style={st.section}>
+            <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+
+            <InputWithEcho value={genWeightEpl} onChangeText={setGenWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
+            {(() => {
+              const unitEpl = (peelY && avgNon !== null) ? avgNon * peelY : (avgNon ?? 0);
+              const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0;
+              return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+            })()}
+
+            <InputWithEcho value={genWeightNon} onChangeText={setGenWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
+            {(() => {
+              const unitNon = avgNon ?? 0;
+              const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0;
+              return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+            })()}
+
+            <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
+            <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0))} />
+            {peelY ? <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)} /> : null}
+          </View>
+
+          {/* 3️⃣ Épluché ⇆ Non épluché */}
+          {peelY ? (
+            <View style={st.section}>
+              <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
+              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder="Quantité épluchée (g)" echoLabel="Épluchée (g)" />
+              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelY)} />
+              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder="Quantité non épluchée (g)" echoLabel="Non épluchée (g)" />
+              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelY)} />
+            </View>
+          ) : null}
+        </View>
+      )}
+    </View>
+  );
+}
+
 
 
 /* ===================== Styles ===================== */
@@ -2127,4 +2245,4 @@ const st = StyleSheet.create({
   },
   closeBtnTxt: { fontWeight: '900', fontSize: 12, color: '#7a3c84' },
   infoBody: { color: '#57324B', lineHeight: 20, fontWeight: '600' },
-} )
+} );

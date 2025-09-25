@@ -4,10 +4,11 @@
     "label": "Citron",
     "generique": null,
     "genre": null,
-    "avg_unit_g": null,
+    "avg_unit_g": 133,
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": "0,25",
     "juice_ml_per_unit": 45,
     "lgth_g": null,
     "tsp_g": null,
@@ -94,6 +95,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 2
   },
   {
@@ -105,6 +108,7 @@
     "": null,
     "peeled_yield": 0.9,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": 5,
     "tsp_g": null,
@@ -191,6 +195,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 3
   },
   {
@@ -202,6 +208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": 15,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -288,6 +295,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 4
   },
   {
@@ -299,6 +308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": 13.5,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -385,6 +395,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 5
   },
   {
@@ -396,6 +408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -482,6 +495,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 6
   },
   {
@@ -493,6 +508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -579,6 +595,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 7
   },
   {
@@ -590,6 +608,7 @@
     "": null,
     "peeled_yield": 0.65,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -676,6 +695,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 8
   },
   {
@@ -687,6 +708,7 @@
     "": null,
     "peeled_yield": 0.77,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -773,6 +795,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 9
   },
   {
@@ -784,6 +808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -870,6 +895,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 10
   },
   {
@@ -881,6 +908,7 @@
     "": null,
     "peeled_yield": 0.895,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -967,6 +995,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 11
   },
   {
@@ -976,8 +1006,9 @@
     "genre": null,
     "avg_unit_g": 201,
     "": null,
-    "peeled_yield": 0.88,
+    "peeled_yield": 0.883333333,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1064,6 +1095,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 12
   },
   {
@@ -1075,6 +1108,7 @@
     "": null,
     "peeled_yield": 0.82,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1161,6 +1195,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 13
   },
   {
@@ -1172,6 +1208,7 @@
     "": null,
     "peeled_yield": 0.75,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1258,6 +1295,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 14
   },
   {
@@ -1269,6 +1308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": 4.2,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1355,6 +1395,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 15
   },
   {
@@ -1366,6 +1408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1452,6 +1495,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 16
   },
   {
@@ -1461,8 +1506,9 @@
     "genre": null,
     "avg_unit_g": null,
     "": null,
-    "peeled_yield": null,
+    "peeled_yield": 0.78,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1549,7 +1595,109 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
     "__rowNumber": 17
+  },
+  {
+    "id": "gala",
+    "label": "Gala",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": "x",
+    "appl_spcfc_wght": "198",
+    "__rowNumber": 18
   },
   {
     "id": "ananas",
@@ -1560,6 +1708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1646,7 +1795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 18
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 19
   },
   {
     "id": "cerises",
@@ -1657,6 +1808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1743,17 +1895,20 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 19
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 20
   },
   {
     "id": "kiwi",
     "label": "Kiwi",
     "generique": null,
     "genre": null,
-    "avg_unit_g": null,
+    "avg_unit_g": 97,
     "": null,
-    "peeled_yield": null,
+    "peeled_yield": 0.8,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1840,7 +1995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 20
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 21
   },
   {
     "id": "orange",
@@ -1851,6 +2008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -1937,7 +2095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 21
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 22
   },
   {
     "id": "mandarine",
@@ -1948,6 +2108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2034,7 +2195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 22
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 23
   },
   {
     "id": "abricot",
@@ -2045,6 +2208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2131,7 +2295,209 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 23
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 24
+  },
+  {
+    "id": "banane",
+    "label": "Banane",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": 158,
+    "": null,
+    "peeled_yield": 0.7,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 25
+  },
+  {
+    "id": "patate_douce",
+    "label": "Patate douce",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": 555,
+    "": null,
+    "peeled_yield": 0.88,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 26
   },
   {
     "id": "pomme_de_terre",
@@ -2142,6 +2508,7 @@
     "": null,
     "peeled_yield": 0.84,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2228,7 +2595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 24
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 27
   },
   {
     "id": "agria",
@@ -2239,6 +2608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2325,7 +2695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 25
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 28
   },
   {
     "id": "bintje",
@@ -2336,6 +2708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2422,7 +2795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 26
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 29
   },
   {
     "id": "blanche",
@@ -2433,6 +2808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2519,7 +2895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 27
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 30
   },
   {
     "id": "bleue_d_auvergne",
@@ -2530,6 +2908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2616,7 +2995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 28
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 31
   },
   {
     "id": "caesar",
@@ -2627,6 +3008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2713,7 +3095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 29
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 32
   },
   {
     "id": "desiree",
@@ -2724,6 +3108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2810,7 +3195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 30
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 33
   },
   {
     "id": "marabel",
@@ -2821,6 +3208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -2907,7 +3295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 31
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 34
   },
   {
     "id": "manon",
@@ -2918,6 +3308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3004,7 +3395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 32
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 35
   },
   {
     "id": "vitelotte",
@@ -3015,6 +3408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3101,7 +3495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 33
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 36
   },
   {
     "id": "artemis",
@@ -3112,6 +3508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3198,7 +3595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 34
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 37
   },
   {
     "id": "amandine",
@@ -3209,6 +3608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3295,7 +3695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 35
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 38
   },
   {
     "id": "annabelle",
@@ -3306,6 +3708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3392,7 +3795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 36
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 39
   },
   {
     "id": "belle_de_fontenay",
@@ -3403,6 +3808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3489,7 +3895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 37
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 40
   },
   {
     "id": "bernadette",
@@ -3500,6 +3908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3586,7 +3995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 38
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 41
   },
   {
     "id": "bf15",
@@ -3597,6 +4008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3683,7 +4095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 39
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 42
   },
   {
     "id": "charlotte",
@@ -3694,6 +4108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3780,7 +4195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 40
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 43
   },
   {
     "id": "cherie",
@@ -3791,6 +4208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3877,7 +4295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 41
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 44
   },
   {
     "id": "nicola",
@@ -3888,6 +4308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -3974,7 +4395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 42
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 45
   },
   {
     "id": "pompadour",
@@ -3985,6 +4408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4071,7 +4495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 43
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 46
   },
   {
     "id": "ratte",
@@ -4082,6 +4508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4168,7 +4595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 44
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 47
   },
   {
     "id": "roseval",
@@ -4179,6 +4608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4265,7 +4695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 45
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 48
   },
   {
     "id": "agata",
@@ -4276,6 +4708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4362,7 +4795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 46
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 49
   },
   {
     "id": "apollo",
@@ -4373,6 +4808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4459,7 +4895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 47
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 50
   },
   {
     "id": "elodie",
@@ -4470,6 +4908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4556,7 +4995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 48
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 51
   },
   {
     "id": "monalisa",
@@ -4567,6 +5008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4653,7 +5095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 49
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 52
   },
   {
     "id": "osatara",
@@ -4664,6 +5108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4750,7 +5195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 50
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 53
   },
   {
     "id": "resy",
@@ -4761,6 +5208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4847,7 +5295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 51
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 54
   },
   {
     "id": "rosabelle",
@@ -4858,6 +5308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -4944,7 +5395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 52
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 55
   },
   {
     "id": "samba",
@@ -4955,6 +5408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5041,7 +5495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 53
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 56
   },
   {
     "id": "sirtema",
@@ -5052,6 +5508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5138,7 +5595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 54
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 57
   },
   {
     "id": "blue_belle",
@@ -5149,6 +5608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5235,7 +5695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 55
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 58
   },
   {
     "id": "colomba",
@@ -5246,6 +5708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5332,7 +5795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 56
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 59
   },
   {
     "id": "pates",
@@ -5343,6 +5808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5429,7 +5895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 57
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 60
   },
   {
     "id": "spaghetti",
@@ -5440,6 +5908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5526,7 +5995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 58
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 61
   },
   {
     "id": "linguine",
@@ -5537,6 +6008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5623,7 +6095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 59
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 62
   },
   {
     "id": "tagliatelle",
@@ -5634,6 +6108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5720,7 +6195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 60
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 63
   },
   {
     "id": "fettucine",
@@ -5731,6 +6208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5817,7 +6295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 61
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 64
   },
   {
     "id": "papardelle",
@@ -5828,6 +6308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -5914,7 +6395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 62
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 65
   },
   {
     "id": "penne",
@@ -5925,6 +6408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6011,7 +6495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 63
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 66
   },
   {
     "id": "rigatoni",
@@ -6022,6 +6508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6108,7 +6595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 64
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 67
   },
   {
     "id": "fusilli",
@@ -6119,6 +6608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6205,7 +6695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 65
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 68
   },
   {
     "id": "farfalle",
@@ -6216,6 +6708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6302,7 +6795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 66
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 69
   },
   {
     "id": "orecchiette",
@@ -6313,6 +6808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6399,7 +6895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 67
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 70
   },
   {
     "id": "cavatappi",
@@ -6410,6 +6908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6496,7 +6995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 68
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 71
   },
   {
     "id": "orzo",
@@ -6507,6 +7008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6593,7 +7095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 69
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 72
   },
   {
     "id": "ditalini",
@@ -6604,6 +7108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6690,7 +7195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 70
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 73
   },
   {
     "id": "stelline",
@@ -6701,6 +7208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6787,7 +7295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 71
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 74
   },
   {
     "id": "fregola_sarda",
@@ -6798,6 +7308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6884,7 +7395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 72
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 75
   },
   {
     "id": "conchigliette",
@@ -6895,6 +7408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -6981,7 +7495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 73
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 76
   },
   {
     "id": "ravioli",
@@ -6992,6 +7508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7078,7 +7595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 74
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 77
   },
   {
     "id": "tortellini",
@@ -7089,6 +7608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7175,7 +7695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 75
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 78
   },
   {
     "id": "mezzelune",
@@ -7186,6 +7708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7272,7 +7795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 76
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 79
   },
   {
     "id": "agnolotti",
@@ -7283,6 +7808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7369,7 +7895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 77
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 80
   },
   {
     "id": "cappelletti",
@@ -7380,6 +7908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7466,7 +7995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 78
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 81
   },
   {
     "id": "sauce_tomate_classique",
@@ -7477,6 +8008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7563,7 +8095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 79
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 82
   },
   {
     "id": "sugo al pomodoro",
@@ -7574,6 +8108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7660,7 +8195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 80
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 83
   },
   {
     "id": "marinara",
@@ -7671,6 +8208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7757,7 +8295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 81
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 84
   },
   {
     "id": "all_arrabbiata",
@@ -7768,6 +8308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7854,7 +8395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 82
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 85
   },
   {
     "id": "amatriciana",
@@ -7865,6 +8408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -7951,7 +8495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 83
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 86
   },
   {
     "id": "puttanesca",
@@ -7962,6 +8508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8048,7 +8595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 84
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 87
   },
   {
     "id": "sugo_al_tonno",
@@ -8059,6 +8608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8145,7 +8695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 85
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 88
   },
   {
     "id": "sauces_cremeuses_legeres",
@@ -8156,6 +8708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8242,7 +8795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 86
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 89
   },
   {
     "id": "panna_e_limone",
@@ -8253,6 +8808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8339,7 +8895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 87
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 90
   },
   {
     "id": "panna_e_prosciutto",
@@ -8350,6 +8908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8436,7 +8995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 88
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 91
   },
   {
     "id": "ricotta_e_spinacci",
@@ -8447,6 +9008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8533,7 +9095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 89
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 92
   },
   {
     "id": "ricotta_e_limone",
@@ -8544,6 +9108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8630,7 +9195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 90
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 93
   },
   {
     "id": "carbonara_authentique",
@@ -8641,6 +9208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8727,7 +9295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 91
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 94
   },
   {
     "id": "cacio_e_pepe",
@@ -8738,6 +9308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8824,7 +9395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 92
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 95
   },
   {
     "id": "zucchine_e_panna",
@@ -8835,6 +9408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -8921,7 +9495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 93
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 96
   },
   {
     "id": "crema_di_piselli",
@@ -8932,6 +9508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9018,7 +9595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 94
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 97
   },
   {
     "id": "crema_di_carote",
@@ -9029,6 +9608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9115,7 +9695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 95
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 98
   },
   {
     "id": "gorgonzola_dolce_e_panna",
@@ -9126,6 +9708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9212,7 +9795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 96
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 99
   },
   {
     "id": "stracchino_e_rucola",
@@ -9223,6 +9808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9309,7 +9895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 97
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 100
   },
   {
     "id": "pesto_alla_genovese",
@@ -9320,6 +9908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9406,7 +9995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 98
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 101
   },
   {
     "id": "sauce_avec_des_morceaux",
@@ -9417,6 +10008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9503,7 +10095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 99
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 102
   },
   {
     "id": "sugo_all_bolognese",
@@ -9514,6 +10108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9600,7 +10195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 100
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 103
   },
   {
     "id": "sugo_con_salsiccia",
@@ -9611,6 +10208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9697,7 +10295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 101
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 104
   },
   {
     "id": "sugo_alla_norma",
@@ -9708,6 +10308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9794,7 +10395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 102
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 105
   },
   {
     "id": "puttanesca_rustica",
@@ -9805,6 +10408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9891,7 +10495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 103
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 106
   },
   {
     "id": "verdure_grigliate",
@@ -9902,6 +10508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -9988,7 +10595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 104
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 107
   },
   {
     "id": "broccoli_e_acciughe",
@@ -9999,6 +10608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10085,7 +10695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 105
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 108
   },
   {
     "id": "piselli_e_prosciutto",
@@ -10096,6 +10708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10182,7 +10795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 106
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 109
   },
   {
     "id": "spezzatino_rapido",
@@ -10193,6 +10808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10279,7 +10895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 107
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 110
   },
   {
     "id": "ragù_napoletano",
@@ -10290,6 +10908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10376,7 +10995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 108
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 111
   },
   {
     "id": "polpette_al_sugo",
@@ -10387,6 +11008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10473,7 +11095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 109
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 112
   },
   {
     "id": "sugo_al_tonno_fresco",
@@ -10484,6 +11108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10570,7 +11195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 110
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 113
   },
   {
     "id": "gamberetti_e_zucchine",
@@ -10581,6 +11208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10667,7 +11295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 111
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 114
   },
   {
     "id": "polpo_alla_luciana",
@@ -10678,6 +11308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10764,7 +11395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 112
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 115
   },
   {
     "id": "salmone_e_panna",
@@ -10775,6 +11408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10861,7 +11495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 113
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 116
   },
   {
     "id": "pesto_rosso",
@@ -10872,6 +11508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -10958,7 +11595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 114
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 117
   },
   {
     "id": "sauces_a_la_creme",
@@ -10969,6 +11608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11055,7 +11695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 115
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 118
   },
   {
     "id": "panna_e_prosciutto",
@@ -11066,6 +11708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11152,7 +11795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 116
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 119
   },
   {
     "id": "panna_e_speck",
@@ -11163,6 +11808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11249,7 +11895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 117
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 120
   },
   {
     "id": "panna_e_salsiccia",
@@ -11260,6 +11908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11346,7 +11995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 118
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 121
   },
   {
     "id": "panna_piselli_e_prosciutto",
@@ -11357,6 +12008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11443,7 +12095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 119
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 122
   },
   {
     "id": "gorgonzola_e_panna",
@@ -11454,6 +12108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11540,7 +12195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 120
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 123
   },
   {
     "id": "quattro_formaggi",
@@ -11551,6 +12208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11637,7 +12295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 121
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 124
   },
   {
     "id": "ricotta_e_panna",
@@ -11648,6 +12308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11734,7 +12395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 122
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 125
   },
   {
     "id": "zucchine_e_panna",
@@ -11745,6 +12408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11831,7 +12495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 123
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 126
   },
   {
     "id": "funghi_e_panna",
@@ -11842,6 +12508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -11928,7 +12595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 124
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 127
   },
   {
     "id": "spinaci_e_panna",
@@ -11939,6 +12608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12025,7 +12695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 125
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 128
   },
   {
     "id": "tonno_e_panna",
@@ -12036,6 +12708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12122,7 +12795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 126
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 129
   },
   {
     "id": "salmone_e_panna",
@@ -12133,6 +12808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12219,7 +12895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 127
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 130
   },
   {
     "id": "bouillons_et_soupes",
@@ -12230,6 +12908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12316,7 +12995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 128
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 131
   },
   {
     "id": "sauces_onctueuses",
@@ -12327,6 +13008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12413,7 +13095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 129
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 132
   },
   {
     "id": "crema_di_verdure",
@@ -12424,6 +13108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12510,7 +13195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 130
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 133
   },
   {
     "id": "passata_di_pomodoro_vellutata",
@@ -12521,6 +13208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12607,7 +13295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 131
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 134
   },
   {
     "id": "crema_di_legumi",
@@ -12618,6 +13308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12704,7 +13395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 132
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 135
   },
   {
     "id": "stracciatella_alla_romana",
@@ -12715,6 +13408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12801,7 +13495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 133
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 136
   },
   {
     "id": "panna_e_parmigiano",
@@ -12812,6 +13508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12898,7 +13595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 134
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 137
   },
   {
     "id": "crema_di_patate",
@@ -12909,6 +13608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -12995,7 +13695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 135
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 138
   },
   {
     "id": "salades_froides",
@@ -13006,6 +13708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13092,7 +13795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 136
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 139
   },
   {
     "id": "tomate",
@@ -13103,6 +13808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13189,7 +13895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 137
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 140
   },
   {
     "id": "tomate_ronde",
@@ -13200,6 +13908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13286,7 +13995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 138
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 141
   },
   {
     "id": "tomate_grappe",
@@ -13297,6 +14008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13383,7 +14095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 139
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 142
   },
   {
     "id": "roma",
@@ -13394,6 +14108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13451,7 +14166,7 @@
     "pfct_flf_pst": null,
     "pfct_ovn_pst": null,
     "is_tmt": "x",
-    "tmt_spcfc_wght": "84,66666667",
+    "tmt_spcfc_wght": "85",
     "tmt_spcfc_peel": "0,97",
     "tmt_vrty": "roma",
     "tmt_com": "Douce, peu juteuse",
@@ -13480,7 +14195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 140
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 143
   },
   {
     "id": "san_marzano",
@@ -13491,6 +14208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13577,7 +14295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 141
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 144
   },
   {
     "id": "tomate_cerise",
@@ -13588,6 +14308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13674,7 +14395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 142
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 145
   },
   {
     "id": "tomate_cocktail",
@@ -13685,6 +14408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13771,7 +14495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 143
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 146
   },
   {
     "id": "tomate_allongees_cerise",
@@ -13782,6 +14508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13868,7 +14595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 144
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 147
   },
   {
     "id": "cœur_de_boeuf",
@@ -13879,6 +14608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -13965,7 +14695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 145
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 148
   },
   {
     "id": "marmande",
@@ -13976,6 +14708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14062,7 +14795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 146
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 149
   },
   {
     "id": "noire_de_crimee",
@@ -14073,6 +14808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14159,7 +14895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 147
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 150
   },
   {
     "id": "green_zebra",
@@ -14170,6 +14908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14256,7 +14995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 148
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 151
   },
   {
     "id": "ananas",
@@ -14267,6 +15008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14353,7 +15095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 149
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 152
   },
   {
     "id": "oignon",
@@ -14364,6 +15108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14450,7 +15195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 150
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 153
   },
   {
     "id": "oignon_jaune",
@@ -14461,6 +15208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14532,8 +15280,8 @@
     "tmt_frc": null,
     "tmt_ap": null,
     "is_onn": "x",
-    "onn_spcfc_wght": null,
-    "onn_spcfc_peel": null,
+    "onn_spcfc_wght": "156",
+    "onn_spcfc_peel": "0,926666667",
     "onn_vrty": "oignon_jaune",
     "peeled_onn": "0,94",
     "cru_onn": "1",
@@ -14547,7 +15295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 151
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 154
   },
   {
     "id": "oignon_blanc",
@@ -14558,6 +15308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14629,8 +15380,8 @@
     "tmt_frc": null,
     "tmt_ap": null,
     "is_onn": "x",
-    "onn_spcfc_wght": null,
-    "onn_spcfc_peel": null,
+    "onn_spcfc_wght": "213",
+    "onn_spcfc_peel": "0,95",
     "onn_vrty": "oignon_blanc",
     "peeled_onn": "0,95",
     "cru_onn": "2",
@@ -14644,7 +15395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 152
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 155
   },
   {
     "id": "oignon_rouge",
@@ -14655,6 +15408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14741,17 +15495,20 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 153
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 156
   },
   {
-    "id": "oignon_doux",
-    "label": "Oignon doux",
+    "id": "oignon_roscoff",
+    "label": "Oignon de Roscoff",
     "generique": null,
     "genre": null,
     "avg_unit_g": null,
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14823,9 +15580,9 @@
     "tmt_frc": null,
     "tmt_ap": null,
     "is_onn": "x",
-    "onn_spcfc_wght": "110",
-    "onn_spcfc_peel": "0,93030303",
-    "onn_vrty": "oignon_doux",
+    "onn_spcfc_wght": "104",
+    "onn_spcfc_peel": "0,925",
+    "onn_vrty": "oignon_roscoff",
     "peeled_onn": null,
     "cru_onn": "3",
     "csndc_onn": "2",
@@ -14838,7 +15595,109 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 154
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 157
+  },
+  {
+    "id": "oignon_cevennes",
+    "label": "Oignon des Cévennes",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": "x",
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": "oignon_cevennes",
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 158
   },
   {
     "id": "oignon_nouveau",
@@ -14849,6 +15708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -14935,7 +15795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 155
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 159
   },
   {
     "id": "echalion",
@@ -14946,6 +15808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15032,7 +15895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 156
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 160
   },
   {
     "id": "echalote",
@@ -15043,6 +15908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15129,7 +15995,109 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 157
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 161
+  },
+  {
+    "id": "cebette",
+    "label": "Cébette (ciboule)",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": "x",
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": "cebette",
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 162
   },
   {
     "id": "oignon_surgele",
@@ -15140,6 +16108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15226,7 +16195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 158
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 163
   },
   {
     "id": "volaille",
@@ -15237,6 +16208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15323,7 +16295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 159
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 164
   },
   {
     "id": "poulet",
@@ -15334,6 +16308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15420,7 +16395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 160
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 165
   },
   {
     "id": "dinde",
@@ -15431,6 +16408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15517,7 +16495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 161
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 166
   },
   {
     "id": "pintade",
@@ -15528,6 +16508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15614,7 +16595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 162
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 167
   },
   {
     "id": "coquelet",
@@ -15625,6 +16608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15711,7 +16695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 163
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 168
   },
   {
     "id": "canette",
@@ -15722,6 +16708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15808,7 +16795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 164
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 169
   },
   {
     "id": "lapin",
@@ -15819,6 +16808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -15905,7 +16895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 165
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 170
   },
   {
     "id": "poularde",
@@ -15916,6 +16908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16002,7 +16995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 166
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 171
   },
   {
     "id": "chapon",
@@ -16013,6 +17008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16099,7 +17095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 167
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 172
   },
   {
     "id": "epices",
@@ -16110,6 +17108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16196,7 +17195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 168
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 173
   },
   {
     "id": "gingembre",
@@ -16207,6 +17208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16293,7 +17295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 169
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 174
   },
   {
     "id": "paprika",
@@ -16304,6 +17308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16390,7 +17395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 170
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 175
   },
   {
     "id": "cumin",
@@ -16401,6 +17408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16487,7 +17495,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 171
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 176
   },
   {
     "id": "graines_de_moutarde",
@@ -16498,6 +17508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16584,7 +17595,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 172
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 177
   },
   {
     "id": "graines_de_cumin",
@@ -16595,6 +17608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16681,7 +17695,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 173
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 178
   },
   {
     "id": "piment_de_cayenne",
@@ -16692,6 +17708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16778,7 +17795,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 174
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 179
   },
   {
     "id": "piment_d_espelette",
@@ -16789,6 +17808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16875,7 +17895,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 175
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 180
   },
   {
     "id": "poivre_noir_grains",
@@ -16886,6 +17908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -16972,7 +17995,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 176
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 181
   },
   {
     "id": "ail_semoule",
@@ -16983,6 +18008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17069,7 +18095,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 177
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 182
   },
   {
     "id": "cannelle",
@@ -17080,6 +18108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17166,7 +18195,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 178
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 183
   },
   {
     "id": "oignon_semoule",
@@ -17177,6 +18208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17263,7 +18295,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 179
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 184
   },
   {
     "id": "choux",
@@ -17274,6 +18308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17360,7 +18395,9 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 180
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 185
   },
   {
     "id": "chou_blanc",
@@ -17371,6 +18408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17457,7 +18495,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 181
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 186
   },
   {
     "id": "chou_rouge",
@@ -17468,6 +18508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17554,7 +18595,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 182
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 187
   },
   {
     "id": "chou_vert",
@@ -17565,6 +18608,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17651,7 +18695,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 183
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 188
   },
   {
     "id": "chou_de_milan",
@@ -17662,6 +18708,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17748,7 +18795,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 184
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 189
   },
   {
     "id": "chou_fleur",
@@ -17759,6 +18808,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17845,7 +18895,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 185
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 190
   },
   {
     "id": "brocoli",
@@ -17856,6 +18908,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -17942,7 +18995,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 186
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 191
   },
   {
     "id": "chou_romanesco",
@@ -17953,6 +19008,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18039,7 +19095,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 187
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 192
   },
   {
     "id": "chou_chinois",
@@ -18050,6 +19108,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18136,7 +19195,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 188
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 193
   },
   {
     "id": "chou_kale",
@@ -18147,6 +19208,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18233,7 +19295,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 189
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 194
   },
   {
     "id": "choux_de_bruxelles",
@@ -18244,6 +19308,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18330,7 +19395,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 190
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 195
   },
   {
     "id": "chou_rave",
@@ -18341,6 +19408,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18427,7 +19495,9 @@
     "is_choux": "x",
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 191
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 196
   },
   {
     "id": "salades",
@@ -18438,6 +19508,7 @@
     "": null,
     "peeled_yield": null,
     "tbsp_g": null,
+    "juice_ml_per_g": null,
     "juice_ml_per_unit": null,
     "lgth_g": null,
     "tsp_g": null,
@@ -18524,6 +19595,8 @@
     "is_choux": null,
     "choux_spcfc_wght": null,
     "choux_spcfc_peel": null,
-    "__rowNumber": 192
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "__rowNumber": 197
   }
 ]
