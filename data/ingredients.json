@@ -15000,8 +15000,8 @@
     "__rowNumber": 151
   },
   {
-    "id": "ananas",
-    "label": "Ananas",
+    "id": "tomate_ananas",
+    "label": "Tomate ananas",
     "generique": null,
     "genre": null,
     "avg_unit_g": null,
@@ -15068,7 +15068,7 @@
     "is_tmt": "x",
     "tmt_spcfc_wght": null,
     "tmt_spcfc_peel": null,
-    "tmt_vrty": "ananas",
+    "tmt_vrty": "tomate_ananas",
     "tmt_com": "Douce, fruitée",
     "tmt_rd": null,
     "tmt_all": null,

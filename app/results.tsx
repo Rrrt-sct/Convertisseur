@@ -200,6 +200,25 @@ function toNumMaybe(v: any): number | null {
   const n = Number(String(v).replace(',', '.'))
   return Number.isFinite(n) ? n : null
 }
+function getPeelYield(d: any): number | null {
+  const keys = [
+    'appl_spcfc_peel',
+    'tmt_spcfc_peel',
+    'avoc_spcfc_peel',
+    'pepr_spcfc_peel',
+    'peeled_yield',
+  ] as const
+
+  for (const k of keys) {
+    const raw = (d as any)[k]
+    if (raw === undefined || raw === null || raw === '') continue
+    const n = Number(String(raw).replace(',', '.'))
+    if (Number.isFinite(n) && n > 0) return n
+  }
+
+  return null
+}
+
 
 /** Récupère le 1er entier présent dans une cellule (ex: "8#xx" -> 8) */
 function firstInt(v: any): number | null {
@@ -424,6 +443,10 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isAvocado = ['avocat', 'avocats'].includes(normId)
   const isPepper  = ['poivron', 'poivrons'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
+
+  const peelY = getPeelYield(d)
+const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY > 0
+
   
 
 
@@ -491,21 +514,24 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
-  if (!isApple && d.peeled_yield && d.avg_unit_g) {
+  
+ if (showPeeled && d.avg_unit_g) {
   const special =
     isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
     isAvocado ? ' (Avocat pelé et dénoyauté)' :
     isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
-                ` (×${fmt(d.peeled_yield)})`
+                ` (×${fmt(peelY!)})`
 
   infoRows.push(
     <Row
       key="peeled"
       left={`Poids ${EPL.toLowerCase()}${special}`}
-      right={`${fmt((d.avg_unit_g || 0) * (d.peeled_yield || 1))} g`}
+      right={`${fmt((d.avg_unit_g || 0) * (peelY || 0))} g`}
     />
   )
 }
+
+
 
   if (d.juice_ml_per_unit) {
     infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
@@ -564,27 +590,24 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
       {(() => {
-        if (isApple) return null  // on gère ça dans le module Pomme
-        const y = toNumMaybe(d.peeled_yield)
-        if (!y || y <= 0) return null
+         if (isApple) return null
+  const peelY = getPeelYield(d)
+  if (!peelY) return null   // 🚫 masque si aucune valeur dans le CSV
 
-        // à partir d’un poids ÉPLUCHÉ, on remonte le NON ÉPLUCHÉ : non = epl / y
-        const nonFromEpl = num(qtyEpl) / y
-        // à partir d’un poids NON ÉPLUCHÉ, on calcule l’ÉPLUCHÉ : epl = non * y
-        const eplFromNon = num(qtyNon) * y
+  const nonFromEpl = num(qtyEpl) / peelY
+  const eplFromNon = num(qtyNon) * peelY
 
-        return (
-          <View style={st.section}>
-            <Text style={st.sTitle}>
-  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-  <Text>
-    {isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)'
-      : isAvocado ? ' (Avocat pelé et dénoyauté)'
-      : isPepper  ? ' (Poivron équeuté, épépiné, non pelé)'
-      : ''}
-  </Text>
-</Text>
-
+  return (
+    <View style={st.section}>
+      <Text style={st.sTitle}>
+        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+        <Text>
+          {isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)'
+            : isAvocado ? ' (Avocat pelé et dénoyauté)'
+            : isPepper  ? ' (Poivron équeuté, épépiné, non pelé)'
+            : ''}
+        </Text>
+      </Text>
 
 
             <InputWithEcho
@@ -731,13 +754,12 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
 
 // ↓↓↓ ajoute ceci quelque part dans results.tsx (par ex. juste avant EggsSection) ↓↓↓
 function GenericConversions({ d }: { d: Item }) {
-  // États locaux (on ne dépend pas de ceux d’IngredientCard)
   const [genWeightEpl, setGenWeightEpl] = React.useState('');
   const [genWeightNon, setGenWeightNon] = React.useState('');
   const [countNon,     setCountNon]     = React.useState('');
 
-  const avgNon = toNumMaybe(d.avg_unit_g);          // poids moyen d'1 pièce non épluchée
-  const peelY  = toNumMaybe(d.peeled_yield);        // rendement épluché (ex: 0.9)
+  const avgNon = toNumMaybe(d.avg_unit_g);
+  const peelY  = getPeelYield(d);                   // ← unifiée
   const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
   return (
@@ -746,20 +768,39 @@ function GenericConversions({ d }: { d: Item }) {
         Quantité <Text style={st.arrow}>⇆</Text> Poids
       </Text>
 
-      {/* Poids épluché → Nb pièces estimées (si on a un rendement) */}
-      <InputWithEcho
-        value={genWeightEpl}
-        onChangeText={setGenWeightEpl}
-        placeholder="Poids épluché (g)"
-        echoLabel="Épluché (g)"
-      />
-      {(() => {
-        const unitRef = (avgEpl ?? avgNon ?? 0);
-        const pieces = unitRef > 0 ? Math.ceil(num(genWeightEpl) / unitRef) : 0;
-        return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
-      })()}
+      {/* 1) SI on a un rendement → champ "Poids épluché" */}
+      {peelY ? (
+        <>
+          <InputWithEcho
+            value={genWeightEpl}
+            onChangeText={setGenWeightEpl}
+            placeholder="Poids épluché (g)"
+            echoLabel="Épluché (g)"
+          />
+          {(() => {
+            const unitRef = (avgEpl ?? 0);
+            const pieces = unitRef > 0 ? Math.ceil(num(genWeightEpl) / unitRef) : 0;
+            return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+          })()}
+        </>
+      ) : (
+        /* SINON → champ générique "Poids (g)" */
+        <>
+          <InputWithEcho
+            value={genWeightEpl}
+            onChangeText={setGenWeightEpl}
+            placeholder="Poids (g)"
+            echoLabel="Poids (g)"
+          />
+          {(() => {
+            const unitRef = (avgNon ?? 0);
+            const pieces = unitRef > 0 ? Math.ceil(num(genWeightEpl) / unitRef) : 0;
+            return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
+          })()}
+        </>
+      )}
 
-      {/* Poids non épluché → Nb pièces estimées */}
+      {/* 2) Poids non épluché → Nb pièces */}
       <InputWithEcho
         value={genWeightNon}
         onChangeText={setGenWeightNon}
@@ -772,7 +813,7 @@ function GenericConversions({ d }: { d: Item }) {
         return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
       })()}
 
-      {/* Nb pièces non épluchées → Poids */}
+      {/* 3) Nb pièces → poids (et poids épluché seulement si rendement) */}
       <InputWithEcho
         value={countNon}
         onChangeText={setCountNon}
@@ -1233,6 +1274,8 @@ function TomatoSection({ d }: { d: Item }) {
   const [tmtGenWeight, setTmtGenWeight] = useState('')
   const [tmtQtyEpl, setTmtQtyEpl] = useState('')
   const [tmtQtyNon, setTmtQtyNon] = useState('')
+  const [tmtPiecesNon, setTmtPiecesNon] = useState('');
+
 
   const tomatoVarieties = useMemo(
     () => (DB as any[]).filter(v => hasVal(v?.is_tmt)),
@@ -1332,32 +1375,33 @@ function TomatoSection({ d }: { d: Item }) {
               })}
             </View>
 
-            {/* Détail variété sélectionnée */}
-            {tomatoSelected && (() => {
-              // --------- Métadonnées ---------
-              const famCol = TOMATO_FAMILIES.find(f => hasVal(tomatoSelected?.[f.col]))
-              const family = famCol ? famCol.label : ''
-              const taste  = String(tomatoSelected?.tmt_com ?? '').trim()
+                       {/* DÉTAILS (variété sélectionnée OU générique) */}
+            {(() => {
+              // fusion : si une variété est sélectionnée on écrase d par ses champs
+              const base: any = tomatoSelected ? { ...d, ...tomatoSelected } : d
 
-              const usages = TOMATO_USAGES
-                .map(u => ({ u, s: firstInt(tomatoSelected?.[u.col]) ?? 0 }))
-                .filter(x => x.s >= 1)
-                .sort((a, b) => b.s - a.s)
-
-              // --------- Références de poids ---------
-              // Poids moyen non épluché (priorité aux données spécifiques variété)
-              const avgNon = toNumMaybe(tomatoSelected?.tmt_spcfc_wght)
-                          ?? toNumMaybe(d.avg_unit_g)
-                          ?? 0
-              // Rendement éventuel pour estimer le poids épluché (s'il existe)
-              const peelY  = toNumMaybe(tomatoSelected?.tmt_spcfc_peel)
-                          ?? toNumMaybe(d.peeled_yield)
-                          ?? null
+              // références de poids
+              const avgNon = toNumMaybe(base.tmt_spcfc_wght) ?? toNumMaybe(base.avg_unit_g) ?? 0
+              const peelY  = getPeelYield(base) // utilise appl_/tmt_/avoc_/pepr_/peeled_yield
               const avgEpl = peelY ? avgNon * peelY : null
+
+              // métadonnées
+              const famCol = TOMATO_FAMILIES.find(f => hasVal(base?.[f.col]))
+              const family = famCol ? famCol.label : ''
+              const taste  = String(base?.tmt_com ?? '').trim()
+
+              // usages possibles (si une variété est sélectionnée)
+              const usages = tomatoSelected
+                ? TOMATO_USAGES
+                    .map(u => ({ u, s: firstInt(base?.[u.col]) ?? 0 }))
+                    .filter(x => x.s >= 1)
+                    .sort((a, b) => b.s - a.s)
+                : []
+            
 
               return (
                 <View style={{ marginTop: 10 }}>
-                  {/* Usages possibles */}
+                  {/* Usages possibles (uniquement quand une variété est sélectionnée) */}
                   {usages.length > 0 && (
                     <View style={{ marginTop: 4, marginBottom: 12 }}>
                       <Text style={st.sTitle}>Usages possibles</Text>
@@ -1365,81 +1409,82 @@ function TomatoSection({ d }: { d: Item }) {
                         {usages.map(({ u, s }) => (
                           <View key={`tu-${u.key}`} style={st.pill}>
                             <Text style={st.pillText}>{u.label}</Text>
-                            <Text style={st.pillBadge}>
-                              {s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}
-                            </Text>
+                            <Text style={st.pillBadge}>{s >= 3 ? '★★★' : s === 2 ? '★★' : '★'}</Text>
                           </View>
                         ))}
                       </View>
                     </View>
                   )}
 
-                  {/* Infos clés (après usages, avant convertisseurs) */}
-                  <Text style={st.sTitle}>Infos clés</Text>
-                  <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />
-                  {avgEpl !== null && (
-                    <Row
-                      left="Poids épluché (tomate équeutée et époinçonnée, non pelée)"
-                      right={`${fmt(avgEpl)} g`}
-                    />
-                  )}
-                  {!!family && (
-                    <View style={{ marginTop: 8 }}>
-                      <Text style={st.sTitle}>Famille</Text>
-                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
-                    </View>
-                  )}
-                  {!!taste && (
-                    <View style={{ marginTop: 8 }}>
-                      <Text style={st.sTitle}>Goût</Text>
-                      <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
-                    </View>
-                  )}
+                  {/* Infos clés — seulement après sélection d’une variété */}
+{tomatoSelected && (
+  <>
+    <Text style={st.sTitle}>Infos clés</Text>
+    <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />
+    {avgEpl !== null && (
+      <Row
+        left="Poids épluché (tomate équeutée et époinçonnée, non pelée)"
+        right={`${fmt(avgEpl)} g`}
+      />
+    )}
 
-                  {/* ===== 1) Quantité ⇆ Poids ===== */}
-                  <View style={[st.section, { marginTop: 10 }]}>
-                    <Text style={st.sTitle}>
-                      Quantité <Text style={st.arrow}>⇆</Text> Poids
-                    </Text>
+    {!!family && (
+      <View style={{ marginTop: 8 }}>
+        <Text style={st.sTitle}>Famille</Text>
+        <Text style={{ color: '#57324B', fontWeight: '600' }}>{family}</Text>
+      </View>
+    )}
 
-                    <InputWithEcho
-                      value={tmtGenWeight}
-                      onChangeText={setTmtGenWeight}
-                      placeholder="Poids (g) — ex: 250"
-                      echoLabel="Poids (g)"
-                    />
-                    {(() => {
-                      const unitRef = avgEpl ?? avgNon
-                      const pieces = unitRef > 0 ? Math.ceil(num(tmtGenWeight) / unitRef) : 0
-                      return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />
-                    })()}
-                  </View>
+    {!!taste && (
+      <View style={{ marginTop: 8 }}>
+        <Text style={st.sTitle}>Goût</Text>
+        <Text style={{ color: '#57324B', fontWeight: '600' }}>{taste}</Text>
+      </View>
+    )}
+  </>
+)}
 
-                  {/* ===== 2) Épluché ⇆ Non épluché ===== */}
-                  {peelY ? (
-                    <View style={st.section}>
-                      <Text style={st.sTitle}>
-                        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-                        <Text>{' '}(Tomate équeutée et époinçonnée, non pelée)</Text>
-                      </Text>
 
-                      <InputWithEcho
-                        value={tmtQtyEpl}
-                        onChangeText={setTmtQtyEpl}
-                        placeholder="Quantité épluchée (g)"
-                        echoLabel="Épluchée (g)"
-                      />
-                      <Row left="Équiv. non épluché" right={fmtAllUnits(num(tmtQtyEpl) / peelY)} />
 
-                      <InputWithEcho
-                        value={tmtQtyNon}
-                        onChangeText={setTmtQtyNon}
-                        placeholder="Quantité non épluchée (g)"
-                        echoLabel="Non épluchée (g)"
-                      />
-                      <Row left="Équiv. épluché" right={fmtAllUnits(num(tmtQtyNon) * peelY)} />
-                    </View>
-                  ) : null}
+
+{tomatoSelected && (() => {
+  // on force avg_unit_g / peeled_yield pour que GenericConversions utilise bien
+  // le poids spécifique tomate + le rendement correct
+  const dd = {
+    ...base,
+    avg_unit_g: (avgNon || null),
+    peeled_yield: (peelY ?? null),
+  } as Item
+
+  // 3 barres: Poids épl. → pièces / Poids non épl. → pièces / Nb pièces → poids
+  return <GenericConversions d={dd} />
+})()}
+
+{tomatoSelected && peelY ? (
+  <View style={st.section}>
+    <Text style={st.sTitle}>
+      Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+      <Text>{' '}(Tomate équeutée et époinçonnée, non pelée)</Text>
+    </Text>
+
+    <InputWithEcho
+      value={tmtQtyEpl}
+      onChangeText={setTmtQtyEpl}
+      placeholder="Quantité épluchée (g)"
+      echoLabel="Épluchée (g)"
+    />
+    <Row left="Équiv. non épluché" right={fmtAllUnits(num(tmtQtyEpl) / peelY)} />
+
+    <InputWithEcho
+      value={tmtQtyNon}
+      onChangeText={setTmtQtyNon}
+      placeholder="Quantité non épluchée (g)"
+      echoLabel="Non épluchée (g)"
+    />
+    <Row left="Équiv. épluché" right={fmtAllUnits(num(tmtQtyNon) * peelY)} />
+  </View>
+) : null}
+
                 </View>
               )
             })()}
@@ -1448,9 +1493,9 @@ function TomatoSection({ d }: { d: Item }) {
       })()}
     </View>
   )
-}
+} // ← fin de TomatoSection
 
-           
+
 function OnionSection({ d }: { d: Item }) {
   const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
   const [onionSelected, setOnionSelected] = useState<any | null>(null)
