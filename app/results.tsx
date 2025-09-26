@@ -791,6 +791,8 @@ function EggsSection({ d }: { d: Item }) {
   const [eggTargetTotal, setEggTargetTotal] = useState('')
   const [eggTargetWhite, setEggTargetWhite] = useState('')
   const [eggTargetYolk, setEggTargetYolk] = useState('')
+  const [eggCount, setEggCount] = useState('')
+
 
   const eggS = toNumMaybe(d.egg_s) ?? 0
   const eggM = toNumMaybe(d.egg_m) ?? 0
@@ -845,7 +847,34 @@ function EggsSection({ d }: { d: Item }) {
         const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
         return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
       })()}
+
+      {/* Nombre d'œufs → Poids (blanc, jaune, total) */}
+
+
+  <InputWithEcho
+    value={eggCount}
+    onChangeText={setEggCount}
+    placeholder="Nombre d'œufs (ex: 3)"
+    echoLabel="Œufs"
+  />
+
+  {(() => {
+    const n = num(eggCount) // nombre d'œufs
+    const whiteW = n * (eggUnit || 0) * (whitePct || 0)
+    const yolkW  = n * (eggUnit || 0) * (yolkPct  || 0)
+    const totalW = whiteW + yolkW
+
+    return (
+      <>
+        <Row left="Poids Blancs" right={fmtAllUnits(whiteW)} />
+        <Row left="Poids Jaunes" right={fmtAllUnits(yolkW)} />
+        <Row left="Poids Blanc+Jaune" right={fmtAllUnits(totalW)} />
+      </>
+    )
+  })()}
+
     </View>
+    
   )
 }
 
@@ -1528,38 +1557,28 @@ function OnionSection({ d }: { d: Item }) {
       })()}
 
       {/* Détails de la variété sélectionnée */}
-      {onionSelected && (
-        <View style={{ marginTop: 10 }}>
-          <View style={{ marginBottom: 8 }}>
-            <Text style={st.sTitle}>Famille</Text>
-            <Text style={{ color: '#57324B', fontWeight: '600' }}>
-              {String(onionSelected.onn_family ?? '—')}
-            </Text>
-          </View>
+      {/* Détails de la variété sélectionnée */}
+{onionSelected && (
+  <View style={{ marginTop: 10 }}>
+    {/* On ne rend PLUS Famille ni Goût ici */}
 
-          <View style={{ marginBottom: 8 }}>
-            <Text style={st.sTitle}>Goût</Text>
-            <Text style={{ color: '#57324B', fontWeight: '600' }}>
-              {String(onionSelected.onn_com ?? '—')}
-            </Text>
-          </View>
+    <Text style={st.sTitle}>Usages possibles</Text>
+    <View style={{ marginTop: 4, gap: 4 }}>
+      {ONION_USAGES.map(u => {
+        const s = firstInt(onionSelected?.[u.col]) ?? 0
+        if (s < 1) return null
+        return (
+          <Row
+            key={u.key}
+            left={u.label}
+            right={`${starsFor(s)} ${verdictFor(s)}`}
+          />
+        )
+      })}
+    </View>
+  </View>
+)}
 
-          <Text style={st.sTitle}>Usages possibles</Text>
-          <View style={{ marginTop: 4, gap: 4 }}>
-            {ONION_USAGES.map(u => {
-              const s = firstInt(onionSelected?.[u.col]) ?? 0
-              if (s < 1) return null
-              return (
-                <Row
-                  key={u.key}
-                  left={u.label}
-                  right={`${starsFor(s)} ${verdictFor(s)}`}
-                />
-              )
-            })}
-          </View>
-        </View>
-      )}
     </View>
   )
 }
