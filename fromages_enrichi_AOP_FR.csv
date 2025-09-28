@@ -1,0 +1,81 @@
+Column1;Column2;Column3;Column4;Column5;Column6;Column7;Column8;Column9
+Fromage;AOP;Lait;Famille (type de pâte);Croûte;Origine / Aire;Affinage min (jours);Affinage max (jours);Remarques
+Abondance;Oui;Vache;Pâte pressée mi-cuite;Lavée;Haute-Savoie;100.0;180.0;AOP
+Banon;Oui;Chèvre;Pâte molle;Naturelle;Alpes-de-Haute-Provence;14.0;21.0;"AOP; feuilles de châtaignier"
+Beaufort;Oui;Vache;Pâte pressée cuite;Naturelle;Savoie;120.0;365.0;"AOP; Beaufort d’alpage/été"
+Bleu de Gex;Oui;Vache;Pâte persillée;Naturelle;Jura (FR);;;Issu du fichier initial
+Bleu de Gex Haut-Jura;Oui;Vache;Pâte persillée;Naturelle;Haut-Jura;21.0;90.0;AOP (Bleu du Haut-Jura)
+Bleu des Causses;Oui;Vache;Pâte persillée;Naturelle;Causses (Occitanie);70.0;100.0;AOP
+Bleu du Vercors-Sassenage;Oui;Vache;Pâte persillée;Naturelle;Isère/Drôme;21.0;60.0;AOP
+Bleu d’Auvergne;Oui;Vache;Pâte persillée;Naturelle;Auvergne;28.0;60.0;AOP
+Brie de Meaux;Oui;Vache;Pâte molle;Fleurie;Île-de-France;28.0;60.0;AOP
+Brie de Melun;Oui;Vache;Pâte molle;Fleurie;Île-de-France;28.0;60.0;AOP
+Brocciu;Oui;Brebis/Chèvre;Frais;Sans croûte;Corse;1.0;2.0;"AOP; lactosérum"
+Camembert de Normandie;Oui;Vache cru;Pâte molle;Fleurie;Normandie;21.0;35.0;"AOP; camembert générique ? AOP"
+Cantal;Oui;Vache;Pâte pressée non cuite;Naturelle;Cantal/haute Auvergne;30.0;240.0;"AOP; jeune/entre-deux/vieux"
+Chabichou du Poitou;Oui;Chèvre;Pâte molle;Naturelle/fleurie fine;Poitou;10.0;20.0;AOP
+Chaource;Oui;Vache;Pâte molle;Fleurie;Champagne/Bourgogne;14.0;28.0;AOP
+Charolais;Oui;Chèvre;Pâte molle;Naturelle;Bourgogne;16.0;40.0;AOP
+Chevrotin;Oui;Chèvre;Pâte pressée non cuite;Lavée;Savoie/Haute-Savoie;21.0;60.0;AOP
+Comté;Oui;Vache;Pâte pressée cuite;Naturelle;Jura;120.0;730.0;"AOP; 12-36 mois courant"
+Crottin de Chavignol;Oui;Chèvre;Pâte molle (évolutive);Naturelle;Berry (Sancerre);10.0;30.0;AOP
+Fourme de Montbrison;Oui;Vache;Pâte persillée;Naturelle;Loire/Forez;28.0;120.0;AOP
+Fourme d’Ambert;Oui;Vache;Pâte persillée;Naturelle;Auvergne;28.0;60.0;AOP
+Grana Padano;Oui;Vache;Pâte pressée cuite;;Italie;;;Issu du fichier initial
+Laguiole;Oui;Vache;Pâte pressée non cuite;Naturelle;Aubrac;120.0;365.0;AOP
+Langres;Oui;Vache;Pâte molle;Lavée;Champagne;15.0;30.0;AOP
+Livarot;Oui;Vache;Pâte molle;Lavée;Normandie;21.0;60.0;AOP
+Maroilles;Oui;Vache;Pâte molle;Lavée;Hauts-de-France;35.0;84.0;AOP
+Mont d’Or;Oui;Vache;Pâte molle;Lavée;Franche-Comté (FR);;;Issu du fichier initial
+Mont d’Or (Vacherin du Haut-Doubs);Oui;Vache;Pâte molle;Lavée;Jura (FR);21.0;30.0;"AOP; saisonnier"
+Morbier;Oui;Vache;Pâte pressée non cuite;Naturelle;Jura;45.0;120.0;"AOP; trait de cendre"
+Munster;Oui;Vache;Pâte molle;Lavée;Alsace/Vosges;14.0;21.0;AOP (Munster-Géromé)
+Mâconnais;Oui;Chèvre;Pâte molle;Naturelle;Bourgogne;10.0;30.0;AOP
+Neufchâtel;Oui;Vache;Pâte molle;Fleurie;Pays de Bray (Normandie);10.0;20.0;AOP
+Ossau-Iraty;Oui;Brebis;Pâte pressée non cuite;Naturelle;Pays basque/Béarn;80.0;120.0;AOP
+Parmigiano Reggiano;Oui;Vache;Pâte pressée cuite;;Italie;;;Issu du fichier initial
+Picodon;Oui;Chèvre;Pâte molle (ou plus sec);Naturelle;Drôme/Ardèche;14.0;60.0;"AOP; possible picodon affiné AOP ‘mèze’"
+Pont-l’Évêque;Oui;Vache;Pâte molle;Lavée;Normandie;21.0;28.0;AOP
+Pouligny-Saint-Pierre;Oui;Chèvre;Pâte molle;Cendrée;Berry;7.0;30.0;AOP
+Pélardon;Oui;Chèvre;Pâte molle;Naturelle;Cévennes/Languedoc;11.0;21.0;AOP
+Reblochon;Oui;Vache;Pâte pressée non cuite;Naturelle;Savoie/Haute-Savoie;18.0;21.0;AOP
+Rocamadour;Oui;Chèvre;Pâte molle;Naturelle;Quercy;6.0;60.0;"AOP; formats courts possibles"
+Roquefort;Oui;Brebis;Pâte persillée;Naturelle;Aveyron + caves de Roquefort;90.0;120.0;"AOP; caves naturelles"
+Saint-Nectaire;Oui;Vache;Pâte pressée non cuite;Naturelle;Puy-de-Dôme/Cantal;28.0;60.0;AOP (fermier/laitier)
+Sainte-Maure de Touraine;Oui;Chèvre;Pâte molle;Cendrée;Touraine;10.0;20.0;"AOP; paille de seigle"
+Salers;Oui;Vache cru;Pâte pressée non cuite;Naturelle;Cantal (salers);90.0;150.0;"AOP; lait cru de vache Salers en traite au pré"
+Selles-sur-Cher;Oui;Chèvre;Pâte molle;Cendrée;Berry/Sologne;10.0;30.0;AOP
+Tome des Bauges;Oui;Vache;Pâte pressée non cuite;Naturelle;Savoie;21.0;150.0;AOP
+Tome des Bauges;Oui;Vache;Pâte pressée non cuite;Naturelle;Savoie;21.0;150.0;AOP
+Valençay;Oui;Chèvre;Pâte molle;Cendrée;Berry;11.0;30.0;AOP
+Époisses;Oui;Vache;Pâte molle;Lavée;Bourgogne;28.0;35.0;"AOP; lavé au marc de Bourgogne"
+Bleu du Queyras (non AOP);Non;Vache;Pâte persillée;Naturelle;Hautes-Alpes;;;Non AOP
+Brillat-Savarin;Non;Vache;Pâte molle;Fleurie;Bourgogne (FR);;;Issu du fichier initial
+Burrata;Non;Vache;Pâte filée;;Italie;;;Issu du fichier initial
+Carré de l’Est;Non;Vache;Pâte molle;Lavée;Lorraine;14.0;30.0;Classé lavée
+Cheddar;Non;Vache;Pâte pressée cuite;;Royaume-Uni;;;Issu du fichier initial
+Coulommiers;Non;Vache;Pâte molle;Fleurie;Île-de-France (FR);;;Issu du fichier initial
+Emmental;Non;Vache;Pâte pressée cuite;;FR/CH;;;Issu du fichier initial
+Emmental Grand Cru (CH);Non;Vache;Pâte pressée cuite;Naturelle;Suisse;120.0;240.0;Hors AOP FR
+Explorateur;Non;Vache;Pâte molle;Fleurie;Île-de-France;;;"Marque; non AOP"
+Feta;Non;Brebis/Chèvre;Frais;Sans croûte / saumure;Grèce;;;Issu du fichier initial
+Fromage blanc;Non;Vache;Frais;Sans croûte / saumure;France;;;Issu du fichier initial
+Gorgonzola;Non;Vache;Pâte persillée;Naturelle;Italie;;;Issu du fichier initial
+Gouda;Non;Vache;Pâte pressée cuite;;Pays-Bas;;;Issu du fichier initial
+Gruyère;Non;Vache;Pâte pressée cuite;;Suisse;;;Issu du fichier initial
+Gruyère (CH);Non;Vache;Pâte pressée cuite;Naturelle;Suisse;150.0;365.0;AOP suisse, pas FR
+Manchego;Non;Brebis;Pâte pressée cuite;;Espagne;;;Issu du fichier initial
+Mascarpone;Non;Vache;Frais;Sans croûte / saumure;Italie;;;Issu du fichier initial
+Mozzarella di Bufala Campana;Non;Bufflonne;Pâte filée;;Italie;;;Issu du fichier initial
+Petit-Suisse;Non;Vache;Frais;Sans croûte / saumure;France;;;Issu du fichier initial
+Port-Salut;Non;Vache;Pâte pressée non cuite;Lavée;France;21.0;40.0;"Marque; non AOP"
+Provolone;Non;Vache;Pâte filée;;Italie;;;Issu du fichier initial
+Raclette de Savoie;Non;Vache;Pâte pressée non cuite;Lavée;Savoie;56.0;90.0;IGP, pas AOP
+Ricotta;Non;Vache/Brebis;Frais;Sans croûte / saumure;Italie;;;Issu du fichier initial
+Saint-Félicien;Non;Vache;Pâte molle;Fleurie;Auvergne-Rhône-Alpes (FR);;;Issu du fichier initial
+Saint-Marcellin;Non;Vache;Pâte molle;Fleurie;Auvergne-Rhône-Alpes (FR);;;Issu du fichier initial
+Saint-Paulin;Non;Vache;Pâte pressée non cuite;Lavée;France;21.0;40.0;"Industriel; non AOP"
+Stilton;Non;Vache;Pâte persillée;Naturelle;Royaume-Uni;;;Issu du fichier initial
+Taleggio;Non;Vache;Pâte molle;Lavée;Italie;;;Issu du fichier initial
+Tomme de Brousse (brousse);Non;Vache/Chèvre;Frais;Sans croûte;Sud-Est;1.0;2.0;Non AOP
+Tomme de Savoie;Non;Vache;Pâte pressée non cuite;Naturelle;Savoie;30.0;120.0;IGP, pas AOP

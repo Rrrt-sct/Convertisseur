@@ -23,6 +23,7 @@ type Item = {
   is_pdt?: number | null
   is_tmt?: number | null
   is_onn?: number | null
+  is_cheese?: number | null
   avg_unit_g?: number | null
   peeled_yield?: number | null
   juice_ml_per_unit?: number | null
@@ -63,6 +64,7 @@ function normalizeRow(x: any): Item | null {
     is_pdt: toBoolNum(x?.is_pdt),
     is_tmt: toBoolNum(x?.is_tmt),
     is_onn: toBoolNum(x?.is_onn),
+    is_cheese: toBoolNum(x?.is_cheese),
     avg_unit_g: toNum(x?.avg_unit_g),
     peeled_yield: toNum(x?.peeled_yield),
     juice_ml_per_unit: toNum(x?.juice_ml_per_unit),
@@ -128,6 +130,7 @@ export default function IngredientsScreen() {
   if (hasVal(raw.is_choux)) return false     // choux: cachés
   if (hasVal(raw.is_spc)) return false       // épices: cachées  ⬅️ AJOUT
   if (isAppleVarietyRow(raw)) return false
+  if (hasVal(raw.is_cheese)) return false
   return true
 })
 

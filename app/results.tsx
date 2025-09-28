@@ -169,6 +169,13 @@ type Item = {
   rbs_tm?: string | number | null
   appl_spcfc_wght?: number | null
   is_appl?: any
+  is_cheese?: any
+  milk_cheese?: string | null
+  fmly_cheese?: string | null
+  croute_cheese?: string | null
+  origin_cheese?: string | null
+  aop_cheese?: string | null
+
 }
 
 // -------- Helpers génériques --------
@@ -480,8 +487,6 @@ const showPeeled =
 
   
 
-
-
   // Accord "épluché / épluchée"
   const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
   const isF = g === 'f' || g.startsWith('fem')
@@ -727,6 +732,15 @@ const special =
         if (!isTomato) return null
         return <TomatoSection d={d} />
       })()}
+
+      {/* --------- Module FROMAGES --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isCheese = normId === 'fromages' || normId === 'fromage' || normId === 'cheese'
+  if (!isCheese) return null
+  return <CheeseSection d={d} />
+})()}
+
 
       {/* --------- Module OIGNONS --------- */}
       {(() => {
@@ -2457,6 +2471,211 @@ function AppleSection({ d }: { d: Item }) {
   );
 }
 
+function CheeseSection({ d }: { d: Item }) {
+  const [cheeseSelected, setCheeseSelected] = useState<any | null>(null)
+
+  // filtres actifs
+  const [selectedFamily, setSelectedFamily] = useState<string | null>(null)
+  const [selectedMilk, setSelectedMilk] = useState<string | null>(null)
+  const [selectedCroute, setSelectedCroute] = useState<string | null>(null)
+  const [selectedOrigin, setSelectedOrigin] = useState<string | null>(null)
+
+  const cheeseVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_cheese)), [])
+
+  const allFamilies = Array.from(new Set(cheeseVarieties.map(v => v.fmly_cheese).filter(Boolean)))
+  const allMilks = Array.from(new Set(cheeseVarieties.map(v => v.milk_cheese).filter(Boolean)))
+  const allCroutes = Array.from(new Set(cheeseVarieties.map(v => v.croute_cheese).filter(Boolean)))
+  const allOrigins = Array.from(new Set(cheeseVarieties.map(v => v.origin_cheese).filter(Boolean)))
+
+  return (
+    <View style={st.section}>
+      {/* 1. Choisir une variété (liste complète en haut) */}
+      <Text style={st.sTitle}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {cheeseVarieties.map(v => {
+          const on = cheeseSelected?.id === v.id
+          return (
+            <TouchableOpacity
+              key={v.id}
+              onPress={() => setCheeseSelected(v)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{v.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {/* 2. Détails si variété sélectionnée */}
+      {cheeseSelected && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={st.tipText}>
+            Variété : <Text style={st.tipStrong}>{cheeseSelected.label ?? cheeseSelected.id}</Text>
+          </Text>
+          <Row left="Nature du lait" right={cheeseSelected.milk_cheese ?? '—'} />
+          <Row left="Type de pâte" right={cheeseSelected.fmly_cheese ?? '—'} />
+          <Row left="Type de croûte" right={cheeseSelected.croute_cheese ?? '—'} />
+          <Row left="Région d'origine" right={cheeseSelected.origin_cheese ?? '—'} />
+          <Row left="AOP" right={cheeseSelected.aop_cheese ?? '—'} />
+        </View>
+      )}
+
+      {/* 3. Choisir un type de pâte */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un type de pâte</Text>
+      <View style={st.pillsWrap}>
+        {allFamilies.map(f => {
+          const on = selectedFamily === f
+          return (
+            <TouchableOpacity
+              key={f}
+              onPress={() => setSelectedFamily(on ? null : f)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{f}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+      {selectedFamily && (
+        <View style={st.pillsWrap}>
+          {cheeseVarieties
+            .filter(v => v.fmly_cheese === selectedFamily)
+            .map(v => (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setCheeseSelected(v)}
+                activeOpacity={0.9}
+                style={[
+                  st.pill,
+                  st.pillFiltered,
+                  cheeseSelected?.id === v.id && st.pillActive,
+                ]}
+              >
+                <Text style={st.pillText}>{v.label}</Text>
+              </TouchableOpacity>
+            ))}
+        </View>
+      )}
+
+      {/* 4. Choisir une nature de lait */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir une nature de lait</Text>
+      <View style={st.pillsWrap}>
+        {allMilks.map(m => {
+          const on = selectedMilk === m
+          return (
+            <TouchableOpacity
+              key={m}
+              onPress={() => setSelectedMilk(on ? null : m)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{m}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+      {selectedMilk && (
+        <View style={st.pillsWrap}>
+          {cheeseVarieties
+            .filter(v => v.milk_cheese === selectedMilk)
+            .map(v => (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setCheeseSelected(v)}
+                activeOpacity={0.9}
+                style={[
+                  st.pill,
+                  st.pillFiltered,
+                  cheeseSelected?.id === v.id && st.pillActive,
+                ]}
+              >
+                <Text style={st.pillText}>{v.label}</Text>
+              </TouchableOpacity>
+            ))}
+        </View>
+      )}
+
+      {/* 5. Choisir un type de croûte */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un type de croûte</Text>
+      <View style={st.pillsWrap}>
+        {allCroutes.map(c => {
+          const on = selectedCroute === c
+          return (
+            <TouchableOpacity
+              key={c}
+              onPress={() => setSelectedCroute(on ? null : c)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{c}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+      {selectedCroute && (
+        <View style={st.pillsWrap}>
+          {cheeseVarieties
+            .filter(v => v.croute_cheese === selectedCroute)
+            .map(v => (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setCheeseSelected(v)}
+                activeOpacity={0.9}
+                style={[
+                  st.pill,
+                  st.pillFiltered,
+                  cheeseSelected?.id === v.id && st.pillActive,
+                ]}
+              >
+                <Text style={st.pillText}>{v.label}</Text>
+              </TouchableOpacity>
+            ))}
+        </View>
+      )}
+
+      {/* 6. Choisir une région */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir une région</Text>
+      <View style={st.pillsWrap}>
+        {allOrigins.map(o => {
+          const on = selectedOrigin === o
+          return (
+            <TouchableOpacity
+              key={o}
+              onPress={() => setSelectedOrigin(on ? null : o)}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{o}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+      {selectedOrigin && (
+        <View style={st.pillsWrap}>
+          {cheeseVarieties
+            .filter(v => v.origin_cheese === selectedOrigin)
+            .map(v => (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setCheeseSelected(v)}
+                activeOpacity={0.9}
+                style={[
+                  st.pill,
+                  st.pillFiltered,
+                  cheeseSelected?.id === v.id && st.pillActive,
+                ]}
+              >
+                <Text style={st.pillText}>{v.label}</Text>
+              </TouchableOpacity>
+            ))}
+        </View>
+      )}
+    </View>
+  )
+}
+
 
 /* ===================== Styles ===================== */
 const st = StyleSheet.create({
@@ -2583,6 +2802,10 @@ const st = StyleSheet.create({
   pillText: { color: '#FF4FA2', fontWeight: '800', maxWidth: 180 },
   pillTextOn: { color: '#fff' },
   pillBadge: { marginLeft: 6, fontWeight: '900', color: '#7a6680' },
+    pillFiltered: {
+    backgroundColor: '#E9D5FF', // violet pâle
+    borderColor: '#C084FC',
+  },
 
   // Info button (usages pâtes)
   infoBtn: {
