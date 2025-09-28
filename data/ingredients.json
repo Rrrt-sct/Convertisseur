@@ -6,7 +6,7 @@
     "genre": null,
     "avg_unit_g": 133,
     "": null,
-    "peeled_yield": null,
+    "peeled_yield": 0.6,
     "tbsp_g": null,
     "juice_ml_per_g": "0,25",
     "juice_ml_per_unit": 45,

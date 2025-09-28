@@ -138,6 +138,7 @@ type Item = {
   avg_unit_g?: number | null
   peeled_yield?: number | null
   juice_ml_per_unit?: number | null
+  juice_ml_per_g?: number | null
   lgth_g?: number | null
   tbsp_g?: number | null
   tsp_g?: number | null
@@ -183,9 +184,9 @@ const num = (s: string) => {
   const n = Number((s ?? '').toString().replace(',', '.'))
   return isNaN(n) ? 0 : n
 }
-function fmt(n: number, digits = 2) {
-  if (!isFinite(n)) return '0'
-  const r = Number(n.toFixed(digits))
+function fmt(n: any, digits = 2) {
+  if (n == null || isNaN(Number(n))) return '—'
+  const r = Number(Number(n).toFixed(digits))
   const s = String(r)
   return /\.\d+$/.test(s) ? s.replace(/\.?0+$/, '') : s
 }
@@ -194,6 +195,31 @@ function fmtAllUnits(grams: number) {
   const mg = Math.round(g * 1000)
   const kg = g / 1000
   return `${fmt(g)} g  |  ${fmt(mg, 0)} mg  |  ${fmt(kg, 3)} kg`
+}
+function fmtVolAllUnits(ml: number) {
+  const m = Math.max(0, ml || 0)
+  const cl = m / 10
+  const l  = m / 1000
+  return `${fmt(m)} ml  |  ${fmt(cl)} cl  |  ${fmt(l, 3)} l`
+}
+function toNumPos(v: any): number | null {
+  const n = toNumMaybe(v)
+  return n !== null && n > 0 ? n : null
+}
+function juicePerUnitMl(d: Item): number | null {
+  const perG = toNumPos(d.juice_ml_per_g)
+  const avgG = toNumPos(d.avg_unit_g)
+  if (perG && avgG) return avgG * perG            // priorité au per g
+  const perUnit = toNumPos(d.juice_ml_per_unit)   // fallback
+  return perUnit ?? null
+}
+function hasJuice(d: Item): boolean {
+  return (toNumPos(d.juice_ml_per_g) && toNumPos(d.avg_unit_g)) || toNumPos(d.juice_ml_per_unit) ? true : false
+}
+function juiceFromWeightMl(weightG: number, d: Item): number | null {
+  const perG = toNumPos(d.juice_ml_per_g)
+  if (!perG) return null
+  return Math.max(0, weightG || 0) * perG
 }
 function toNumMaybe(v: any): number | null {
   if (v === undefined || v === null || v === '') return null
@@ -531,11 +557,15 @@ const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY
   )
 }
 
+  {(() => {
+    const jPerUnit = juicePerUnitMl(d)
+    if (jPerUnit == null) return null
+    infoRows.push(
+      <Row key="juice" left="Jus moyen (1 pièce)" right={fmtVolAllUnits(jPerUnit)} />
+    )
+    return null
+  })()}
 
-
-  if (d.juice_ml_per_unit) {
-    infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={`${fmt(d.juice_ml_per_unit)} ml (≈ ${fmt((d.juice_ml_per_unit || 0) * density)} g)`} />)
-  }
 
   /* ----- Variétés / Usages ----- */
   const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
@@ -708,6 +738,11 @@ const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY
    return <AppleSection d={d} />
  })()}
 
+{/* --------- Jus (PRIORITÉ AVANT Quantité/Poids) --------- */}
+{(() => {
+  if (!hasJuice(d)) return null
+  return <JuiceSection d={d} />
+})()}
 
 
       {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
@@ -729,9 +764,7 @@ const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY
         return <CelerySection d={d} />
       })()}
 
-      {/* --------- Jus --------- */}
-      {d.juice_ml_per_unit ? <JuiceSection d={d} /> : null}
-
+      
       {/* --------- Taille ⇆ Poids --------- */}
       {d.lgth_g ? <LengthWeightSection d={d} /> : null}
 
@@ -1665,42 +1698,80 @@ function CelerySection({ d }: { d: Item }) {
 }
 
 function JuiceSection({ d }: { d: Item }) {
-  const [countJuice, setCountJuice] = useState('')
-  const [volMl, setVolMl] = useState('')
-  const density = d.density_g_ml ?? 1
+  const [weightG, setWeightG] = useState('')
+  const [pieces, setPieces]   = useState('')
+  const [volOrWeight, setVolOrWeight] = useState('')
+
+  const perG = toNumPos(d.juice_ml_per_g)
+  const avgG = toNumPos(d.avg_unit_g)
+  const perUnit = juicePerUnitMl(d) // = avg_unit_g * juice_ml_per_g si dispo, sinon juice_ml_per_unit
+
+  // Calculs pour les barres 1 et 2
+  const volFromWeight = perG ? juiceFromWeightMl(num(weightG), d) : null
+  const volFromPieces = perUnit != null ? (num(pieces) * perUnit) : null
+
+  // Calculs pour la 3e barre (Volume ou poids voulu)
+  const volOrW = num(volOrWeight)
+  let estWeight: number | null = null
+  let estPieces: number | null = null
+
+  if (volOrW && perG) {
+    // Interprétation : si >1000, on suppose que c’est en g (fruit)
+    if (volOrW > 1000 && avgG) {
+      estWeight = volOrW
+      estPieces = avgG ? estWeight / avgG : null
+    } else {
+      estWeight = volOrW / perG
+      estPieces = avgG ? estWeight / avgG : null
+    }
+  } else if (volOrW && perUnit) {
+    estPieces = volOrW / perUnit
+    estWeight = avgG && estPieces ? estPieces * avgG : null
+  }
 
   return (
     <View style={st.section}>
       <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Jus</Text>
-      <InputWithEcho
-        value={countJuice}
-        onChangeText={setCountJuice}
-        placeholder="Nombre de pièces (ex: 2 citrons)"
-        echoLabel="Pièces"
-      />
-      <Row
-        left="Volume"
-        right={`${fmt(num(countJuice) * (d.juice_ml_per_unit || 0))} ml  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 10)} cl  |  ${fmt(num(countJuice) * (d.juice_ml_per_unit || 0) / 1000)} l`}
-      />
-      <InputWithEcho
-        value={volMl}
-        onChangeText={setVolMl}
-        placeholder="Volume ou poids voulu (ml ou g)"
-        echoLabel="Voulu"
-      />
-      <Row
-        left="Nombre de pièces estimé"
-        right={`${fmt(Math.ceil(num(volMl) / Math.max(1, (d.juice_ml_per_unit || 1))))}`}
-      />
-      {!!d.juice_ml_per_unit && (
-        <Row
-          left="≈ Poids (g)"
-          right={`${fmt(num(volMl) * density)} g`}
-        />
+
+      {/* Barre 1 — Poids -> Volume estimé */}
+      {perG && (
+        <>
+          <InputWithEcho
+            value={weightG}
+            onChangeText={setWeightG}
+            placeholder={`Poids du ${String(d.label || 'produit')} (g)`}
+            echoLabel="Volume estimé"
+          />
+          <Row left="Volume estimé" right={fmtVolAllUnits(volFromWeight ?? 0)} />
+        </>
       )}
+
+      {/* Barre 2 — N pièces (poids inconnu) -> Volume estimé */}
+      {perUnit != null && (
+        <>
+          <InputWithEcho
+            value={pieces}
+            onChangeText={setPieces}
+            placeholder="Nombre de pièces (poids inconnu)"
+            echoLabel="Volume estimé"
+          />
+          <Row left="Volume estimé" right={fmtVolAllUnits(volFromPieces ?? 0)} />
+        </>
+      )}
+
+      {/* Barre 3 — Volume ou poids voulu (ml ou g) */}
+      <InputWithEcho
+        value={volOrWeight}
+        onChangeText={setVolOrWeight}
+        placeholder="Volume ou poids voulu (ml ou g)"
+        echoLabel="Estimation"
+      />
+      <Row left="Poids estimé" right={fmt(estWeight)} unit="g" />
+      <Row left="Nombre de pièces estimé" right={fmt(estPieces)} />
     </View>
   )
 }
+
 
 function LengthWeightSection({ d }: { d: Item }) {
   const [lengthCm, setLengthCm] = useState('')
