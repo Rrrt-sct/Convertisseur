@@ -153,6 +153,8 @@ type Item = {
   wght_pdt_s?: number | null
   wght_pdt_m?: number | null
   wght_pdt_l?: number | null
+  pdt_spcfc_wght?: number | null
+  pdt_spcfc_peel?: number | null
   clr_lgth?: number | null
   genre?: string | null
   gender?: string | null
@@ -228,6 +230,7 @@ function toNumMaybe(v: any): number | null {
 }
 function getPeelYield(d: any): number | null {
   const keys = [
+    'pdt_spcfc_peel',
     'appl_spcfc_peel',
     'tmt_spcfc_peel',
     'avoc_spcfc_peel',
@@ -471,7 +474,9 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isApple  = ['pomme', 'pommes'].includes(normId)
 
   const peelY = getPeelYield(d)
-const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY > 0
+const showPeeled =
+  !isApple && !isPotato &&
+  peelY !== null && Number.isFinite(peelY) && peelY > 0
 
   
 
@@ -540,7 +545,14 @@ const showPeeled = !isApple && peelY !== null && Number.isFinite(peelY) && peelY
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
-  
+  // --- PDT : remplacer "Poids épluché (×...)" par "Taux moyen d'épluchage"
+if (isPotato) {
+  const peel = getPeelYield(d)
+  if (peel !== null && Number.isFinite(peel)) {
+    infoRows.push(<Row key="pdt-peel-rate" left="Taux moyen d'épluchage" right={`×${fmt(peel)}`} />)
+  }
+}
+
  if (showPeeled && d.avg_unit_g) {
   const special =
     isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
@@ -955,6 +967,8 @@ function EggsSection({ d }: { d: Item }) {
 function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
   const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null)
   const [pdtSelected, setPdtSelected] = useState<any | null>(null)
+  const [qtyEpl, setQtyEpl] = useState('')
+  const [qtyNon, setQtyNon] = useState('')
 
   const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
 
@@ -967,7 +981,10 @@ function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, tex
           return (
             <TouchableOpacity
               key={m.label}
-              onPress={() => { setPdtMethod(prev => (prev?.label === m.label ? null : m)); setPdtSelected(null) }}
+              onPress={() => {
+                setPdtMethod(prev => (prev?.label === m.label ? null : m))
+                setPdtSelected(null)
+              }}
               activeOpacity={0.9}
               style={[st.sizeBtn, on && st.sizeBtnOn]}
             >
@@ -987,11 +1004,26 @@ function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, tex
         let list: Array<{ v: any; s: number }>
         if (!pdtMethod) {
           list = pdtVarieties.map(v => ({ v, s: 0 }))
-            .sort((a, b) => String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
+            .sort((a, b) =>
+              String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(
+                String(b.v.label ?? b.v.pdt_variety ?? b.v.id),
+                'fr',
+                { sensitivity: 'base' }
+              )
+            )
         } else {
-          list = pdtVarieties.map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
+          list = pdtVarieties
+            .map(v => ({ v, s: scoreFor(v, pdtMethod!) }))
             .filter(x => x.s >= 1)
-            .sort((a, b) => b.s - a.s || String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' }))
+            .sort(
+              (a, b) =>
+                b.s - a.s ||
+                String(a.v.label ?? a.v.pdt_variety ?? a.v.id).localeCompare(
+                  String(b.v.label ?? b.v.pdt_variety ?? b.v.id),
+                  'fr',
+                  { sensitivity: 'base' }
+                )
+            )
         }
 
         return list.length > 0 ? (
@@ -1000,35 +1032,121 @@ function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, tex
               const name = String(v.label ?? v.pdt_variety ?? v.id)
               const on = pdtSelected?.id === v.id
               return (
-                <TouchableOpacity key={v.id} onPress={() => setPdtSelected(v)} activeOpacity={0.9} style={[st.pill, on && st.pillActive]}>
-                  {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
-                  {pdtMethod && s > 0 ? <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text> : null}
+                <TouchableOpacity
+                  key={v.id}
+                  onPress={() => setPdtSelected(v)}
+                  activeOpacity={0.9}
+                  style={[st.pill, on && st.pillActive]}
+                >
+                  {imgSrc(v.id) ? (
+                    <Image
+                      source={imgSrc(v.id)}
+                      style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                    />
+                  ) : null}
+                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                    {name}
+                  </Text>
+                  {pdtMethod && s > 0 ? (
+                    <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
+                  ) : null}
                 </TouchableOpacity>
               )
             })}
           </View>
         ) : (
-          <Text style={{ color: '#666' }}>{pdtMethod ? `Aucune variété référencée pour ${pdtMethod.label.toLowerCase()}.` : 'Aucune variété trouvée.'}</Text>
+          <Text style={{ color: '#666' }}>
+            {pdtMethod
+              ? `Aucune variété référencée pour ${pdtMethod.label.toLowerCase()}.`
+              : 'Aucune variété trouvée.'}
+          </Text>
         )
       })()}
 
       {pdtSelected && (
         <View style={{ marginTop: 10 }}>
+          {/* En-tête variété */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            {imgSrc(pdtSelected.id) ? <Image source={imgSrc(pdtSelected.id)} style={{ width: 56, height: 56, borderRadius: 12 }} /> : null}
+            {imgSrc(pdtSelected.id) ? (
+              <Image
+                source={imgSrc(pdtSelected.id)}
+                style={{ width: 56, height: 56, borderRadius: 12 }}
+              />
+            ) : null}
             <View style={st.tipBox}>
-              <Text style={st.tipText}>Variété : <Text style={st.tipStrong}>{String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}</Text></Text>
+              <Text style={st.tipText}>
+                Variété :{' '}
+                <Text style={st.tipStrong}>
+                  {String(pdtSelected.label ?? pdtSelected.pdt_variety ?? pdtSelected.id)}
+                </Text>
+              </Text>
             </View>
           </View>
-          {!!pdtSelected.pdt_texture && (<Row left="Chair" right={String(pdtSelected.pdt_texture)} />)}
+
+          {!!pdtSelected.pdt_texture && <Row left="Chair" right={String(pdtSelected.pdt_texture)} />}
+
+          {/* Scores usages */}
           <View style={{ marginTop: 8, gap: 4 }}>
             {PDT_METHODS.map(m => {
               const s = scoreFor(pdtSelected, m)
               if (s < 1) return null
-              return <Row key={m.label} left={m.label} right={`${starsFor(s)} ${verdictFor(s)}`} />
+              return (
+                <Row key={m.label} left={m.label} right={`${starsFor(s)} ${verdictFor(s)}`} />
+              )
             })}
           </View>
+
+          {/* === Bloc infos + conversions spécifiques === */}
+          {(() => {
+            const avgNon = toNumMaybe(pdtSelected.pdt_spcfc_wght) ?? null
+            const peelY = toNumMaybe(pdtSelected.pdt_spcfc_peel) ?? null
+
+            if (avgNon === null && peelY === null) return null
+
+            return (
+              <View style={{ marginTop: 16 }}>
+                <Text style={st.sTitle}>Infos clés (variété)</Text>
+                {avgNon !== null && (
+                  <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />
+                )}
+                {peelY !== null && (
+                  <Row left="Taux moyen d'épluchage" right={`×${fmt(peelY)}`} />
+                )}
+
+                {/* Bloc Épluché ⇆ Non épluché */}
+                {peelY !== null && (
+                  <View style={[st.section, { marginTop: 12 }]}>
+                    <Text style={st.sTitle}>
+                      Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+                    </Text>
+                    <InputWithEcho
+                      value={qtyEpl}
+                      onChangeText={setQtyEpl}
+                      placeholder="Quantité épluchée (g)"
+                      echoLabel="Épluchée (g)"
+                    />
+                    <Row
+                      left="Équiv. non épluché"
+                      right={fmtAllUnits(num(qtyEpl) / peelY)}
+                    />
+                    <InputWithEcho
+                      value={qtyNon}
+                      onChangeText={setQtyNon}
+                      placeholder="Quantité non épluchée (g)"
+                      echoLabel="Non épluchée (g)"
+                    />
+                    <Row
+                      left="Équiv. épluché"
+                      right={fmtAllUnits(num(qtyNon) * peelY)}
+                    />
+                  </View>
+                )}
+
+                {/* Bloc Quantité ⇆ Poids */}
+                <GenericConversions d={{ ...d, ...pdtSelected }} />
+              </View>
+            )
+          })()}
         </View>
       )}
     </View>
