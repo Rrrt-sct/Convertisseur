@@ -2220,72 +2220,116 @@ function CabbageSection({ d }: { d: Item }) {
 }
 
 function AppleSection({ d }: { d: Item }) {
-  const [qtyEpl, setQtyEpl] = useState('')
-  const [qtyNon, setQtyNon] = useState('')
-  const [appleSelected, setAppleSelected] = useState<any | null>(null)
+  const [qtyEpl, setQtyEpl] = useState('');
+  const [qtyNon, setQtyNon] = useState('');
+  const [appleSelected, setAppleSelected] = useState<any | null>(null);
+  const [usageSel, setUsageSel] = useState<null | 'crck' | 'pie' | 'cpt'>(null);
+  const [mode, setMode] = useState<'sgr' | 'acd' | null>(null);
 
-  // Variétés
   const appleVarieties = useMemo(
     () => (DB as any[]).filter(v => isTrue(v?.is_appl)),
     []
-  )
+  );
 
-  // Rendement global (si pas de variété choisie)
-  const peelY = getPeelYield(d)
+  const peelYGeneric = getPeelYield(d);
+
+  const star5 = (n: number | null) => {
+    const v = n ?? 0;
+    if (v <= 0) return '—';
+    const r = Math.max(0, Math.min(5, Math.round(v)));
+    return '★'.repeat(r);
+  };
+
+  const scoreFrom = (row: any, col: string): number =>
+    firstInt(row?.[col]) ?? 0;
 
   return (
     <View style={st.section}>
-      {/* === CAS 1 : Aucune variété choisie === */}
-      {!appleSelected && (
-        <>
-          {/* Infos clés globales */}
-          {peelY !== null && (
-            <View style={{ marginBottom: 12 }}>
-              <Text style={st.sTitle}>Infos clés</Text>
-              <Row left="Taux moyen d'épluchage" right={`×${fmt(peelY)}`} />
-            </View>
-          )}
-
-          {/* Bloc Épluché ⇆ Non épluché global */}
-          {peelY !== null && (
-            <View style={st.section}>
-              <Text style={st.sTitle}>
-                Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-                <Text> (Pomme pelée et évidée)</Text>
-              </Text>
-
-              <InputWithEcho
-                value={qtyEpl}
-                onChangeText={setQtyEpl}
-                placeholder="Quantité épluchée (g)"
-                echoLabel="Épluchée (g)"
-              />
-              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelY)} />
-
-              <InputWithEcho
-                value={qtyNon}
-                onChangeText={setQtyNon}
-                placeholder="Quantité non épluchée (g)"
-                echoLabel="Non épluchée (g)"
-              />
-              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelY)} />
-            </View>
-          )}
-        </>
+      {/* 1. Infos clés */}
+      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="Taux moyen d'épluchage" right={`×${fmt(peelYGeneric)}`} />
+        </View>
       )}
 
-      {/* === Choix des variétés === */}
+      {/* 2. Bloc Épluché ⇆ Non épluché */}
+      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
+
+          <InputWithEcho
+            value={qtyEpl}
+            onChangeText={setQtyEpl}
+            placeholder="Quantité épluchée (g)"
+            echoLabel="Épluchée (g)"
+          />
+          <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelYGeneric)} />
+
+          <InputWithEcho
+            value={qtyNon}
+            onChangeText={setQtyNon}
+            placeholder="Quantité non épluchée (g)"
+            echoLabel="Non épluchée (g)"
+          />
+          <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelYGeneric)} />
+        </View>
+      )}
+
+      {/* 3. Choisir un usage */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+        {[
+          { key: 'crck' as const, label: 'Cru (croquant)', col: 'appl_crck' },
+          { key: 'pie'  as const, label: 'Tarte',          col: 'appl_pie'  },
+          { key: 'cpt'  as const, label: 'Compote',        col: 'appl_cpt'  },
+        ].map(u => {
+          const on = usageSel === u.key;
+          return (
+            <TouchableOpacity
+              key={u.key}
+              onPress={() => setUsageSel(prev => (prev === u.key ? null : u.key))}
+              style={[st.pill, on && st.pillActive]}
+              activeOpacity={0.9}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{u.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {usageSel && (() => {
+        const col = usageSel === 'crck' ? 'appl_crck' : usageSel === 'pie' ? 'appl_pie' : 'appl_cpt';
+        const list = appleVarieties
+          .map(v => ({ v, s: scoreFrom(v, col) }))
+          .filter(x => x.s > 0)
+          .sort((a, b) => b.s - a.s || String(a.v.label ?? a.v.id).localeCompare(String(b.v.label ?? b.v.id), 'fr', { sensitivity: 'base' }));
+
+        if (list.length === 0) {
+          return <Text style={{ color: '#666', marginBottom: 8 }}>Aucune variété notée pour cet usage.</Text>;
+        }
+
+        return (
+          <View style={{ marginBottom: 8 }}>
+            {list.map(({ v, s }) => (
+              <Row key={v.id} left={String(v.label ?? v.id)} right={star5(s)} />
+            ))}
+          </View>
+        );
+      })()}
+
+      {/* 4. Choisir une variété */}
       <Text style={[st.sTitle, { marginTop: 16, marginBottom: 6 }]}>Choisir une variété</Text>
       <View style={st.pillsWrap}>
         {appleVarieties
           .map(v => ({ v, name: String(v.label ?? v.id) }))
           .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
           .map(({ v, name }) => {
-            const on = appleSelected?.id === v.id
+            const on = appleSelected?.id === v.id;
             return (
               <TouchableOpacity
                 key={v.id}
-                onPress={() => setAppleSelected(prev => (prev?.id === v.id ? null : v))}
+                onPress={() => setAppleSelected(v)}
                 activeOpacity={0.9}
                 style={[st.pill, on && st.pillActive]}
               >
@@ -2295,69 +2339,122 @@ function AppleSection({ d }: { d: Item }) {
                     style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
                   />
                 ) : null}
-                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
-                  {name}
-                </Text>
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
               </TouchableOpacity>
-            )
+            );
           })}
       </View>
 
-      {/* === CAS 2 : Une variété est choisie === */}
       {appleSelected && (() => {
-        // Fusionner infos spécifiques
         const avgUnit =
-          toNumMaybe(appleSelected.appl_spcfc_wght) ?? toNumMaybe(d.avg_unit_g) ?? null
-        const peelSel =
-          toNumMaybe(appleSelected.appl_spcfc_peel) ?? getPeelYield(d) ?? null
+          toNumMaybe(appleSelected.appl_spcfc_wght) ??
+          toNumMaybe(d.avg_unit_g) ?? null;
 
-        const dd = {
+        const peelYVar =
+          toNumMaybe(appleSelected.appl_spcfc_peel) ??
+          toNumMaybe(d.peeled_yield) ?? null;
+
+        const dd: Item = {
           ...d,
           ...appleSelected,
           avg_unit_g: avgUnit,
-          peeled_yield: peelSel,
-        } as Item
+          peeled_yield: peelYVar,
+        };
+
+        const avgNon = toNumMaybe(dd.avg_unit_g);
+        const peelY  = toNumMaybe(dd.peeled_yield);
+        const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
         return (
-          <View style={{ marginTop: 16 }}>
-            {/* Infos clés spécifiques */}
+          <View style={{ marginTop: 12 }}>
             <Text style={st.sTitle}>Infos clés</Text>
-            {avgUnit && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgUnit)} g`} />}
-            {peelSel && <Row left="Taux d'épluchage" right={`×${fmt(peelSel)}`} />}
+            {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+            {peelY !== null && <Row left="Taux d'épluchage" right={`×${fmt(peelY)}`} />}
+            {avgEpl !== null && <Row left="Poids épluché (pomme pelée & épépinée)" right={`${fmt(avgEpl)} g`} />}
 
-            {/* Bloc Épluché ⇆ Non épluché spécifique */}
-            {peelSel && (
-              <View style={[st.section, { marginTop: 8 }]}>
-                <Text style={st.sTitle}>
-                  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-                  <Text> (Pomme pelée et évidée)</Text>
-                </Text>
-
+            {peelY !== null && (
+              <View style={{ marginTop: 8 }}>
+                <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
                 <InputWithEcho
                   value={qtyEpl}
                   onChangeText={setQtyEpl}
                   placeholder="Quantité épluchée (g)"
                   echoLabel="Épluchée (g)"
                 />
-                <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelSel)} />
-
+                <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
                 <InputWithEcho
                   value={qtyNon}
                   onChangeText={setQtyNon}
                   placeholder="Quantité non épluchée (g)"
                   echoLabel="Non épluchée (g)"
                 />
-                <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelSel)} />
+                <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
               </View>
             )}
 
-            {/* Quantité ⇆ Poids */}
-            {avgUnit && <GenericConversions d={dd} />}
+            {toNumMaybe(dd.avg_unit_g) !== null && (
+              <GenericConversions d={dd} />
+            )}
           </View>
-        )
+        );
       })()}
+
+      {/* 5. Classements Sucré / Acidulé */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Classement</Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+        {[
+          { key: 'sgr' as const, label: 'Sucré' },
+          { key: 'acd' as const, label: 'Acidulé' },
+        ].map(b => {
+          const on = mode === b.key;
+          return (
+            <TouchableOpacity
+              key={b.key}
+              onPress={() => setMode(prev => (prev === b.key ? null : b.key))}
+              style={[st.pill, on && st.pillActive]}
+              activeOpacity={0.9}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{b.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {mode === 'sgr' && (
+        <View style={{ marginBottom: 6 }}>
+          {appleVarieties
+            .map(v => ({
+              v,
+              sugar: scoreFrom(v, 'appl_sgr'),
+              acid:  scoreFrom(v, 'appl_acd'),
+              name:  String(v.label ?? v.id),
+            }))
+            .filter(x => x.sugar > 0 || x.acid > 0)
+            .sort((a, b) => b.sugar - a.sugar || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+            .map(({ v, sugar, acid, name }) => (
+              <Row key={v.id} left={name} right={`Sucré ${star5(sugar)}  Acidité ${star5(acid)}`} />
+            ))}
+        </View>
+      )}
+
+      {mode === 'acd' && (
+        <View style={{ marginBottom: 6 }}>
+          {appleVarieties
+            .map(v => ({
+              v,
+              sugar: scoreFrom(v, 'appl_sgr'),
+              acid:  scoreFrom(v, 'appl_acd'),
+              name:  String(v.label ?? v.id),
+            }))
+            .filter(x => x.sugar > 0 || x.acid > 0)
+            .sort((a, b) => b.acid - a.acid || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+            .map(({ v, sugar, acid, name }) => (
+              <Row key={v.id} left={name} right={`Acidité ${star5(acid)}  Sucré ${star5(sugar)}`} />
+            ))}
+        </View>
+      )}
     </View>
-  )
+  );
 }
 
 
