@@ -554,11 +554,13 @@ if (isPotato) {
 }
 
  if (showPeeled && d.avg_unit_g) {
-  const special =
-    isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
-    isAvocado ? ' (Avocat pelé et dénoyauté)' :
-    isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
-                ` (×${fmt(peelY!)})`
+const special =
+  isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
+  isAvocado ? ' (Avocat pelé et dénoyauté)' :
+  isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
+  isApple   ? ' (Pomme pelée et évidée)' :
+              ` (×${fmt(peelY!)})`
+
 
   infoRows.push(
     <Row
@@ -2218,101 +2220,145 @@ function CabbageSection({ d }: { d: Item }) {
 }
 
 function AppleSection({ d }: { d: Item }) {
-  const [selected, setSelected] = React.useState<any | null>(null);
+  const [qtyEpl, setQtyEpl] = useState('')
+  const [qtyNon, setQtyNon] = useState('')
+  const [appleSelected, setAppleSelected] = useState<any | null>(null)
 
-  // Variétés de pommes = lignes où is_appl est renseigné
-  const appleVars = React.useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_appl)), []);
+  // Variétés
+  const appleVarieties = useMemo(
+    () => (DB as any[]).filter(v => isTrue(v?.is_appl)),
+    []
+  )
 
-  // Fusion: priorité aux champs spécifiques variété
-  const dd = React.useMemo(() => {
-    if (!selected) return d;
-    const avgUnit = toNumMaybe((selected as any).appl_spcfc_wght) ?? toNumMaybe(d.avg_unit_g) ?? null;
-    const peelY   = toNumMaybe((selected as any).peeled_yield)    ?? toNumMaybe(d.peeled_yield) ?? null;
-    return { ...d, ...selected, avg_unit_g: avgUnit, peeled_yield: peelY } as Item;
-  }, [d, selected]);
-
-  const avgNon = toNumMaybe(dd.avg_unit_g);
-  const peelY  = toNumMaybe(dd.peeled_yield);
-  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
-
-  // Champs pour les convertisseurs (ordre 1 → 2 → 3)
-  const [genWeightEpl, setGenWeightEpl] = React.useState('');
-  const [genWeightNon, setGenWeightNon] = React.useState('');
-  const [countNon, setCountNon]         = React.useState('');
-  const [qtyEpl, setQtyEpl]             = React.useState('');
-  const [qtyNon, setQtyNon]             = React.useState('');
+  // Rendement global (si pas de variété choisie)
+  const peelY = getPeelYield(d)
 
   return (
     <View style={st.section}>
-      {/* Choisir une variété */}
-      <Text style={st.sTitle}>Choisir une variété</Text>
+      {/* === CAS 1 : Aucune variété choisie === */}
+      {!appleSelected && (
+        <>
+          {/* Infos clés globales */}
+          {peelY !== null && (
+            <View style={{ marginBottom: 12 }}>
+              <Text style={st.sTitle}>Infos clés</Text>
+              <Row left="Taux moyen d'épluchage" right={`×${fmt(peelY)}`} />
+            </View>
+          )}
+
+          {/* Bloc Épluché ⇆ Non épluché global */}
+          {peelY !== null && (
+            <View style={st.section}>
+              <Text style={st.sTitle}>
+                Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+                <Text> (Pomme pelée et évidée)</Text>
+              </Text>
+
+              <InputWithEcho
+                value={qtyEpl}
+                onChangeText={setQtyEpl}
+                placeholder="Quantité épluchée (g)"
+                echoLabel="Épluchée (g)"
+              />
+              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelY)} />
+
+              <InputWithEcho
+                value={qtyNon}
+                onChangeText={setQtyNon}
+                placeholder="Quantité non épluchée (g)"
+                echoLabel="Non épluchée (g)"
+              />
+              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelY)} />
+            </View>
+          )}
+        </>
+      )}
+
+      {/* === Choix des variétés === */}
+      <Text style={[st.sTitle, { marginTop: 16, marginBottom: 6 }]}>Choisir une variété</Text>
       <View style={st.pillsWrap}>
-        {appleVars
+        {appleVarieties
           .map(v => ({ v, name: String(v.label ?? v.id) }))
           .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
           .map(({ v, name }) => {
-            const on = selected?.id === v.id;
+            const on = appleSelected?.id === v.id
             return (
               <TouchableOpacity
                 key={v.id}
-                onPress={() => setSelected(v)}
+                onPress={() => setAppleSelected(prev => (prev?.id === v.id ? null : v))}
                 activeOpacity={0.9}
                 style={[st.pill, on && st.pillActive]}
               >
-                {imgSrc(v.id) ? <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} /> : null}
-                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+                {imgSrc(v.id) ? (
+                  <Image
+                    source={imgSrc(v.id)}
+                    style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                  />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                  {name}
+                </Text>
               </TouchableOpacity>
-            );
+            )
           })}
       </View>
 
-      {/* 1 / 2 / 3 seulement après choix de variété */}
-      {selected && (
-        <View style={{ marginTop: 10 }}>
-          {/* 1️⃣ Infos clés */}
-          <Text style={st.sTitle}>Infos clés</Text>
-          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
-          {avgEpl !== null && (<Row left="Poids épluché (préparation standard)" right={`${fmt(avgEpl)} g`} />)}
+      {/* === CAS 2 : Une variété est choisie === */}
+      {appleSelected && (() => {
+        // Fusionner infos spécifiques
+        const avgUnit =
+          toNumMaybe(appleSelected.appl_spcfc_wght) ?? toNumMaybe(d.avg_unit_g) ?? null
+        const peelSel =
+          toNumMaybe(appleSelected.appl_spcfc_peel) ?? getPeelYield(d) ?? null
 
-          {/* 2️⃣ Quantité ⇆ Poids (3 barres) */}
-          <View style={st.section}>
-            <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+        const dd = {
+          ...d,
+          ...appleSelected,
+          avg_unit_g: avgUnit,
+          peeled_yield: peelSel,
+        } as Item
 
-            <InputWithEcho value={genWeightEpl} onChangeText={setGenWeightEpl} placeholder="Poids épl. (g)" echoLabel="Épl. (g)" />
-            {(() => {
-              const unitEpl = (peelY && avgNon !== null) ? avgNon * peelY : (avgNon ?? 0);
-              const pieces = unitEpl > 0 ? Math.ceil(num(genWeightEpl) / unitEpl) : 0;
-              return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
-            })()}
+        return (
+          <View style={{ marginTop: 16 }}>
+            {/* Infos clés spécifiques */}
+            <Text style={st.sTitle}>Infos clés</Text>
+            {avgUnit && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgUnit)} g`} />}
+            {peelSel && <Row left="Taux d'épluchage" right={`×${fmt(peelSel)}`} />}
 
-            <InputWithEcho value={genWeightNon} onChangeText={setGenWeightNon} placeholder="Poids non épl. (g)" echoLabel="Non épl. (g)" />
-            {(() => {
-              const unitNon = avgNon ?? 0;
-              const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0;
-              return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
-            })()}
+            {/* Bloc Épluché ⇆ Non épluché spécifique */}
+            {peelSel && (
+              <View style={[st.section, { marginTop: 8 }]}>
+                <Text style={st.sTitle}>
+                  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+                  <Text> (Pomme pelée et évidée)</Text>
+                </Text>
 
-            <InputWithEcho value={countNon} onChangeText={setCountNon} placeholder="Pièces non épl. (ex: 3)" echoLabel="Pièces non épl." />
-            <Row left="Poids non épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0))} />
-            {peelY ? <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)} /> : null}
+                <InputWithEcho
+                  value={qtyEpl}
+                  onChangeText={setQtyEpl}
+                  placeholder="Quantité épluchée (g)"
+                  echoLabel="Épluchée (g)"
+                />
+                <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelSel)} />
+
+                <InputWithEcho
+                  value={qtyNon}
+                  onChangeText={setQtyNon}
+                  placeholder="Quantité non épluchée (g)"
+                  echoLabel="Non épluchée (g)"
+                />
+                <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelSel)} />
+              </View>
+            )}
+
+            {/* Quantité ⇆ Poids */}
+            {avgUnit && <GenericConversions d={dd} />}
           </View>
-
-          {/* 3️⃣ Épluché ⇆ Non épluché */}
-          {peelY ? (
-            <View style={st.section}>
-              <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
-              <InputWithEcho value={qtyEpl} onChangeText={setQtyEpl} placeholder="Quantité épluchée (g)" echoLabel="Épluchée (g)" />
-              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelY)} />
-              <InputWithEcho value={qtyNon} onChangeText={setQtyNon} placeholder="Quantité non épluchée (g)" echoLabel="Non épluchée (g)" />
-              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelY)} />
-            </View>
-          ) : null}
-        </View>
-      )}
+        )
+      })()}
     </View>
-  );
+  )
 }
-
 
 
 /* ===================== Styles ===================== */
