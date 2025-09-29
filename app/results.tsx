@@ -14,6 +14,9 @@ import {
 
 import { msToMMSS, useTimer } from '../src/timerContext'
 
+
+
+
 // DB statique
 // @ts-ignore
 const DB = require('../data/ingredients.json') as any[]
@@ -243,16 +246,31 @@ function getPeelYield(d: any): number | null {
     'avoc_spcfc_peel',
     'pepr_spcfc_peel',
     'peeled_yield',
-  ] as const
+  ] as const;
 
   for (const k of keys) {
-    const raw = (d as any)[k]
-    if (raw === undefined || raw === null || raw === '') continue
-    const n = Number(String(raw).replace(',', '.'))
-    if (Number.isFinite(n) && n > 0) return n
+    const raw = (d as any)[k];
+    if (raw === undefined || raw === null || raw === '') continue;
+    const n = Number(String(raw).replace(',', '.'));
+    if (Number.isFinite(n) && n > 0) return n;
   }
+  return null;
+}
 
-  return null
+// Normalise un id/label et renvoie la mention "préparation épluchée" adaptée
+function peeledLabelFor(nameOrId: string): string {
+  const s = (nameOrId || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, ''); // retire accents
+
+  if (s.includes('pomme'))   return '(Pomme pelée & évidée)';
+  if (s.includes('ail'))     return '(gousse pelée et dégermée)';
+  if (s.includes('tomate'))  return '(tomate équeutée et époinçonnée, non pelée)';
+  if (s.includes('avocat'))  return '(avocat pelé et dénoyauté)';
+  if (s.includes('poivron')) return '(poivron équeuté, épépiné, non pelé)';
+  return '(préparation standard)';
 }
 
 
@@ -479,10 +497,11 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isAvocado = ['avocat', 'avocats'].includes(normId)
   const isPepper  = ['poivron', 'poivrons'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
+  const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normId)
 
   const peelY = getPeelYield(d)
-const showPeeled =
-  !isApple && !isPotato &&
+  const showPeeled =
+  !isPotato && 
   peelY !== null && Number.isFinite(peelY) && peelY > 0
 
   
@@ -550,6 +569,8 @@ const showPeeled =
   if (!isPotato && d.avg_unit_g) {
     infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
   }
+
+ 
   // --- PDT : remplacer "Poids épluché (×...)" par "Taux moyen d'épluchage"
 if (isPotato) {
   const peel = getPeelYield(d)
@@ -563,6 +584,7 @@ const special =
   isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
   isAvocado ? ' (Avocat pelé et dénoyauté)' :
   isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
+  isGarlic  ? ' (Gousse pelée et dégermée)' :
   isApple   ? ' (Pomme pelée et évidée)' :
               ` (×${fmt(peelY!)})`
 
@@ -575,6 +597,20 @@ const special =
     />
   )
 }
+
+// --- AIL : "Tête d'ail" juste après Poids épluché (ou après Poids moyen s'il n'y a pas de peelY)
+if (isGarlic) {
+  const cloves =
+    toNumMaybe((d as any).ail_nmbr) ??
+    toNumMaybe((d as any).ail_nmber) ?? null
+  if (cloves && Number.isFinite(cloves) && cloves > 0) {
+    const n = Math.round(cloves)
+    const unit = n > 1 ? 'gousses' : 'gousse'
+    infoRows.push(<Row key="garlic-head" left="Tête d'ail" right={`≈ ${n} ${unit}`} />)
+  }
+}
+
+
 
   {(() => {
     const jPerUnit = juicePerUnitMl(d)
@@ -640,6 +676,7 @@ const special =
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
       {(() => {
          if (isApple) return null
+         if (isGarlic) return null
   const peelY = getPeelYield(d)
   if (!peelY) return null   // 🚫 masque si aucune valeur dans le CSV
 
@@ -758,6 +795,15 @@ const special =
   return <CabbageSection d={d} />
 })()}
 
+{/* --------- Module AIL --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isGarlic = normId === 'ail' || normId === 'gousse_d_ail' || normId === 'gousses_d_ail'
+  if (!isGarlic) return null
+  return <GarlicSection d={d} />
+})()}
+
+
  {/* --------- Module POMMES --------- */}
  {(() => {
    const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
@@ -779,7 +825,7 @@ const special =
   const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
   const isPasta  = ['pates', 'pâtes', 'pasta'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
-  if (isPotato || isPasta || isApple || !d.avg_unit_g) return null
+  if (isPotato || isPasta || isApple || isGarlic || !d.avg_unit_g) return null
   return <GenericConversions d={d} />
 })()}
 
@@ -1900,7 +1946,7 @@ function JuiceSection({ d }: { d: Item }) {
         placeholder="Volume ou poids voulu (ml ou g)"
         echoLabel="Estimation"
       />
-      <Row left="Poids estimé" right={fmt(estWeight)} unit="g" />
+      <Row left="Poids estimé" right={`${fmt(estWeight)} g`} />
       <Row left="Nombre de pièces estimé" right={fmt(estPieces)} />
     </View>
   )
@@ -2263,14 +2309,22 @@ function AppleSection({ d }: { d: Item }) {
       {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
         <View style={{ marginBottom: 12 }}>
           <Text style={st.sTitle}>Infos clés</Text>
-          <Row left="Taux moyen d'épluchage" right={`×${fmt(peelYGeneric)}`} />
+         <Row
+      left={`Taux moyen d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
+      right={`×${fmt(peelYGeneric)}`}
+    />
+
         </View>
       )}
 
       {/* 2. Bloc Épluché ⇆ Non épluché */}
       {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
         <View style={st.section}>
-          <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
+          <Text style={st.sTitle}>
+  Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
+  <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+</Text>
+
 
           <InputWithEcho
             value={qtyEpl}
@@ -2384,11 +2438,20 @@ function AppleSection({ d }: { d: Item }) {
             <Text style={st.sTitle}>Infos clés</Text>
             {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
             {peelY !== null && <Row left="Taux d'épluchage" right={`×${fmt(peelY)}`} />}
-            {avgEpl !== null && <Row left="Poids épluché (pomme pelée & épépinée)" right={`${fmt(avgEpl)} g`} />}
+            {avgEpl !== null && (
+          <Row
+            left={`Poids épluché ${peeledLabelFor(d.id || d.label || '')}`}
+            right={`${fmt(avgEpl)} g`}
+          />
+        )}
 
             {peelY !== null && (
               <View style={{ marginTop: 8 }}>
-                <Text style={st.sTitle}>Épluché <Text style={st.arrow}>⇆</Text> Non épluché</Text>
+                <Text style={st.sTitle}>
+  Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
+  <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+</Text>
+
                 <InputWithEcho
                   value={qtyEpl}
                   onChangeText={setQtyEpl}
@@ -2674,6 +2737,117 @@ function CheeseSection({ d }: { d: Item }) {
       )}
     </View>
   )
+}
+
+function GarlicSection({ d }: { d: Item }) {
+  // États UI
+  const [qtyEpl, setQtyEpl] = React.useState('');
+  const [qtyNon, setQtyNon] = React.useState('');
+  const [genWeightEpl, setGenWeightEpl] = React.useState('');
+  const [genWeightNon, setGenWeightNon] = React.useState('');
+  const [countNon, setCountNon] = React.useState('');
+
+  // Données
+  const peelY  = getPeelYield(d);               // rendement (si dispo)
+  const avgNon = toNumMaybe(d.avg_unit_g);      // poids moyen 1 gousse non épl.
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null; // poids moyen 1 gousse épl.
+
+  // 1) Bloc Épluché ⇆ Non épluché (si on a un rendement)
+  const renderPeeledBlock = () => {
+    if (!peelY) return null;
+    const nonFromEpl = num(qtyEpl) / peelY;
+    const eplFromNon = num(qtyNon) * peelY;
+
+    return (
+      <View style={st.section}>
+        <Text style={st.sTitle}>
+          Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+          <Text>{' '}(Gousse pelée et dégermée)</Text>
+        </Text>
+
+        <InputWithEcho
+          value={qtyEpl}
+          onChangeText={setQtyEpl}
+          placeholder="Quantité épluchée (g)"
+          echoLabel="Épluchée (g)"
+        />
+        <Row left="Équiv. non épluché" right={fmtAllUnits(nonFromEpl)} />
+
+        <InputWithEcho
+          value={qtyNon}
+          onChangeText={setQtyNon}
+          placeholder="Quantité non épluchée (g)"
+          echoLabel="Non épluchée (g)"
+        />
+        <Row left="Équiv. épluché" right={fmtAllUnits(eplFromNon)} />
+      </View>
+    );
+  };
+
+  // 2) Bloc Quantité ⇆ Poids (libellés adaptés au cas "gousses")
+  const renderQuantityWeight = () => {
+    if (avgNon === null && avgEpl === null) return null;
+
+    return (
+      <View style={st.section}>
+        <Text style={st.sTitle}>Quantité <Text style={st.arrow}>⇆</Text> Poids</Text>
+
+        {/* 2.1 — Poids épluché → Nb de gousses */}
+        <InputWithEcho
+          value={genWeightEpl}
+          onChangeText={setGenWeightEpl}
+          placeholder="Poids épluché (g)"
+          echoLabel="Épluché (g)"
+        />
+        {(() => {
+          const unitRef = (avgEpl ?? avgNon ?? 0); // si pas de peelY, on retombe sur avgNon
+          const pieces = unitRef > 0 ? Math.ceil(num(genWeightEpl) / unitRef) : 0;
+          return <Row left="Nombre de gousses estimé" right={`${pieces} gousses`} />;
+        })()}
+
+        {/* 2.2 — Poids non épluché → Nb de gousses */}
+        <InputWithEcho
+          value={genWeightNon}
+          onChangeText={setGenWeightNon}
+          placeholder="Poids non épluché (g)"
+          echoLabel="Non épluché (g)"
+        />
+        {(() => {
+          const unitNon = avgNon ?? 0;
+          const pieces = unitNon > 0 ? Math.ceil(num(genWeightNon) / unitNon) : 0;
+          return <Row left="Nombre de gousses estimé" right={`${pieces} gousses`} />;
+        })()}
+
+        {/* 2.3 — Nb de gousses → poids (non épl., + épl. si rendement) */}
+        <InputWithEcho
+          value={countNon}
+          onChangeText={setCountNon}
+          placeholder="Gousses non épl. (ex: 3)"
+          echoLabel="Gousses non épl."
+        />
+        <Row
+          left="Poids non épluché"
+          right={fmtAllUnits(num(countNon) * (avgNon ?? 0))}
+        />
+        {peelY ? (
+          <Row
+            left="Poids épluché"
+            right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)}
+          />
+        ) : null}
+      </View>
+    );
+  };
+
+  return (
+    <View style={st.section}>
+      {/* 1) Épluché ⇆ Non épluché */}
+      {renderPeeledBlock()}
+
+      {/* 2) Quantité ⇆ Poids */}
+      {renderQuantityWeight()}
+    </View>
+  );
 }
 
 
