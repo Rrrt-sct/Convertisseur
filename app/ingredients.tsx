@@ -30,6 +30,15 @@ type Item = {
   lgth_g?: number | null
   tbsp_g?: number | null
   tsp_g?: number | null
+  is_coffee_use?: any
+  coffee_mouture?: string | null
+  coffee_spcfc_tbsp_g?: number | null
+  coffee_tmp?: number | null
+  coffee_tme?: number | null
+  coffee_cup_cl?: number | null
+  coffee_g_per_cl_lght?: number | null
+  coffee_g_per_cl_strng?: number | null
+  coffee_g_per_cl_intense?: number | null
 }
 
 // ------- Helpers -------
@@ -131,6 +140,7 @@ export default function IngredientsScreen() {
   if (hasVal(raw.is_spc)) return false       // épices: cachées  ⬅️ AJOUT
   if (isAppleVarietyRow(raw)) return false
   if (hasVal(raw.is_cheese)) return false
+  if (hasVal(raw.is_coffee_use)) return false
   return true
 })
 

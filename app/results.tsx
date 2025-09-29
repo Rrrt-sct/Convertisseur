@@ -178,6 +178,15 @@ type Item = {
   croute_cheese?: string | null
   origin_cheese?: string | null
   aop_cheese?: string | null
+  is_coffee_use?: any
+  coffee_mouture?: string | null
+  coffee_spcfc_tbsp_g?: number | null
+  coffee_tmp?: number | null
+  coffee_tme?: number | null
+  coffee_cup_cl?: number | null
+  coffee_g_per_cl_lght?: number | null
+  coffee_g_per_cl_strng?: number | null
+  coffee_g_per_cl_intense?: number | null
 
 }
 
@@ -498,6 +507,8 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isPepper  = ['poivron', 'poivrons'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
   const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normId)
+  const isCoffee = ['cafe', 'café', 'coffee'].includes(normId)
+
 
   const peelY = getPeelYield(d)
   const showPeeled =
@@ -817,6 +828,17 @@ if (isGarlic) {
   if (!hasJuice(d)) return null
   return <JuiceSection d={d} />
 })()}
+
+{/* --------- Module CAFÉ --------- */}
+{(() => {
+  const ref = (d.id || d.label || '').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // retire accents
+    .replace(/\s+/g, '_')
+  const isCoffee = ['cafe','coffee'].includes(ref)
+  if (!isCoffee) return null
+  return <CoffeeSection d={d} />
+})()}
+
 
 
       {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
@@ -2848,6 +2870,182 @@ function GarlicSection({ d }: { d: Item }) {
       {renderQuantityWeight()}
     </View>
   );
+}
+
+function CoffeeSection({ d }: { d: Item }) {
+  // Sélection usage & intensité
+  const [coffeeSelected, setCoffeeSelected] = React.useState<any | null>(null)
+  const [intensity, setIntensity] = React.useState<'lght' | 'strng' | 'intense'>('lght')
+
+  // Entrées utilisateur
+  const [cups, setCups] = React.useState('')   // Nb tasses
+  const [volCl, setVolCl] = React.useState('') // Volume souhaité (cl)
+
+  // ===== Helpers robustes =====
+  // nettoie: enlève guillemets, espaces, remplace virgule par point
+  const clean = (v: any): string =>
+    String(v ?? '').trim().replace(/^['"]+|['"]+$/g, '').replace(',', '.')
+
+  // nombre (tolérant: retire unités)
+  const n = (v: any): number | null => {
+    const s0 = clean(v)
+    if (!s0) return null
+    const s = s0.replace(/[^0-9.+-]/g, '')
+    if (!s || s === '.' || s === '+' || s === '-') return null
+    const x = Number(s)
+    return Number.isFinite(x) ? x : null
+  }
+
+  // intervalle "a-b" ou "a–b" → {min,max,avg}
+  const parseRange = (v: any): { min: number; max: number; avg: number } | null => {
+    const s = clean(v)
+    if (!s) return null
+    const m = s.match(/^\s*([0-9]+(?:\.[0-9]+)?)\s*[-–]\s*([0-9]+(?:\.[0-9]+)?)\s*$/)
+    if (!m) return null
+    const a = Number(m[1])
+    const b = Number(m[2])
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null
+    const min = Math.min(a, b)
+    const max = Math.max(a, b)
+    return { min, max, avg: (min + max) / 2 }
+  }
+
+  // Affichage smart: nombre OU intervalle avec unité (ex: "88–92 °C")
+  const showNumOrRange = (v: any, unit: string): string => {
+    const r = parseRange(v)
+    if (r) return `${fmt(r.min)}–${fmt(r.max)} ${unit}`
+    const x = n(v)
+    return x == null ? '—' : `${fmt(x)} ${unit}`
+  }
+
+  const truthy = (v: any) => {
+    const s = String(v ?? '').trim().toLowerCase()
+    return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes'
+  }
+
+  // Usages: lignes où is_coffee_use est réellement vrai
+  const coffeeUsages = React.useMemo(
+    () => (DB as any[]).filter(v => truthy(v?.is_coffee_use)),
+    []
+  )
+
+  // Facteur g/cl selon intensité
+  const gPerCl = (row: any): number => {
+    const l = n(row?.coffee_g_per_cl_lght)
+    const s = n(row?.coffee_g_per_cl_strng)
+    const i = n(row?.coffee_g_per_cl_intense)
+    return intensity === 'lght' ? (l ?? 0) : intensity === 'strng' ? (s ?? 0) : (i ?? 0)
+  }
+
+  // Poids d'1 c. à café (g)
+  const tbspG = (row: any) => n(row?.coffee_spcfc_tbsp_g) ?? 0
+
+  // --- Calculs “Nombre de tasses” ---
+  const cupsN = num(cups) // helper global existant
+  const cupCl = coffeeSelected ? (n(coffeeSelected.coffee_cup_cl) ?? 0) : 0
+  const totalClFromCups = cupsN * cupCl
+  const waterMlFromCups = totalClFromCups * 10
+  const coffeeGFromCups = totalClFromCups * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
+  const spoonsFromCups = tbspG(coffeeSelected) > 0 ? (coffeeGFromCups / tbspG(coffeeSelected)) : 0
+
+  // --- Calculs “Volume souhaité (cl)” ---
+  const volClN = num(volCl)
+  const coffeeGFromVol = volClN * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
+  const spoonsFromVol = tbspG(coffeeSelected) > 0 ? (coffeeGFromVol / tbspG(coffeeSelected)) : 0
+
+  return (
+    <View style={st.section}>
+      {/* 1) Choisir un usage */}
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={st.pillsWrap}>
+        {coffeeUsages
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = coffeeSelected?.id === v.id
+            return (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setCoffeeSelected(v)}
+                activeOpacity={0.9}
+                style={[st.pill, on && st.pillActive]}
+              >
+                {imgSrc(v.id) ? (
+                  <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+              </TouchableOpacity>
+            )
+          })}
+      </View>
+
+      {/* 2) Choisir une intensité */}
+      <Text style={[st.sTitle, { marginTop: 8 }]}>Intensité</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {[
+          { k: 'lght' as const, label: 'Faible' },
+          { k: 'strng' as const, label: 'Fort' },
+          { k: 'intense' as const, label: 'Intense' },
+        ].map(opt => {
+          const on = intensity === opt.k
+          return (
+            <TouchableOpacity
+              key={opt.k}
+              onPress={() => setIntensity(opt.k)}
+              activeOpacity={0.9}
+              style={[st.sizeBtn, on && st.sizeBtnOn]}
+            >
+              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{opt.label}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </View>
+
+      {/* 3) Infos clés */}
+      {coffeeSelected && (
+        <View style={{ marginTop: 8 }}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row left="Mouture" right={String(coffeeSelected.coffee_mouture ?? '—')} />
+          <Row left="1 c. à café" right={`${fmt(tbspG(coffeeSelected))} g`} />
+          <Row left="Température de l’eau" right={showNumOrRange(coffeeSelected.coffee_tmp, '°C')} />
+          <Row left="Temps d’infusion" right={showNumOrRange(coffeeSelected.coffee_tme, 'min')} />
+          <Row left="Volume d’une tasse" right={showNumOrRange(coffeeSelected.coffee_cup_cl, 'cl')} />
+        </View>
+      )}
+
+      {/* 4) Barres de conversion */}
+      {coffeeSelected && (
+        <>
+          {/* 4.1 — Nombre de tasses → Eau & Café */}
+          <Text style={[st.sTitle, { marginTop: 10 }]}>
+            Nombre de tasses souhaitées <Text style={st.arrow}>→</Text> Eau & Café
+          </Text>
+          <InputWithEcho
+            value={cups}
+            onChangeText={setCups}
+            placeholder="Nombre de tasses (ex: 3)"
+            echoLabel="Tasses"
+          />
+          <Row left="Eau" right={`${fmt(waterMlFromCups)} ml  |  ${fmt(totalClFromCups)} cl`} />
+          <Row left="Café" right={`${fmt(coffeeGFromCups)} g`} />
+          <Row left="≈ Cuillères à café" right={fmt(spoonsFromCups)} />
+
+          {/* 4.2 — Volume souhaité (cl) → Café */}
+          <Text style={[st.sTitle, { marginTop: 10 }]}>
+            Volume souhaité (cl) <Text style={st.arrow}>→</Text> Café
+          </Text>
+          <InputWithEcho
+            value={volCl}
+            onChangeText={setVolCl}
+            placeholder="Volume (cl) — ex: 45"
+            echoLabel="Volume (cl)"
+          />
+          <Row left="Café" right={`${fmt(coffeeGFromVol)} g`} />
+          <Row left="≈ Cuillères à café" right={fmt(spoonsFromVol)} />
+        </>
+      )}
+    </View>
+  )
 }
 
 
