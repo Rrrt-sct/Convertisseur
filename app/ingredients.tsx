@@ -83,6 +83,12 @@ function normalizeRow(x: any): Item | null {
   }
 }
 
+// Accepte 1 / true / x / oui / yes (insensible à la casse, espaces ok)
+function truthyFlag(v: any): boolean {
+  const s = String(v ?? '').trim().toLowerCase()
+  return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes'
+}
+
 /** Détecte une ligne "variété de pâtes" (au moins un pst_* rempli) */
 function isPastaVarietyRow(row: any) {
   return ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
@@ -107,9 +113,15 @@ function isOnionVarietyRow(row: any) {
 }
 /** Variété de pommes */
 function isAppleVarietyRow(row: any) {
-  const v = row?.is_appl
-  return v !== undefined && v !== null && String(v).trim() !== ''
+  return truthyFlag(row?.is_appl)
 }
+
+/** Variété de poires */
+function isPearVarietyRow(row: any) {
+  return truthyFlag(row?.is_pear)
+}
+
+
 
 
 export default function IngredientsScreen() {
@@ -139,6 +151,7 @@ export default function IngredientsScreen() {
   if (hasVal(raw.is_choux)) return false     // choux: cachés
   if (hasVal(raw.is_spc)) return false       // épices: cachées  ⬅️ AJOUT
   if (isAppleVarietyRow(raw)) return false
+  if (isPearVarietyRow(raw))  return false
   if (hasVal(raw.is_cheese)) return false
   if (hasVal(raw.is_coffee_use)) return false
   return true

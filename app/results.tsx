@@ -187,6 +187,13 @@ type Item = {
   coffee_g_per_cl_lght?: number | null
   coffee_g_per_cl_strng?: number | null
   coffee_g_per_cl_intense?: number | null
+  is_pear?: any
+  pear_spcfc_wght?: number | null
+  pear_spcfc_peel?: number | null
+  crok_pear?: any
+  cook_pear?: any
+  syrup_pear?: any
+  salt_pear?: any
 
 }
 
@@ -254,6 +261,7 @@ function getPeelYield(d: any): number | null {
     'tmt_spcfc_peel',
     'avoc_spcfc_peel',
     'pepr_spcfc_peel',
+    'pear_spcfc_peel',
     'peeled_yield',
   ] as const;
 
@@ -275,6 +283,7 @@ function peeledLabelFor(nameOrId: string): string {
     .replace(/[\u0300-\u036f]/g, ''); // retire accents
 
   if (s.includes('pomme'))   return '(Pomme pelée & évidée)';
+  if (s.includes('poire'))   return '(Poire épluchée et évidée)'; 
   if (s.includes('ail'))     return '(gousse pelée et dégermée)';
   if (s.includes('tomate'))  return '(tomate équeutée et époinçonnée, non pelée)';
   if (s.includes('avocat'))  return '(avocat pelé et dénoyauté)';
@@ -506,6 +515,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isAvocado = ['avocat', 'avocats'].includes(normId)
   const isPepper  = ['poivron', 'poivrons'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
+  const isPear   = ['poire', 'poires'].includes(normId)
   const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normId)
   const isCoffee = ['cafe', 'café', 'coffee'].includes(normId)
 
@@ -686,7 +696,7 @@ if (isGarlic) {
 
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
       {(() => {
-         if (isApple) return null
+         if (isApple || isPear) return null
          if (isGarlic) return null
   const peelY = getPeelYield(d)
   if (!peelY) return null   // 🚫 masque si aucune valeur dans le CSV
@@ -823,6 +833,15 @@ if (isGarlic) {
    return <AppleSection d={d} />
  })()}
 
+ {/* --------- Module POIRES --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isPear = ['poire', 'poires'].includes(normId)
+  if (!isPear) return null
+  return <PearSection d={d} />
+})()}
+
+
 {/* --------- Jus (PRIORITÉ AVANT Quantité/Poids) --------- */}
 {(() => {
   if (!hasJuice(d)) return null
@@ -847,7 +866,7 @@ if (isGarlic) {
   const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
   const isPasta  = ['pates', 'pâtes', 'pasta'].includes(normId)
   const isApple  = ['pomme', 'pommes'].includes(normId)
-  if (isPotato || isPasta || isApple || isGarlic || !d.avg_unit_g) return null
+  if (isPotato || isPasta || isApple || isPear || isGarlic || !d.avg_unit_g) return null
   return <GenericConversions d={d} />
 })()}
 
@@ -3047,6 +3066,217 @@ function CoffeeSection({ d }: { d: Item }) {
     </View>
   )
 }
+
+function PearSection({ d }: { d: Item }) {
+  const [qtyEpl, setQtyEpl] = useState('');
+  const [qtyNon, setQtyNon] = useState('');
+  const [pearSelected, setPearSelected] = useState<any | null>(null);
+  const [usageSel, setUsageSel] = useState<null | 'crok' | 'cook' | 'syrup' | 'salt'>(null);
+
+  // Variétés de poires (même logique que pommes)
+  const pearVarieties = useMemo(
+    () => (DB as any[]).filter(v => isTrue(v?.is_pear)),
+    []
+  );
+
+  // Rendement générique
+  const peelYGeneric = getPeelYield(d);
+
+  const star5 = (n: number | null) => {
+    const v = n ?? 0;
+    if (v <= 0) return '—';
+    const r = Math.max(0, Math.min(5, Math.round(v)));
+    return '★'.repeat(r);
+  };
+
+  const scoreFrom = (row: any, col: string): number =>
+    firstInt(row?.[col]) ?? 0;
+
+  return (
+    <View style={st.section}>
+      {/* 1. Infos clés */}
+      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={st.sTitle}>Infos clés</Text>
+          <Row
+            left={`Taux moyen d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
+            right={`×${fmt(peelYGeneric)}`}
+          />
+        </View>
+      )}
+
+      {/* 2. Bloc Épluché ⇆ Non épluché */}
+      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+        <View style={st.section}>
+          <Text style={st.sTitle}>
+            Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
+            <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+          </Text>
+
+          <InputWithEcho
+            value={qtyEpl}
+            onChangeText={setQtyEpl}
+            placeholder="Quantité épluchée (g)"
+            echoLabel="Épluchée (g)"
+          />
+          <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelYGeneric || 1))} />
+
+          <InputWithEcho
+            value={qtyNon}
+            onChangeText={setQtyNon}
+            placeholder="Quantité non épluchée (g)"
+            echoLabel="Non épluchée (g)"
+          />
+          <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelYGeneric || 0))} />
+        </View>
+      )}
+
+      {/* 3. Choisir un usage */}
+      <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+        {[
+          { key: 'crok' as const,  label: 'À croquer',                col: 'crok_pear'  },
+          { key: 'cook' as const,  label: 'À cuire (desserts chauds)', col: 'cook_pear'  },
+          { key: 'syrup' as const, label: 'En conserve / sirop',      col: 'syrup_pear' },
+          { key: 'salt' as const,  label: 'En salé',                   col: 'salt_pear'  },
+        ].map(u => {
+          const on = usageSel === u.key;
+          return (
+            <TouchableOpacity
+              key={u.key}
+              onPress={() => setUsageSel(prev => (prev === u.key ? null : u.key))}
+              style={[st.pill, on && st.pillActive]}
+              activeOpacity={0.9}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]}>{u.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {usageSel && (() => {
+        const col =
+          usageSel === 'crok'  ? 'crok_pear'  :
+          usageSel === 'cook'  ? 'cook_pear'  :
+          usageSel === 'syrup' ? 'syrup_pear' :
+                                 'salt_pear';
+
+        const list = pearVarieties
+          .map(v => ({ v, s: scoreFrom(v, col) }))
+          .filter(x => x.s > 0)
+          .sort((a, b) =>
+            b.s - a.s ||
+            String(a.v.label ?? a.v.id).localeCompare(String(b.v.label ?? b.v.id), 'fr', { sensitivity: 'base' })
+          );
+
+        if (list.length === 0) {
+          return <Text style={{ color: '#666', marginBottom: 8 }}>Aucune variété notée pour cet usage.</Text>;
+        }
+
+        return (
+          <View style={{ marginBottom: 8 }}>
+            {list.map(({ v, s }) => (
+              <Row key={v.id} left={String(v.label ?? v.id)} right={star5(s)} />
+            ))}
+          </View>
+        );
+      })()}
+
+      {/* 4. Choisir une variété */}
+      <Text style={[st.sTitle, { marginTop: 16, marginBottom: 6 }]}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {pearVarieties
+          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = pearSelected?.id === v.id;
+            return (
+              <TouchableOpacity
+                key={v.id}
+                onPress={() => setPearSelected(v)}
+                activeOpacity={0.9}
+                style={[st.pill, on && st.pillActive]}
+              >
+                {imgSrc(v.id) ? (
+                  <Image
+                    source={imgSrc(v.id)}
+                    style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                  />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
+              </TouchableOpacity>
+            );
+          })}
+      </View>
+
+      {pearSelected && (() => {
+        // Références spécifiques variété, sinon génériques
+        const avgUnit =
+          toNumMaybe(pearSelected.pear_spcfc_wght) ??
+          toNumMaybe(d.avg_unit_g) ?? null;
+
+        const peelYVar =
+          toNumMaybe(pearSelected.pear_spcfc_peel) ??
+          toNumMaybe(d.peeled_yield) ?? null;
+
+        const dd: Item = {
+          ...d,
+          ...pearSelected,
+          avg_unit_g: avgUnit,
+          peeled_yield: peelYVar,
+        };
+
+        const avgNon = toNumMaybe(dd.avg_unit_g);
+        const peelY  = toNumMaybe(dd.peeled_yield);
+        const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
+
+        return (
+          <View style={{ marginTop: 12 }}>
+            <Text style={st.sTitle}>Infos clés</Text>
+            {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+            {peelY !== null && <Row left="Taux d'épluchage" right={`×${fmt(peelY)}`} />}
+            {avgEpl !== null && (
+              <Row
+                left={`Poids épluché ${peeledLabelFor(d.id || d.label || '')}`}
+                right={`${fmt(avgEpl)} g`}
+              />
+            )}
+
+            {peelY !== null && (
+              <View style={{ marginTop: 8 }}>
+                <Text style={st.sTitle}>
+                  Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
+                  <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+                </Text>
+
+                <InputWithEcho
+                  value={qtyEpl}
+                  onChangeText={setQtyEpl}
+                  placeholder="Quantité épluchée (g)"
+                  echoLabel="Épluchée (g)"
+                />
+                <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
+                <InputWithEcho
+                  value={qtyNon}
+                  onChangeText={setQtyNon}
+                  placeholder="Quantité non épluchée (g)"
+                  echoLabel="Non épluchée (g)"
+                />
+                <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
+              </View>
+            )}
+
+            {/* Convertisseurs (Quantité ⇆ Poids) */}
+            {toNumMaybe(dd.avg_unit_g) !== null && (
+              <GenericConversions d={dd} />
+            )}
+          </View>
+        );
+      })()}
+    </View>
+  );
+}
+
 
 
 /* ===================== Styles ===================== */
