@@ -194,6 +194,11 @@ type Item = {
   cook_pear?: any
   syrup_pear?: any
   salt_pear?: any
+  is_flour_use?: any
+  flour_T?: string | null
+  Flour_W?: string | number | null
+  flour_w?: string | number | null // fallback si CSV en minuscule
+
 
 }
 
@@ -518,6 +523,8 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const isPear   = ['poire', 'poires'].includes(normId)
   const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normId)
   const isCoffee = ['cafe', 'café', 'coffee'].includes(normId)
+  const isFlour = ['farine', 'farines', 'flour'].includes(normId)
+
 
 
   const peelY = getPeelYield(d)
@@ -840,6 +847,15 @@ if (isGarlic) {
   if (!isPear) return null
   return <PearSection d={d} />
 })()}
+
+{/* --------- Module FARINE --------- */}
+{(() => {
+  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isFlour = ['farine', 'farines', 'flour'].includes(normId)
+  if (!isFlour) return null
+  return <FlourSection d={d} />
+})()}
+
 
 
 {/* --------- Jus (PRIORITÉ AVANT Quantité/Poids) --------- */}
@@ -3276,6 +3292,140 @@ function PearSection({ d }: { d: Item }) {
     </View>
   );
 }
+
+
+function FlourSection({ d }: { d: Item }) {
+  // usage sélectionné (ligne de la DB portant is_flour_use)
+  const [selected, setSelected] = React.useState<any | null>(null)
+
+  // Helper truthy (même logique que ingredients.tsx)
+  const truthyFlag = (v: any) => {
+    const s = String(v ?? '').trim().toLowerCase()
+    return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes' || s === '+' || s === 'o'
+  }
+
+  // Toutes les lignes "usages farine"
+  const flourUsages = React.useMemo(
+    () => (DB as any[]).filter(r => truthyFlag(r?.is_flour_use)),
+    []
+  )
+
+  // Mapping fixe demandé (id → libellé visible)
+  const USAGE_MAP: Array<{ id: string; label: string }> = [
+    { id: 'biscuit',               label: 'Biscuits, sablés, crêpes, gâteaux moelleux' },
+    { id: 'pate_brisee',           label: 'Pâte brisée, pâte sablée' },
+    { id: 'pate_feuilletee',       label: 'Pâte feuilletée' },
+    { id: 'baguette',              label: 'Pain blanc courant' },
+    { id: 'pizza_levee_longue',    label: 'Pâte à pizza (levée longue)' },
+    { id: 'pizza_levee_courte',    label: 'Pâte à pizza (levée courte)' },
+    { id: 'pain_de_campagne',      label: 'Pain de campagne, pain rustique' },
+    { id: 'pain_complet',          label: 'Pain complet, intégral' },
+    { id: 'brioche',               label: 'Brioche, pain de mie, viennoiseries' },
+    { id: 'panettone',             label: 'Panettone, pandoro, colomba' },
+  ]
+
+  // On joint le mapping statique avec les lignes trouvées dans la DB (par id)
+  const usageRows = React.useMemo(() => {
+    // index DB par id
+    const byId = new Map<string, any>(flourUsages.map(r => [String(r.id ?? ''), r]))
+    return USAGE_MAP
+      .map(u => ({ ...u, row: byId.get(u.id) || null }))
+      .filter(u => !!u.row) // ne garde que ceux réellement présents dans la DB
+  }, [flourUsages])
+
+ // --- Helpers robustes pour retrouver une colonne même si le CSV varie un peu ---
+const normalizeKey = (k: string) =>
+  String(k ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // accents
+    .replace(/[\s_\-]+/g, '')        // espaces, underscores, tirets
+    .trim()
+
+const getField = (row: any, candidates: string[]) => {
+  if (!row) return undefined
+  const idx = new Map<string, string>()
+  for (const k of Object.keys(row)) idx.set(normalizeKey(k), k)
+  for (const name of candidates) {
+    const nk = normalizeKey(name)
+    if (idx.has(nk)) return row[idx.get(nk)!]
+  }
+  return undefined
+}
+
+// Nettoie les valeurs (enlève =, guillemets, espaces en trop)
+const cleanText = (v: any): string =>
+  String(v ?? '')
+    .trim()
+    .replace(/^=/, '')                    // enlève "=" (ex: ="T45-T55")
+    .replace(/^['"]+|['"]+$/g, '')        // enlève guillemets d'encadrement
+    .replace(/\s+/g, ' ')
+
+// Type de farine (T45, T55, T45-T55, etc.)
+const flourTText = (row: any): string => {
+  // tolérant aux variantes de nommage éventuelles
+  const raw = getField(row, [
+    'flour_T', 'Flour_T', 'flour t', 'flourt',        // variantes usuelles
+    'type_de_farine', 'type_farine', 'typefarine'     // au cas où
+  ])
+  const s = cleanText(raw)
+  return s || '—'
+}
+
+// Force de farine (W)
+const flourWText = (row: any): string => {
+  const raw = getField(row, [
+    'Flour_W', 'flour_W', 'flour_w', 'flour w', 'flourw',
+    'force', 'force_farine', 'w'                      // variantes possibles
+  ])
+  const s = cleanText(raw)
+  return s || '—'
+}
+
+  return (
+    <View style={st.section}>
+      {/* 1) Choisir un usage */}
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={st.pillsWrap}>
+        {usageRows.map(({ id, label, row }) => {
+          const on = selected?.id === id
+          return (
+            <TouchableOpacity
+              key={id}
+              activeOpacity={0.9}
+              onPress={() => setSelected(prev => (prev?.id === id ? null : row))}
+              style={[st.pill, on && st.pillActive]}
+            >
+              {/* Image optionnelle si tu as prévu des thumbs par usage */}
+              {imgSrc(id) ? (
+                <Image
+                  source={imgSrc(id)}
+                  style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                />
+              ) : null}
+              <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
+        {usageRows.length === 0 && (
+          <Text style={{ color: '#666' }}>Aucun usage farine trouvé dans la base.</Text>
+        )}
+      </View>
+
+      {/* 2) Détails de l’usage (toggle: re-cliquer pour masquer) */}
+      {selected && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={st.sTitle}>Recommandations</Text>
+          <Row left="Type de farine conseillé" right={flourTText(selected)} />
+          <Row left="Force de farine conseillée (W)" right={flourWText(selected)} />
+        </View>
+      )}
+    </View>
+  )
+}
+
 
 
 

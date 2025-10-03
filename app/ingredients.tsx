@@ -86,7 +86,7 @@ function normalizeRow(x: any): Item | null {
 // Accepte 1 / true / x / oui / yes (insensible à la casse, espaces ok)
 function truthyFlag(v: any): boolean {
   const s = String(v ?? '').trim().toLowerCase()
-  return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes'
+  return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes' || s === '+' || s === 'o'
 }
 
 /** Détecte une ligne "variété de pâtes" (au moins un pst_* rempli) */
@@ -154,6 +154,8 @@ export default function IngredientsScreen() {
   if (isPearVarietyRow(raw))  return false
   if (hasVal(raw.is_cheese)) return false
   if (hasVal(raw.is_coffee_use)) return false
+  if (truthyFlag(raw.is_flour_use)) return false // ⬅️ masque les lignes d’usage farine
+
   return true
 })
 

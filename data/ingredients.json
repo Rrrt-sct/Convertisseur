@@ -126,6 +126,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 2
   },
   {
@@ -255,6 +258,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 3
   },
   {
@@ -384,6 +390,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 4
   },
   {
@@ -513,6 +522,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 5
   },
   {
@@ -642,6 +654,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 6
   },
   {
@@ -771,6 +786,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 7
   },
   {
@@ -900,6 +918,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 8
   },
   {
@@ -1029,6 +1050,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 9
   },
   {
@@ -1158,6 +1182,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 10
   },
   {
@@ -1287,6 +1314,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 11
   },
   {
@@ -1416,6 +1446,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 12
   },
   {
@@ -1545,6 +1578,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 13
   },
   {
@@ -1674,6 +1710,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 14
   },
   {
@@ -1803,6 +1842,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 15
   },
   {
@@ -1932,6 +1974,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 16
   },
   {
@@ -2061,6 +2106,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 17
   },
   {
@@ -2190,6 +2238,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 18
   },
   {
@@ -2319,6 +2370,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 19
   },
   {
@@ -2448,6 +2502,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 20
   },
   {
@@ -2577,6 +2634,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 21
   },
   {
@@ -2706,6 +2766,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 22
   },
   {
@@ -2835,6 +2898,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 23
   },
   {
@@ -2964,6 +3030,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 24
   },
   {
@@ -3093,6 +3162,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 25
   },
   {
@@ -3222,6 +3294,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 26
   },
   {
@@ -3351,6 +3426,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 27
   },
   {
@@ -3480,6 +3558,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 28
   },
   {
@@ -3609,6 +3690,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 29
   },
   {
@@ -3738,6 +3822,9 @@
     "salt_pear": "2",
     "pear_spcfc_wght": "100",
     "pear_spcfc_peel": "0,7",
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 30
   },
   {
@@ -3867,6 +3954,9 @@
     "salt_pear": "2",
     "pear_spcfc_wght": "150",
     "pear_spcfc_peel": "0,7",
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 31
   },
   {
@@ -3996,6 +4086,9 @@
     "salt_pear": "2",
     "pear_spcfc_wght": "200",
     "pear_spcfc_peel": "0,6",
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 32
   },
   {
@@ -4125,6 +4218,9 @@
     "salt_pear": "2",
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 33
   },
   {
@@ -4254,6 +4350,9 @@
     "salt_pear": "2",
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 34
   },
   {
@@ -4383,6 +4482,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 35
   },
   {
@@ -4512,6 +4614,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 36
   },
   {
@@ -4641,6 +4746,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 37
   },
   {
@@ -4770,6 +4878,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 38
   },
   {
@@ -4899,6 +5010,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 39
   },
   {
@@ -5028,6 +5142,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 40
   },
   {
@@ -5157,6 +5274,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 41
   },
   {
@@ -5286,6 +5406,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 42
   },
   {
@@ -5415,6 +5538,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 43
   },
   {
@@ -5544,6 +5670,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 44
   },
   {
@@ -5673,6 +5802,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 45
   },
   {
@@ -5802,6 +5934,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 46
   },
   {
@@ -5931,6 +6066,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 47
   },
   {
@@ -6060,6 +6198,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 48
   },
   {
@@ -6189,6 +6330,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 49
   },
   {
@@ -6318,6 +6462,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 50
   },
   {
@@ -6447,6 +6594,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 51
   },
   {
@@ -6576,6 +6726,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 52
   },
   {
@@ -6705,6 +6858,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 53
   },
   {
@@ -6834,6 +6990,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 54
   },
   {
@@ -6963,6 +7122,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 55
   },
   {
@@ -7092,6 +7254,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 56
   },
   {
@@ -7221,6 +7386,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 57
   },
   {
@@ -7350,6 +7518,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 58
   },
   {
@@ -7479,6 +7650,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 59
   },
   {
@@ -7608,6 +7782,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 60
   },
   {
@@ -7737,6 +7914,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 61
   },
   {
@@ -7866,6 +8046,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 62
   },
   {
@@ -7995,6 +8178,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 63
   },
   {
@@ -8124,6 +8310,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 64
   },
   {
@@ -8253,6 +8442,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 65
   },
   {
@@ -8382,6 +8574,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 66
   },
   {
@@ -8511,6 +8706,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 67
   },
   {
@@ -8640,6 +8838,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 68
   },
   {
@@ -8769,6 +8970,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 69
   },
   {
@@ -8898,6 +9102,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 70
   },
   {
@@ -9027,6 +9234,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 71
   },
   {
@@ -9156,6 +9366,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 72
   },
   {
@@ -9285,6 +9498,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 73
   },
   {
@@ -9414,6 +9630,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 74
   },
   {
@@ -9543,6 +9762,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 75
   },
   {
@@ -9672,6 +9894,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 76
   },
   {
@@ -9801,6 +10026,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 77
   },
   {
@@ -9930,6 +10158,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 78
   },
   {
@@ -10059,6 +10290,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 79
   },
   {
@@ -10188,6 +10422,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 80
   },
   {
@@ -10317,6 +10554,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 81
   },
   {
@@ -10446,6 +10686,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 82
   },
   {
@@ -10575,6 +10818,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 83
   },
   {
@@ -10704,6 +10950,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 84
   },
   {
@@ -10833,6 +11082,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 85
   },
   {
@@ -10962,6 +11214,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 86
   },
   {
@@ -11091,6 +11346,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 87
   },
   {
@@ -11220,6 +11478,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 88
   },
   {
@@ -11349,6 +11610,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 89
   },
   {
@@ -11478,6 +11742,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 90
   },
   {
@@ -11607,6 +11874,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 91
   },
   {
@@ -11736,6 +12006,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 92
   },
   {
@@ -11865,6 +12138,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 93
   },
   {
@@ -11994,6 +12270,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 94
   },
   {
@@ -12123,6 +12402,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 95
   },
   {
@@ -12252,6 +12534,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 96
   },
   {
@@ -12381,6 +12666,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 97
   },
   {
@@ -12510,6 +12798,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 98
   },
   {
@@ -12639,6 +12930,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 99
   },
   {
@@ -12768,6 +13062,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 100
   },
   {
@@ -12897,6 +13194,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 101
   },
   {
@@ -13026,6 +13326,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 102
   },
   {
@@ -13155,6 +13458,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 103
   },
   {
@@ -13284,6 +13590,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 104
   },
   {
@@ -13413,6 +13722,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 105
   },
   {
@@ -13542,6 +13854,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 106
   },
   {
@@ -13671,6 +13986,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 107
   },
   {
@@ -13800,6 +14118,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 108
   },
   {
@@ -13929,6 +14250,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 109
   },
   {
@@ -14058,6 +14382,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 110
   },
   {
@@ -14187,6 +14514,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 111
   },
   {
@@ -14316,6 +14646,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 112
   },
   {
@@ -14445,6 +14778,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 113
   },
   {
@@ -14574,6 +14910,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 114
   },
   {
@@ -14703,6 +15042,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 115
   },
   {
@@ -14832,6 +15174,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 116
   },
   {
@@ -14961,6 +15306,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 117
   },
   {
@@ -15090,6 +15438,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 118
   },
   {
@@ -15219,6 +15570,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 119
   },
   {
@@ -15348,6 +15702,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 120
   },
   {
@@ -15477,6 +15834,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 121
   },
   {
@@ -15606,6 +15966,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 122
   },
   {
@@ -15735,6 +16098,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 123
   },
   {
@@ -15864,6 +16230,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 124
   },
   {
@@ -15993,6 +16362,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 125
   },
   {
@@ -16122,6 +16494,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 126
   },
   {
@@ -16251,6 +16626,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 127
   },
   {
@@ -16380,6 +16758,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 128
   },
   {
@@ -16509,6 +16890,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 129
   },
   {
@@ -16638,6 +17022,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 130
   },
   {
@@ -16767,6 +17154,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 131
   },
   {
@@ -16896,6 +17286,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 132
   },
   {
@@ -17025,6 +17418,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 133
   },
   {
@@ -17154,6 +17550,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 134
   },
   {
@@ -17283,6 +17682,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 135
   },
   {
@@ -17412,6 +17814,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 136
   },
   {
@@ -17541,6 +17946,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 137
   },
   {
@@ -17670,6 +18078,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 138
   },
   {
@@ -17799,6 +18210,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 139
   },
   {
@@ -17928,6 +18342,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 140
   },
   {
@@ -18057,6 +18474,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 141
   },
   {
@@ -18186,6 +18606,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 142
   },
   {
@@ -18315,6 +18738,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 143
   },
   {
@@ -18444,6 +18870,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 144
   },
   {
@@ -18573,6 +19002,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 145
   },
   {
@@ -18702,6 +19134,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 146
   },
   {
@@ -18831,6 +19266,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 147
   },
   {
@@ -18960,6 +19398,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 148
   },
   {
@@ -19089,6 +19530,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 149
   },
   {
@@ -19218,6 +19662,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 150
   },
   {
@@ -19347,6 +19794,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 151
   },
   {
@@ -19476,6 +19926,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 152
   },
   {
@@ -19605,6 +20058,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 153
   },
   {
@@ -19734,6 +20190,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 154
   },
   {
@@ -19863,6 +20322,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 155
   },
   {
@@ -19992,6 +20454,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 156
   },
   {
@@ -20121,6 +20586,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 157
   },
   {
@@ -20250,6 +20718,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 158
   },
   {
@@ -20379,6 +20850,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 159
   },
   {
@@ -20508,6 +20982,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 160
   },
   {
@@ -20637,6 +21114,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 161
   },
   {
@@ -20766,6 +21246,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 162
   },
   {
@@ -20895,6 +21378,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 163
   },
   {
@@ -21024,6 +21510,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 164
   },
   {
@@ -21153,6 +21642,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 165
   },
   {
@@ -21282,6 +21774,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 166
   },
   {
@@ -21411,6 +21906,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 167
   },
   {
@@ -21540,6 +22038,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 168
   },
   {
@@ -21669,6 +22170,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 169
   },
   {
@@ -21798,6 +22302,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 170
   },
   {
@@ -21927,6 +22434,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 171
   },
   {
@@ -22056,6 +22566,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 172
   },
   {
@@ -22185,6 +22698,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 173
   },
   {
@@ -22314,6 +22830,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 174
   },
   {
@@ -22443,6 +22962,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 175
   },
   {
@@ -22572,6 +23094,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 176
   },
   {
@@ -22701,6 +23226,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 177
   },
   {
@@ -22830,6 +23358,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 178
   },
   {
@@ -22959,6 +23490,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 179
   },
   {
@@ -23088,6 +23622,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 180
   },
   {
@@ -23217,6 +23754,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 181
   },
   {
@@ -23346,6 +23886,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 182
   },
   {
@@ -23475,6 +24018,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 183
   },
   {
@@ -23604,6 +24150,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 184
   },
   {
@@ -23733,6 +24282,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 185
   },
   {
@@ -23862,6 +24414,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 186
   },
   {
@@ -23991,6 +24546,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 187
   },
   {
@@ -24120,6 +24678,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 188
   },
   {
@@ -24249,6 +24810,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 189
   },
   {
@@ -24378,6 +24942,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 190
   },
   {
@@ -24507,6 +25074,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 191
   },
   {
@@ -24636,6 +25206,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 192
   },
   {
@@ -24765,6 +25338,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 193
   },
   {
@@ -24894,6 +25470,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 194
   },
   {
@@ -25023,6 +25602,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 195
   },
   {
@@ -25152,6 +25734,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 196
   },
   {
@@ -25281,6 +25866,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 197
   },
   {
@@ -25410,6 +25998,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 198
   },
   {
@@ -25539,6 +26130,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 199
   },
   {
@@ -25668,6 +26262,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 200
   },
   {
@@ -25797,6 +26394,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 201
   },
   {
@@ -25926,6 +26526,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 202
   },
   {
@@ -26055,6 +26658,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 203
   },
   {
@@ -26184,6 +26790,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 204
   },
   {
@@ -26313,6 +26922,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 205
   },
   {
@@ -26442,6 +27054,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 206
   },
   {
@@ -26571,6 +27186,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 207
   },
   {
@@ -26700,6 +27318,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 208
   },
   {
@@ -26829,6 +27450,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 209
   },
   {
@@ -26958,6 +27582,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 210
   },
   {
@@ -27087,6 +27714,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 211
   },
   {
@@ -27216,6 +27846,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 212
   },
   {
@@ -27345,6 +27978,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 213
   },
   {
@@ -27474,6 +28110,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 214
   },
   {
@@ -27603,6 +28242,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 215
   },
   {
@@ -27732,6 +28374,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 216
   },
   {
@@ -27861,6 +28506,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 217
   },
   {
@@ -27990,6 +28638,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 218
   },
   {
@@ -28119,6 +28770,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 219
   },
   {
@@ -28248,6 +28902,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 220
   },
   {
@@ -28377,6 +29034,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 221
   },
   {
@@ -28506,6 +29166,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 222
   },
   {
@@ -28635,6 +29298,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 223
   },
   {
@@ -28764,6 +29430,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 224
   },
   {
@@ -28893,6 +29562,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 225
   },
   {
@@ -29022,6 +29694,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 226
   },
   {
@@ -29151,6 +29826,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 227
   },
   {
@@ -29280,6 +29958,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 228
   },
   {
@@ -29409,6 +30090,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 229
   },
   {
@@ -29538,6 +30222,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 230
   },
   {
@@ -29667,6 +30354,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 231
   },
   {
@@ -29796,6 +30486,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 232
   },
   {
@@ -29925,6 +30618,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 233
   },
   {
@@ -30054,6 +30750,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 234
   },
   {
@@ -30183,6 +30882,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 235
   },
   {
@@ -30312,6 +31014,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 236
   },
   {
@@ -30441,6 +31146,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 237
   },
   {
@@ -30570,6 +31278,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 238
   },
   {
@@ -30699,6 +31410,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 239
   },
   {
@@ -30828,6 +31542,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 240
   },
   {
@@ -30957,6 +31674,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 241
   },
   {
@@ -31086,6 +31806,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 242
   },
   {
@@ -31215,6 +31938,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 243
   },
   {
@@ -31344,6 +32070,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 244
   },
   {
@@ -31473,6 +32202,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 245
   },
   {
@@ -31602,6 +32334,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 246
   },
   {
@@ -31731,6 +32466,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 247
   },
   {
@@ -31860,6 +32598,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 248
   },
   {
@@ -31989,6 +32730,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 249
   },
   {
@@ -32118,6 +32862,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 250
   },
   {
@@ -32247,6 +32994,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 251
   },
   {
@@ -32376,6 +33126,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 252
   },
   {
@@ -32505,6 +33258,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 253
   },
   {
@@ -32634,6 +33390,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 254
   },
   {
@@ -32763,6 +33522,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 255
   },
   {
@@ -32892,6 +33654,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 256
   },
   {
@@ -33021,6 +33786,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 257
   },
   {
@@ -33150,6 +33918,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 258
   },
   {
@@ -33279,6 +34050,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 259
   },
   {
@@ -33408,6 +34182,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 260
   },
   {
@@ -33537,6 +34314,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 261
   },
   {
@@ -33666,6 +34446,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 262
   },
   {
@@ -33795,6 +34578,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 263
   },
   {
@@ -33924,6 +34710,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 264
   },
   {
@@ -34053,6 +34842,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 265
   },
   {
@@ -34182,6 +34974,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 266
   },
   {
@@ -34311,6 +35106,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 267
   },
   {
@@ -34440,6 +35238,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 268
   },
   {
@@ -34569,6 +35370,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 269
   },
   {
@@ -34698,6 +35502,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 270
   },
   {
@@ -34827,6 +35634,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 271
   },
   {
@@ -34956,6 +35766,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 272
   },
   {
@@ -35085,6 +35898,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 273
   },
   {
@@ -35214,6 +36030,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 274
   },
   {
@@ -35343,6 +36162,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 275
   },
   {
@@ -35472,6 +36294,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 276
   },
   {
@@ -35601,6 +36426,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 277
   },
   {
@@ -35730,6 +36558,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 278
   },
   {
@@ -35859,6 +36690,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 279
   },
   {
@@ -35988,6 +36822,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 280
   },
   {
@@ -36117,6 +36954,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 281
   },
   {
@@ -36246,6 +37086,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 282
   },
   {
@@ -36375,6 +37218,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 283
   },
   {
@@ -36504,6 +37350,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 284
   },
   {
@@ -36633,6 +37482,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 285
   },
   {
@@ -36762,6 +37614,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 286
   },
   {
@@ -36891,6 +37746,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 287
   },
   {
@@ -37020,6 +37878,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 288
   },
   {
@@ -37149,6 +38010,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 289
   },
   {
@@ -37278,6 +38142,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 290
   },
   {
@@ -37407,6 +38274,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 291
   },
   {
@@ -37536,6 +38406,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 292
   },
   {
@@ -37665,6 +38538,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 293
   },
   {
@@ -37794,6 +38670,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 294
   },
   {
@@ -37923,6 +38802,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 295
   },
   {
@@ -38052,6 +38934,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 296
   },
   {
@@ -38181,6 +39066,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 297
   },
   {
@@ -38310,6 +39198,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 298
   },
   {
@@ -38439,6 +39330,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 299
   },
   {
@@ -38568,6 +39462,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 300
   },
   {
@@ -38697,6 +39594,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 301
   },
   {
@@ -38826,6 +39726,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 302
   },
   {
@@ -38955,6 +39858,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 303
   },
   {
@@ -39084,6 +39990,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 304
   },
   {
@@ -39213,6 +40122,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 305
   },
   {
@@ -39342,6 +40254,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 306
   },
   {
@@ -39471,6 +40386,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 307
   },
   {
@@ -39600,6 +40518,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 308
   },
   {
@@ -39729,6 +40650,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 309
   },
   {
@@ -39858,6 +40782,9 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 310
   },
   {
@@ -39987,6 +40914,1461 @@
     "salt_pear": null,
     "pear_spcfc_wght": null,
     "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
     "__rowNumber": 311
+  },
+  {
+    "id": "farine",
+    "label": "Farine",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": 15,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": null,
+    "flour_t": null,
+    "flour_w": null,
+    "__rowNumber": 312
+  },
+  {
+    "id": "biscuit",
+    "label": "Biscuit",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T45",
+    "flour_w": "W<170",
+    "__rowNumber": 313
+  },
+  {
+    "id": "pate_brisee",
+    "label": "Pate brisée",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T45-T55",
+    "flour_w": "W<180",
+    "__rowNumber": 314
+  },
+  {
+    "id": "pate_feulletee",
+    "label": "Pâte feuilletée",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T45-T55",
+    "flour_w": "180<W<220",
+    "__rowNumber": 315
+  },
+  {
+    "id": "baguette",
+    "label": "Baguette",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T55-T65",
+    "flour_w": "180<W<240",
+    "__rowNumber": 316
+  },
+  {
+    "id": "Pizza_levee_courte",
+    "label": "pizza levée courte",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T55-T65",
+    "flour_w": "200<W<240",
+    "__rowNumber": 317
+  },
+  {
+    "id": "pizza_levee_longue",
+    "label": "Pizza levée longue",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T55-T65",
+    "flour_w": "280<W<320",
+    "__rowNumber": 318
+  },
+  {
+    "id": "pain_de_campagne",
+    "label": "Pain de campagne",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T65-T80",
+    "flour_w": "220<W<280",
+    "__rowNumber": 319
+  },
+  {
+    "id": "pain_complet",
+    "label": "Pain complet",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T110-T150",
+    "flour_w": "200<W<250",
+    "__rowNumber": 320
+  },
+  {
+    "id": "brioche",
+    "label": "Brioche",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T45-T55",
+    "flour_w": "300<W<330",
+    "__rowNumber": 321
+  },
+  {
+    "id": "panettone",
+    "label": "Panettone",
+    "generique": null,
+    "genre": null,
+    "avg_unit_g": null,
+    "": null,
+    "peeled_yield": null,
+    "tbsp_g": null,
+    "juice_ml_per_g": null,
+    "juice_ml_per_unit": null,
+    "lgth_g": null,
+    "tsp_g": null,
+    "density_g_ml": null,
+    "notes": null,
+    "psta_wter": null,
+    "psta_slt": null,
+    "psta_wtr_slt": null,
+    "egg": null,
+    "egg_s": null,
+    "egg_m": null,
+    "egg_l": null,
+    "whte_pctge": null,
+    "ylw_pctge": null,
+    "wght_pdt_s": null,
+    "wght_pdt_m": null,
+    "wght_pdt_l": null,
+    "clr_lgth": null,
+    "tea": null,
+    "grn_tp": null,
+    "grn_tm": null,
+    "bck_tp": null,
+    "bck_tm": null,
+    "olg_tp": null,
+    "olg_tm": null,
+    "rbs_tp": null,
+    "rbs_tm": null,
+    "is_pdt": null,
+    "pdt_variety": null,
+    "pdt_spcfc_wght": null,
+    "pdt_spcfc_peel": null,
+    "pdt_texture": null,
+    "gratin": null,
+    "rissolee": null,
+    "frites": null,
+    "puree": null,
+    "vapeur": null,
+    "four": null,
+    "potage": null,
+    "sautees": null,
+    "roties": null,
+    "pst_vrty": null,
+    "pst_spcfc_wght": null,
+    "pst_lg": null,
+    "pst_shrt": null,
+    "pst_sml": null,
+    "pst_flf": null,
+    "pst_ovn": null,
+    "sls_vrty": null,
+    "info_sls": null,
+    "gnrc_sls": null,
+    "pfct_lg_pst": null,
+    "pfct_shrt_pst": null,
+    "pfct_sml_pst": null,
+    "pfct_flf_pst": null,
+    "pfct_ovn_pst": null,
+    "is_tmt": null,
+    "tmt_spcfc_wght": null,
+    "tmt_spcfc_peel": null,
+    "tmt_vrty": null,
+    "tmt_com": null,
+    "tmt_rd": null,
+    "tmt_all": null,
+    "tmt_cktl": null,
+    "tmt_ch": null,
+    "tmt_anc": null,
+    "tmt_sld": null,
+    "tmt_sc": null,
+    "tmt_frc": null,
+    "tmt_ap": null,
+    "is_onn": null,
+    "onn_spcfc_wght": null,
+    "onn_spcfc_peel": null,
+    "onn_vrty": null,
+    "peeled_onn": null,
+    "cru_onn": null,
+    "csndc_onn": null,
+    "pltrpd_onn": null,
+    "is_chckn": null,
+    "chckn_tp": null,
+    "chckn_tme": null,
+    "is_spc": null,
+    "spc_tbsp_g": null,
+    "is_choux": null,
+    "choux_spcfc_wght": null,
+    "choux_spcfc_peel": null,
+    "is_appl": null,
+    "appl_spcfc_wght": null,
+    "appl_spcfc_peel": null,
+    "appl_sgr": null,
+    "appl_acd": null,
+    "appl_crck": null,
+    "appl_pie": null,
+    "appl_cpt": null,
+    "is_cheese": null,
+    "aop_cheese": null,
+    "milk_cheese": null,
+    "fmly_cheese": null,
+    "croute_cheese": null,
+    "origin_cheese": null,
+    "ail_nmbr": null,
+    "is_coffee_use": null,
+    "coffee_g_per_cl_lght": null,
+    "coffee_g_per_cl_strng": null,
+    "coffee_g_per_cl_intense": null,
+    "coffee_tme": null,
+    "coffee_tmp": null,
+    "coffee_mouture": null,
+    "coffee_cup_ml": null,
+    "coffee_spcfc_tbsp_g": null,
+    "is_pear": null,
+    "crok_pear": null,
+    "cook_pear": null,
+    "syrup_pear": null,
+    "salt_pear": null,
+    "pear_spcfc_wght": null,
+    "pear_spcfc_peel": null,
+    "is_flour_use": "x",
+    "flour_t": "T45-T55",
+    "flour_w": "W>350",
+    "__rowNumber": 322
   }
 ]
