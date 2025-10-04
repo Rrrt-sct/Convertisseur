@@ -194,6 +194,10 @@ export default function IngredientsScreen() {
           <TouchableOpacity onPress={() => router.push('/universel')}>
             <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/about')}>
+            <Text style={st.actionLink}>ℹ️ À propos</Text>
+          </TouchableOpacity>
+
         </View>
       </View>
 
