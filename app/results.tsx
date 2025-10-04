@@ -324,7 +324,6 @@ function infoTextFor(row: any, n: number): string {
   if (map[n]) return map[n]
   return String(row?.info_sls ?? '').trim()
 }
-
 /* ========= Composant principal ========= */
 
 export default function Results() {
@@ -346,31 +345,45 @@ export default function Results() {
     <View style={{ flex: 1 }}>
       <ScrollView style={st.container} contentContainerStyle={{ padding: 16, paddingTop: 28 }}>
         <View style={st.headerWrap}>
-  <Text style={st.h1}>Convertisseurs</Text>
+          <Text style={st.h1}>Convertisseurs</Text>
 
-  <View style={st.actionsWrap}>
-    <TouchableOpacity onPress={() => router.push('/timer')}>
-      <Text style={st.actionLink}>⏱️ Minuteur</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => router.push('/universel')}>
-      <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => router.back()}>
-      <Text style={st.actionLinkSecondary}>↩︎ Modifier</Text>
-    </TouchableOpacity>
-  </View>
-</View>
+          <View style={st.actionsWrap}>
+            <TouchableOpacity onPress={() => router.push('/timer')}>
+              <Text style={st.actionLink}>⏱️ Minuteur</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/universel')}>
+              <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
+            </TouchableOpacity>
+            {/* dans <View style={st.actionsWrap}> */}
+            <TouchableOpacity onPress={() => router.push('/calculatrice')}>
+              <Text style={st.actionLink}>🧮 Calculatrice</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={st.actionLinkSecondary}>↩︎ Modifier</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {running && (
-          <TouchableOpacity onPress={() => router.push('/timer')} style={st.timerBanner} activeOpacity={0.9}>
-            <Text style={st.timerBannerText}>⏱ Temps restant : {msToMMSS(remainingMs)} — toucher pour ouvrir</Text>
+          <TouchableOpacity
+            onPress={() => router.push('/timer')}
+            style={st.timerBanner}
+            activeOpacity={0.9}
+          >
+            <Text style={st.timerBannerText}>
+              ⏱ Temps restant : {msToMMSS(remainingMs)} — toucher pour ouvrir
+            </Text>
           </TouchableOpacity>
         )}
 
         {data.length === 0 && <Text>Aucun ingrédient sélectionné.</Text>}
 
         {data.map(d => (
-          <IngredientCard key={d.id} d={d} openInfo={(title, text) => setInfoModal({ title, text })} />
+          <IngredientCard
+            key={d.id}
+            d={d}
+            openInfo={(title, text) => setInfoModal({ title, text })}
+          />
         ))}
       </ScrollView>
 
@@ -381,7 +394,11 @@ export default function Results() {
           <View style={st.infoCard}>
             <View style={st.infoHeader}>
               <Text style={st.infoTitle}>{infoModal.title}</Text>
-              <TouchableOpacity onPress={() => setInfoModal(null)} style={st.closeBtn} activeOpacity={0.9}>
+              <TouchableOpacity
+                onPress={() => setInfoModal(null)}
+                style={st.closeBtn}
+                activeOpacity={0.9}
+              >
                 <Text style={st.closeBtnTxt}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -394,6 +411,7 @@ export default function Results() {
     </View>
   )
 }
+
 
 /* ========= Sous-composants ========= */
 
