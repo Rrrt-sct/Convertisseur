@@ -5,12 +5,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   GestureResponderEvent,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native'
+
 
 /**
  * Calculatrice avec historique persistant
@@ -274,6 +276,43 @@ export default function CalculatorScreen() {
       <Text style={st.keyTxt}>{label}</Text>
     </TouchableOpacity>
   )
+
+  // ----- Web: saisie clavier -----
+  
+  useEffect(() => {
+  // Pas de listener si pas de window (SSR) ou pas le web
+  if (typeof window === 'undefined' || Platform.OS !== 'web') return
+
+  const isEditableTarget = (el: any) => {
+    if (!el) return false
+    const tag = (el.tagName || '').toLowerCase()
+    const editable = el.isContentEditable
+    return editable || tag === 'input' || tag === 'textarea'
+  }
+
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (isEditableTarget(e.target)) return
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+
+    const k = e.key
+    if (k === 'Enter' || k === '=') { e.preventDefault(); submit(); return }
+    if (k === 'Backspace') { e.preventDefault(); back(); return }
+    if (k === 'Delete' || k === 'Escape') { e.preventDefault(); clear(); return }
+    if (k === 'x' || k === 'X' || k === '*') { e.preventDefault(); press('*'); return }
+    if (k === '/' || k === '÷') { e.preventDefault(); press('/'); return }
+    if (k === '-') { e.preventDefault(); press('-'); return }
+    if (k === '+') { e.preventDefault(); press('+'); return }
+    if (k === '%') { e.preventDefault(); press('%'); return }
+    if (k === '^') { e.preventDefault(); press('^'); return }
+    if (k === '(' || k === ')') { e.preventDefault(); press(k); return }
+    if (k === ',' || k === '.') { e.preventDefault(); press('.'); return }
+    if (k >= '0' && k <= '9') { e.preventDefault(); press(k); return }
+  }
+
+  window.addEventListener('keydown', onKeyDown)
+  return () => window.removeEventListener('keydown', onKeyDown)
+}, [press, back, clear, submit])
+
 
   return (
     <View style={{ flex: 1 }}>
