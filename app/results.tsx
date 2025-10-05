@@ -2935,11 +2935,9 @@ function CoffeeSection({ d }: { d: Item }) {
   const [volCl, setVolCl] = React.useState('') // Volume souhaité (cl)
 
   // ===== Helpers robustes =====
-  // nettoie: enlève guillemets, espaces, remplace virgule par point
   const clean = (v: any): string =>
     String(v ?? '').trim().replace(/^['"]+|['"]+$/g, '').replace(',', '.')
 
-  // nombre (tolérant: retire unités)
   const n = (v: any): number | null => {
     const s0 = clean(v)
     if (!s0) return null
@@ -2949,7 +2947,6 @@ function CoffeeSection({ d }: { d: Item }) {
     return Number.isFinite(x) ? x : null
   }
 
-  // intervalle "a-b" ou "a–b" → {min,max,avg}
   const parseRange = (v: any): { min: number; max: number; avg: number } | null => {
     const s = clean(v)
     if (!s) return null
@@ -2963,7 +2960,6 @@ function CoffeeSection({ d }: { d: Item }) {
     return { min, max, avg: (min + max) / 2 }
   }
 
-  // Affichage smart: nombre OU intervalle avec unité (ex: "88–92 °C")
   const showNumOrRange = (v: any, unit: string): string => {
     const r = parseRange(v)
     if (r) return `${fmt(r.min)}–${fmt(r.max)} ${unit}`
@@ -2994,17 +2990,27 @@ function CoffeeSection({ d }: { d: Item }) {
   const tbspG = (row: any) => n(row?.coffee_spcfc_tbsp_g) ?? 0
 
   // --- Calculs “Nombre de tasses” ---
-  const cupsN = num(cups) // helper global existant
-  const cupCl = coffeeSelected ? (n(coffeeSelected.coffee_cup_cl) ?? 0) : 0
-  const totalClFromCups = cupsN * cupCl
-  const waterMlFromCups = totalClFromCups * 10
+  const cupsN = num(cups)
+
+  // Volume d’une tasse (ml) : priorité à coffee_cup_ml ; sinon *10 depuis cl
+  const cupMl =
+    coffeeSelected
+      ? (n(coffeeSelected.coffee_cup_ml) ??
+         (n(coffeeSelected.coffee_cup_cl) != null ? (n(coffeeSelected.coffee_cup_cl)! * 10) : 0))
+      : 0
+
+  const totalMlFromCups = cupsN * cupMl
+  const totalClFromCups = totalMlFromCups / 10
+
+  // Eau et café
+  const waterMlFromCups = totalMlFromCups
   const coffeeGFromCups = totalClFromCups * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
-  const spoonsFromCups = tbspG(coffeeSelected) > 0 ? (coffeeGFromCups / tbspG(coffeeSelected)) : 0
+  const spoonsFromCups = (tbspG(coffeeSelected) > 0) ? (coffeeGFromCups / tbspG(coffeeSelected)) : 0
 
   // --- Calculs “Volume souhaité (cl)” ---
   const volClN = num(volCl)
   const coffeeGFromVol = volClN * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
-  const spoonsFromVol = tbspG(coffeeSelected) > 0 ? (coffeeGFromVol / tbspG(coffeeSelected)) : 0
+  const spoonsFromVol = (tbspG(coffeeSelected) > 0) ? (coffeeGFromVol / tbspG(coffeeSelected)) : 0
 
   return (
     <View style={st.section}>
@@ -3055,16 +3061,40 @@ function CoffeeSection({ d }: { d: Item }) {
       </View>
 
       {/* 3) Infos clés */}
-      {coffeeSelected && (
-        <View style={{ marginTop: 8 }}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          <Row left="Mouture" right={String(coffeeSelected.coffee_mouture ?? '—')} />
-          <Row left="1 c. à café" right={`${fmt(tbspG(coffeeSelected))} g`} />
-          <Row left="Température de l’eau" right={showNumOrRange(coffeeSelected.coffee_tmp, '°C')} />
-          <Row left="Temps d’infusion" right={showNumOrRange(coffeeSelected.coffee_tme, 'min')} />
-          <Row left="Volume d’une tasse" right={showNumOrRange(coffeeSelected.coffee_cup_cl, 'cl')} />
-        </View>
-      )}
+     {/* 3) Infos clés */}
+{coffeeSelected && (
+  <View style={{ marginTop: 8 }}>
+    <Text style={st.sTitle}>Infos clés</Text>
+    <Row left="Mouture" right={String(coffeeSelected.coffee_mouture ?? '—')} />
+    <Row left="1 c. à café" right={`${fmt(tbspG(coffeeSelected))} g`} />
+    <Row left="Température de l’eau" right={showNumOrRange(coffeeSelected.coffee_tmp, '°C')} />
+    <Row left="Temps d’infusion" right={showNumOrRange(coffeeSelected.coffee_tme, 'min')} />
+    <Row
+      left="Volume d’une tasse"
+      right={
+        cupMl
+          ? `${fmt(cupMl)} ml  |  ${fmt(cupMl / 10)} cl`
+          : '—'
+      }
+    />
+    {/* 👉 Nouvelle ligne : quantité de café par cl */}
+    <Row
+      left="Café par cl"
+      right={
+        (() => {
+          const val = gPerCl(coffeeSelected)
+          const label =
+            intensity === 'lght'
+              ? 'faible'
+              : intensity === 'strng'
+              ? 'fort'
+              : 'intense'
+          return val > 0 ? `${fmt(val)} g/cl (${label})` : '—'
+        })()
+      }
+    />
+  </View>
+)}
 
       {/* 4) Barres de conversion */}
       {coffeeSelected && (
