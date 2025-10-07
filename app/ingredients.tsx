@@ -1,5 +1,6 @@
 // app/ingredients.tsx
 import { router } from 'expo-router'
+import { Calculator } from 'lucide-react-native'
 import React, { useMemo, useState } from 'react'
 import {
   Image,
@@ -8,8 +9,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native'
+
 
 // Données
 const RAW: any[] = require('../data/ingredients.json')
@@ -194,9 +196,12 @@ export default function IngredientsScreen() {
           <TouchableOpacity onPress={() => router.push('/universel')}>
             <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/calculatrice')}>
-            <Text style={st.actionLink}>🧮 Calculatrice</Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/calculatrice')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Calculator size={18} color="#57324B" strokeWidth={2} />
+          <Text style={st.actionLink}>Calculatrice</Text>
+        </TouchableOpacity>
+
+
             <TouchableOpacity onPress={() => router.push('/about')}>
             <Text style={st.actionLink}>ℹ️ À propos</Text>
           </TouchableOpacity>
