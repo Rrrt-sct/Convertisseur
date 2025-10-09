@@ -750,24 +750,33 @@ if (avgUnit !== null) {
 }
 
 // 2) Taux d’épluchage — si dispo
-const peelRate = getPeelYield(dOV) // gère tes colonnes multiples si besoin
+const peelRate = getPeelYield(dOV)
 if (peelRate !== null && Number.isFinite(peelRate)) {
+  // NOTE : peeledLabelFor() inclut déjà les parenthèses.
+  const note = (isApple || isPear) ? peeledLabelFor(dOV.id || dOV.label || '') : ''
   infoRows.push(
-    <Row key="peeled_yield" left="Taux d'épluchage" right={`×${fmt(peelRate)}`} />
+    <Row
+      key="peeled_yield"
+      left={`Taux d'épluchage${note ? ' ' + note : ''}`}
+      right={`×${fmt(peelRate)}`}
+    />
   )
 }
 
-// 3) Poids épluché (avec précision entre parenthèses) — si les 2 sont dispo
-if (avgUnit !== null && peelRate !== null && Number.isFinite(peelRate)) {
+// 3) Poids épluché (avec précision) — si les 2 sont dispo
+if (
+  avgUnit !== null &&
+  peelRate !== null &&
+  Number.isFinite(peelRate) &&
+  !(isApple || isPear)  // ⬅️ NE PAS afficher pour pomme/poire
+) {
   const special =
-    isTomato    ? ' (Tomate équeutée et époinçonnée, non pelée)' :
-    isAvocado   ? ' (Avocat pelé et dénoyauté)' :
-    isPepper    ? ' (Poivron équeuté, épépiné, non pelé)' :
-    isGarlic    ? ' (Gousse pelée et dégermée)' :
-    isApple     ? ' (Pomme pelée et évidée)' :
-    isZucchini  ? ' (Courgette équeutée et épluchée une tranche sur deux)' :
-    isEggplant  ? ' (Aubergine équeutée)' :
-                  ` (×${fmt(peelRate)})`;
+    isTomato   ? ' (Tomate équeutée et époinçonnée, non pelée)' :
+    isAvocado  ? ' (Avocat pelé et dénoyauté)' :
+    isPepper   ? ' (Poivron équeuté, épépiné, non pelé)' :
+    isZucchini ? ' (Courgette équeutée et épluchée une tranche sur deux)' :
+    isEggplant ? ' (Aubergine équeutée)' :
+                 ` (×${fmt(peelRate)})`
 
   infoRows.push(
     <Row
@@ -775,8 +784,9 @@ if (avgUnit !== null && peelRate !== null && Number.isFinite(peelRate)) {
       left={`Poids ${EPL.toLowerCase()}${special}`}
       right={`${fmt(avgUnit * peelRate)} g`}
     />
-  );
+  )
 }
+
 
 // (optionnel) Infos complémentaires si présentes dans le CSV / overrides.
 // On les ajoute APRES le trio standard pour garder l’ordre cohérent.
@@ -813,12 +823,7 @@ if (jPerUnit != null) {
     }
   }
 
-  ;(() => {
-    const jPerUnit = juicePerUnitMl(dOV)
-    if (jPerUnit != null) {
-      infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={fmtVolAllUnits(jPerUnit)} />)
-    }
-  })()
+
 
   // ================== Variétés / Usages (inchangé) ==================
   const pdtVarieties = useMemo(() => (DB as any[]).filter((v) => Number(v?.is_pdt) === 1), [])
@@ -878,12 +883,13 @@ if (jPerUnit != null) {
             gap: 8,
           }}
         >
-          <Text style={{ fontSize: 12 }}>⚙️</Text>
+          
           <View style={{ flex: 1 }}>
             <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
-            <Text style={{ color: '#57324B', fontSize: 13 }}>
-              Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
-            </Text>
+<Text style={{ color: '#57324B', fontSize: 13 }}>
+  Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+</Text>
+
           </View>
         </View>
       )}
@@ -1246,48 +1252,53 @@ if (jPerUnit != null) {
     )
   }
 
-  function GenericConversions({ d }: { d: Item }) {
+// ✅ NEW signature: on peut masquer la molette et forcer le targetId
+function GenericConversions({
+  d,
+  showGear = true,
+  forceTargetId,
+}: {
+  d: Item;
+  showGear?: boolean;
+  forceTargetId?: string;
+}) {
   // ——— États UI des champs de conversion
   const [genWeightEpl, setGenWeightEpl] = React.useState('');
   const [genWeightNon, setGenWeightNon] = React.useState('');
   const [countNon,     setCountNon]     = React.useState('');
 
-  // ——— Identifiant “cible” (clé de stockage)
-  const targetId = normalizeId(d.id || d.label || 'unknown');
+  // ✅ targetId pilotable (utile pour lier au même espace d’overrides que la VARIÉTÉ)
+  const targetId = forceTargetId ? forceTargetId : normalizeId(d.id || d.label || 'unknown');
 
-  // ——— Hook overrides (valeurs, reload, version pour re-render)
-  // ⚠️ NE PAS déstructurer hasOverrides ici : il n’est pas renvoyé par le hook.
+  // Hook overrides
   const { values: ov, reload, version } = useIngredientOverrides(targetId);
 
-  // ——— Savoir s’il existe des données utilisateur (contrôle du bandeau)
+  // Bandeau “données personnalisées” — basé sur le targetId effectif
   const [hasUserOverrides, setHasUserOverrides] = React.useState(false);
   React.useEffect(() => {
     let mounted = true;
-    // hasOverrides vient de l'import depuis useIngredientOverrides.ts
     hasOverrides(targetId).then(ok => { if (mounted) setHasUserOverrides(ok); });
     return () => { mounted = false; };
-  }, [targetId, version]); // ← version change après save/reset
+  }, [targetId, version]);
 
-  // ——— Fusion : d (base) + ov (overrides)
+  // Fusion
   const dd = mergeWithOverrides(d as any, ov, ['avg_unit_g', 'peeled_yield']);
-
-  // ——— Valeurs effectives pour les calculs
   const avgNon = toNumMaybe(dd.avg_unit_g);
-  const peelY  = getPeelYield(dd); // garde ta logique générique multi-colonnes
+  const peelY  = getPeelYield(dd);
   const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
-  // ——— Modal éditeur
+  // Modal éditeur (⚙️) — désactivable via showGear
   const [showEditor, setShowEditor] = React.useState(false);
 
   return (
     <View style={st.section}>
-      {/* Titre + bouton ⚙️ */}
+      {/* Titre + ⚙️ (optionnelle) */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
         <Text style={[st.sTitle, { flex: 1 }]}>
           Quantité <Text style={st.arrow}>⇆</Text> Poids
         </Text>
 
-        {ENABLE_OVERRIDES && (
+        {ENABLE_OVERRIDES && showGear && (
           <TouchableOpacity
             onPress={() => setShowEditor(true)}
             activeOpacity={0.9}
@@ -1305,7 +1316,7 @@ if (jPerUnit != null) {
         )}
       </View>
 
-      {/* Bandeau “Données personnalisées” */}
+      {/* ✅ Bandeau lié au même targetId (varieté si forceTargetId donné) */}
       {hasUserOverrides && (
         <View
           style={{
@@ -1317,17 +1328,15 @@ if (jPerUnit != null) {
             marginBottom: 8,
           }}
         >
-          <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>
-            ⚠️ Données personnalisées
-          </Text>
-          <Text style={{ color: '#57324B', fontSize: 13 }}>
-            Ces valeurs ont été modifiées par vous et remplacent celles de base.
-            Appuyez sur <Text style={{ fontWeight: '900' }}>⚙️</Text> pour revoir ou réinitialiser.
-          </Text>
+          <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+<Text style={{ color: '#57324B', fontSize: 13 }}>
+  Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+</Text>
+ 
         </View>
       )}
 
-      {/* 1) SI on a un rendement → champ "Poids épluché" */}
+      {/* 1) Poids épluché → Nb pièces (si on a un rendement), sinon poids → nb pièces */}
       {peelY ? (
         <>
           <InputWithEcho
@@ -1343,7 +1352,6 @@ if (jPerUnit != null) {
           })()}
         </>
       ) : (
-        /* SINON → champ générique "Poids (g)" */
         <>
           <InputWithEcho
             value={genWeightEpl}
@@ -1372,7 +1380,7 @@ if (jPerUnit != null) {
         return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
       })()}
 
-      {/* 3) Nb pièces → poids (et poids épluché seulement si rendement) */}
+      {/* 3) Nb pièces → Poids (et épluché si rendement) */}
       <InputWithEcho
         value={countNon}
         onChangeText={setCountNon}
@@ -1384,8 +1392,8 @@ if (jPerUnit != null) {
         <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)} />
       ) : null}
 
-      {/* ÉDITEUR ⚙️ */}
-      {ENABLE_OVERRIDES && (
+      {/* ⚙️ (optionnelle) */}
+      {ENABLE_OVERRIDES && showGear && (
         <ParamEditor
           targetId={targetId}
           base={d as any}
@@ -1393,12 +1401,15 @@ if (jPerUnit != null) {
           visible={showEditor}
           onClose={() => setShowEditor(false)}
           onSaved={async () => {
-            // 1) recharger les overrides → met à jour dd, avgNon, peelY…
             await reload();
-            // 2) mettre à jour le bandeau “Données personnalisées”
             const ok = await hasOverrides(targetId);
-            setHasUserOverrides(ok);
-            // 3) fermer le modal
+            setHasUserOverrides(ok);     // ✅ met le bandeau à jour tout de suite
+            setShowEditor(false);
+          }}
+          onReset={async () => {
+            await reload();
+            const ok = await hasOverrides(targetId);
+            setHasUserOverrides(ok);     // ✅ masque le bandeau si tout est reset
             setShowEditor(false);
           }}
         />
@@ -2755,6 +2766,7 @@ function CabbageSection({ d }: { d: Item }) {
     </View>
   )
 }
+
 function AppleSection({ d }: { d: Item }) {
   const [qtyEpl, setQtyEpl] = useState('');
   const [qtyNon, setQtyNon] = useState('');
@@ -2762,22 +2774,68 @@ function AppleSection({ d }: { d: Item }) {
   const [usageSel, setUsageSel] = useState<null | 'crck' | 'pie' | 'cpt'>(null);
   const [mode, setMode] = useState<'sgr' | 'acd' | null>(null);
 
+  // Variétés de pommes
   const appleVarieties = useMemo(
     () => (DB as any[]).filter(v => isTrue(v?.is_appl)),
     []
   );
 
+  // Rendement générique (si aucune variété choisie)
   const peelYGeneric = getPeelYield(d);
 
+  // Utils
   const star5 = (n: number | null) => {
     const v = n ?? 0;
     if (v <= 0) return '—';
     const r = Math.max(0, Math.min(5, Math.round(v)));
     return '★'.repeat(r);
   };
+  const scoreFrom = (row: any, col: string): number => firstInt(row?.[col]) ?? 0;
 
-  const scoreFrom = (row: any, col: string): number =>
-    firstInt(row?.[col]) ?? 0;
+  // --------- OVERRIDES — VARIÉTÉ ---------
+  // id stable pour lier le bandeau “Données personnalisées” + ParamEditor + GenericConversions
+  const varTargetId = normalizeId(appleSelected?.id || appleSelected?.label || 'apple_variety');
+  const { values: ovVar, reload: reloadVar, version: verVar } = useIngredientOverrides(varTargetId);
+
+  const [showVarEditor, setShowVarEditor] = useState(false);
+  const [hasVarOverrides, setHasVarOverrides] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    hasOverrides(varTargetId).then(ok => { if (mounted) setHasVarOverrides(ok) });
+    return () => { mounted = false };
+  }, [varTargetId, verVar]);
+
+  // Var sélectionnée + overrides (uniquement champs spécifiques variété)
+  const appleVarOV = useMemo(() => {
+    if (!appleSelected) return null;
+    return mergeWithOverrides(appleSelected as any, ovVar, [
+      'appl_spcfc_wght',
+      'appl_spcfc_peel',
+    ]);
+  }, [appleSelected, ovVar]);
+
+  // dd = base d + (variété + overrides) recopiée vers avg_unit_g / peeled_yield
+  const dd: Item | null = useMemo(() => {
+    if (!appleVarOV) return null;
+    const avgUnit =
+      toNumMaybe((appleVarOV as any).appl_spcfc_wght) ??
+      toNumMaybe(d.avg_unit_g) ?? null;
+    const peelYVar =
+      toNumMaybe((appleVarOV as any).appl_spcfc_peel) ??
+      toNumMaybe(d.peeled_yield) ?? null;
+
+    return {
+      ...d,
+      ...appleVarOV,
+      avg_unit_g: avgUnit,
+      peeled_yield: peelYVar,
+    } as Item;
+  }, [d, appleVarOV]);
+
+  // Valeurs calculées (quand une variété est sélectionnée)
+  const avgNon = dd ? toNumMaybe(dd.avg_unit_g) : null;
+  const peelY  = dd ? toNumMaybe(dd.peeled_yield) : null;
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
   // robustesse: comparaison de variétés par id/label
   const sameVariety = (a: any, b: any) =>
@@ -2785,19 +2843,10 @@ function AppleSection({ d }: { d: Item }) {
 
   return (
     <View style={st.section}>
-      {/* 1. Infos clés (générique) */}
-      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
-        <View style={{ marginBottom: 12 }}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          <Row
-            left={`Taux moyen d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
-            right={`×${fmt(peelYGeneric)}`}
-          />
-        </View>
-      )}
+      {/* ✅ PAS d’“Infos clés” générique ici → évite le doublon avec IngredientCard */}
 
-      {/* 2. Bloc Épluché ⇆ Non épluché */}
-      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+      {/* Épluché ⇆ Non épluché (GÉNÉRIQUE) — montré seulement si AUCUNE variété n’est sélectionnée */}
+      {!appleSelected && peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
         <View style={st.section}>
           <Text style={st.sTitle}>
             Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
@@ -2822,7 +2871,7 @@ function AppleSection({ d }: { d: Item }) {
         </View>
       )}
 
-      {/* 3. Choisir un usage (filtrage → variétés en CHIPS violet pâle) */}
+      {/* 1) Choisir un usage */}
       <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un usage</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {[
@@ -2844,13 +2893,13 @@ function AppleSection({ d }: { d: Item }) {
         })}
       </View>
 
-      {/* Résultats pour l’usage sélectionné → CHIPS (violet pâle) */}
+      {/* 2) Variétés compatibles pour l’usage sélectionné */}
       {usageSel && (() => {
         const col = usageSel === 'crck' ? 'appl_crck' : usageSel === 'pie' ? 'appl_pie' : 'appl_cpt';
         const list = appleVarieties
           .map(v => ({ v, s: scoreFrom(v, col), name: String(v.label ?? v.id) }))
           .filter(x => x.s > 0)
-          .sort((a, b) => b.s - a.s || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .sort((a, b) => b.s - a.s || a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
 
         if (list.length === 0) {
           return <Text style={{ color: '#666', marginBottom: 8 }}>Aucune variété notée pour cet usage.</Text>;
@@ -2882,7 +2931,7 @@ function AppleSection({ d }: { d: Item }) {
         )
       })()}
 
-      {/* 4. Choisir une variété (toute la liste) */}
+      {/* 3) Choisir une variété (liste complète) */}
       <Text style={[st.sTitle, { marginTop: 16, marginBottom: 6 }]}>Choisir une variété</Text>
       <View style={st.pillsWrap}>
         {appleVarieties
@@ -2909,40 +2958,162 @@ function AppleSection({ d }: { d: Item }) {
           })}
       </View>
 
-      {/* 5. Usages POSSIBLES pour la variété sélectionnée → CHIPS (violet pâle)
-          (⚠️ on SUPPRIME le titre “Usages pour cette variété”) */}
-      {appleSelected && (
-        <View style={{ marginTop: 8 }}>
-          <View style={st.pillsWrap}>
-            {[
-              { key: 'crck' as const, label: 'Cru (croquant)', col: 'appl_crck' },
-              { key: 'pie'  as const, label: 'Tarte',          col: 'appl_pie'  },
-              { key: 'cpt'  as const, label: 'Compote',        col: 'appl_cpt'  },
+      {/* 4) Quand une variété est sélectionnée : usages + infos + convertisseurs */}
+      {appleSelected && dd && (
+        <View style={{ marginTop: 12 }}>
+          {/* Usages de la variété — chips avec étoiles (pas de titre) */}
+          {(() => {
+            const varietyUsages = [
+              { key: 'crck' as const,  label: 'Cru (croquant)', col: 'appl_crck' },
+              { key: 'pie'  as const,  label: 'Tarte',          col: 'appl_pie'  },
+              { key: 'cpt'  as const,  label: 'Compote',        col: 'appl_cpt'  },
             ]
-              .map(u => ({ ...u, s: scoreFrom(appleSelected, u.col) }))
+              .map(u => ({ ...u, s: firstInt((appleVarOV as any)?.[u.col]) ?? 0 }))
               .filter(x => x.s > 0)
-              .sort((a, b) => b.s - a.s)
-              .map(({ key, label, s }) => {
-                const on = usageSel === key;
-                return (
-                  <TouchableOpacity
-                    key={key}
-                    onPress={() => setUsageSel(prev => (prev === key ? null : key))}
-                    activeOpacity={0.9}
-                    style={[st.pill, on && st.pillActive]}
-                  >
-                    <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
-                      {label}
-                    </Text>
-                    <Text style={st.pillBadge}>{star5(s)}</Text>
-                  </TouchableOpacity>
-                )
-              })}
+              .sort((a, b) => b.s - a.s);
+
+            return varietyUsages.length > 0 ? (
+              <View style={st.pillsWrap}>
+                {varietyUsages.map(({ key, label, s }) => {
+                  const on = usageSel === key;
+                  return (
+                    <TouchableOpacity
+                      key={key}
+                      onPress={() => setUsageSel(prev => (prev === key ? null : key))}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                    >
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {label}
+                      </Text>
+                      <Text style={st.pillBadge}>{star5(s)}</Text>
+                    </TouchableOpacity>
+                  )
+                })}
+              </View>
+            ) : null;
+          })()}
+
+          {/* ==== Infos clés (variété) + molette ==== */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 6 }}>
+            <Text style={[st.sTitle, { flex: 1 }]}>Infos clés (variété)</Text>
+
+            {ENABLE_OVERRIDES && (
+              <TouchableOpacity
+                onPress={() => setShowVarEditor(true)}
+                activeOpacity={0.9}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  borderWidth: 2,
+                  borderColor: '#FFB6F9',
+                  backgroundColor: '#FFE4F6',
+                }}
+              >
+                <Text style={{ fontWeight: '900', color: '#FF4FA2' }}>⚙️</Text>
+              </TouchableOpacity>
+            )}
           </View>
+
+          {/* Bandeau Données personnalisées (lié à la VARIÉTÉ) */}
+          {hasVarOverrides && (
+            <View
+              style={{
+                backgroundColor: '#FFF0F5',
+                borderColor: '#FF4FA2',
+                borderWidth: 1,
+                borderRadius: 10,
+                padding: 8,
+                marginBottom: 6,
+              }}
+            >
+              <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+              <Text style={{ color: '#57324B', fontSize: 13 }}>
+                Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+              </Text>
+            </View>
+          )}
+
+          {/* Lignes d’infos — précision en (parenthèses) sur la GAUCHE */}
+          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+          {peelY  !== null && (
+            <Row
+              left={`Taux d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
+              right={`×${fmt(peelY)}`}
+            />
+          )}
+          {avgEpl !== null && (
+            <Row
+              left={`Poids épluché ${peeledLabelFor(d.id || d.label || '')}`}
+              right={`${fmt(avgEpl)} g`}
+            />
+          )}
+
+          {/* Épluché ⇆ Non épluché — VARIÉTÉ */}
+          {peelY !== null && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={st.sTitle}>
+                Épluché <Text style={st.arrow}>⇆</Text> Non épluché <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+              </Text>
+
+              <InputWithEcho
+                value={qtyEpl}
+                onChangeText={setQtyEpl}
+                placeholder="Quantité épluchée (g)"
+                echoLabel="Épluchée (g)"
+              />
+              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
+
+              <InputWithEcho
+                value={qtyNon}
+                onChangeText={setQtyNon}
+                placeholder="Quantité non épluchée (g)"
+                echoLabel="Non épluchée (g)"
+              />
+              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
+            </View>
+          )}
+
+          {/* Quantité ⇆ Poids — pas de molette, mais bandeau lié à la VARIÉTÉ */}
+          {avgNon !== null && (
+            <GenericConversions
+              d={dd}
+              showGear={false}
+              forceTargetId={varTargetId}
+            />
+          )}
+
+          {/* ParamEditor — VARIÉTÉ (spécifiques) */}
+          {ENABLE_OVERRIDES && (
+  <ParamEditor
+    visible={showVarEditor}
+    onClose={() => setShowVarEditor(false)}
+    targetId={varTargetId}
+    base={(appleVarOV || appleSelected) as any}
+    specs={[
+      { key: 'appl_spcfc_wght', label: 'Poids moyen (1 pièce)', type: 'number', hint: 'g' },
+      { key: 'appl_spcfc_peel', label: 'Taux d’épluchage',      type: 'number', hint: 'ex: 0.85' },
+    ] as any}
+    onSaved={async () => {
+      await reloadVar();
+      const ok = await hasOverrides(varTargetId);
+      setHasVarOverrides(ok);
+      setShowVarEditor(false);
+    }}
+    onReset={async () => {
+      await reloadVar();
+      const ok = await hasOverrides(varTargetId);
+      setHasVarOverrides(ok);
+      setShowVarEditor(false);
+    }}
+  />
+)}
+
         </View>
       )}
 
-      {/* 6. (Optionnel) Classements sucré/acidulé, inchangés */}
+      {/* 5) Classements sucré/acidulé (inchangé) */}
       <Text style={[st.sTitle, { marginTop: 16 }]}>Classement</Text>
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
         {[
@@ -3529,40 +3700,74 @@ function PearSection({ d }: { d: Item }) {
   const [pearSelected, setPearSelected] = useState<any | null>(null);
   const [usageSel, setUsageSel] = useState<null | 'crok' | 'cook' | 'syrup' | 'salt'>(null);
 
-  // Variétés de poires (lignes marquées is_pear)
+  // Variétés de poires
   const pearVarieties = useMemo(
     () => (DB as any[]).filter(v => isTrue(v?.is_pear)),
     []
   );
 
-  // Rendement générique (issu de l’ingrédient de base)
+  // Rendement générique de l’ingrédient (utile si AUCUNE variété n’est sélectionnée)
   const peelYGeneric = getPeelYield(d);
 
+  // Utilitaires locaux
   const star5 = (n: number | null) => {
     const v = n ?? 0;
     if (v <= 0) return '—';
     const r = Math.max(0, Math.min(5, Math.round(v)));
     return '★'.repeat(r);
   };
+  const scoreFrom = (row: any, col: string): number => firstInt(row?.[col]) ?? 0;
 
-  const scoreFrom = (row: any, col: string): number =>
-    firstInt(row?.[col]) ?? 0;
+  // --------- OVERRIDES — VARIÉTÉ ---------
+  // ⚠️ Les hooks doivent être au niveau racine du composant (jamais dans un if)
+  const varTargetId = normalizeId(pearSelected?.id || pearSelected?.label || 'pear_variety');
+  const { values: ovVar, reload: reloadVar, version: verVar } = useIngredientOverrides(varTargetId);
+
+  const [showVarEditor, setShowVarEditor] = useState(false);
+  const [hasVarOverrides, setHasVarOverrides] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    hasOverrides(varTargetId).then(ok => { if (mounted) setHasVarOverrides(ok) });
+    return () => { mounted = false };
+  }, [varTargetId, verVar]);
+
+  // Var sélectionnée + overrides (uniquement champs spécifiques variété)
+  const pearVarOV = useMemo(() => {
+    if (!pearSelected) return null;
+    return mergeWithOverrides(pearSelected as any, ovVar, [
+      'pear_spcfc_wght',
+      'pear_spcfc_peel',
+    ]);
+  }, [pearSelected, ovVar]);
+
+  // dd = base d + (variété + overrides) recopiée vers avg_unit_g / peeled_yield
+  const dd: Item | null = useMemo(() => {
+    if (!pearVarOV) return null;
+    const avgUnit =
+      toNumMaybe(pearVarOV.pear_spcfc_wght) ??
+      toNumMaybe(d.avg_unit_g) ?? null;
+    const peelYVar =
+      toNumMaybe(pearVarOV.pear_spcfc_peel) ??
+      toNumMaybe(d.peeled_yield) ?? null;
+    return {
+      ...d,
+      ...pearVarOV,
+      avg_unit_g: avgUnit,
+      peeled_yield: peelYVar,
+    } as Item;
+  }, [d, pearVarOV]);
+
+  // Valeurs calculées (uniquement quand une variété est sélectionnée)
+  const avgNon = dd ? toNumMaybe(dd.avg_unit_g) : null;
+  const peelY  = dd ? toNumMaybe(dd.peeled_yield) : null;
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
   return (
     <View style={st.section}>
-      {/* 1) Infos clés (génériques) */}
-      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
-        <View style={{ marginBottom: 12 }}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          <Row
-            left={`Taux moyen d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
-            right={`×${fmt(peelYGeneric)}`}
-          />
-        </View>
-      )}
+      {/* ✅ PAS d’“Infos clés” génériques ici → évite le doublon avec IngredientCard */}
 
-      {/* 2) Épluché ⇆ Non épluché (générique) */}
-      {peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
+      {/* Épluché ⇆ Non épluché (GÉNÉRIQUE) — montré seulement si AUCUNE variété n’est sélectionnée */}
+      {!pearSelected && peelYGeneric !== null && Number.isFinite(peelYGeneric) && (
         <View style={st.section}>
           <Text style={st.sTitle}>
             Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
@@ -3575,7 +3780,7 @@ function PearSection({ d }: { d: Item }) {
             placeholder="Quantité épluchée (g)"
             echoLabel="Épluchée (g)"
           />
-          <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelYGeneric || 1))} />
+          <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / peelYGeneric)} />
 
           <InputWithEcho
             value={qtyNon}
@@ -3583,18 +3788,18 @@ function PearSection({ d }: { d: Item }) {
             placeholder="Quantité non épluchée (g)"
             echoLabel="Non épluchée (g)"
           />
-          <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelYGeneric || 0))} />
+          <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * peelYGeneric)} />
         </View>
       )}
 
-      {/* 3) Choisir un usage */}
+      {/* 1) Choisir un usage */}
       <Text style={[st.sTitle, { marginTop: 16 }]}>Choisir un usage</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
         {[
           { key: 'crok' as const,  label: 'À croquer',                 col: 'crok_pear'  },
           { key: 'cook' as const,  label: 'À cuire (desserts chauds)', col: 'cook_pear'  },
           { key: 'syrup' as const, label: 'En conserve / sirop',       col: 'syrup_pear' },
-          { key: 'salt' as const,  label: 'En salé',                    col: 'salt_pear'  },
+          { key: 'salt' as const,  label: 'En salé',                   col: 'salt_pear'  },
         ].map(u => {
           const on = usageSel === u.key;
           return (
@@ -3610,7 +3815,7 @@ function PearSection({ d }: { d: Item }) {
         })}
       </View>
 
-      {/* 3b) Variétés compatibles (en CHIPS, avec étoiles) */}
+      {/* 2) Variétés compatibles pour l’usage sélectionné */}
       {usageSel && (() => {
         const col =
           usageSel === 'crok'  ? 'crok_pear'  :
@@ -3633,7 +3838,7 @@ function PearSection({ d }: { d: Item }) {
               return (
                 <TouchableOpacity
                   key={v.id}
-                  onPress={() => setPearSelected(prev => (prev?.id === v.id ? null : v))} // toggle
+                  onPress={() => setPearSelected(prev => (prev?.id === v.id ? null : v))}
                   activeOpacity={0.9}
                   style={[st.pill, on && st.pillActive]}
                 >
@@ -3652,7 +3857,7 @@ function PearSection({ d }: { d: Item }) {
         )
       })()}
 
-      {/* 4) Choisir une variété (liste complète en chips) */}
+      {/* 3) Choisir une variété (liste complète) */}
       <Text style={[st.sTitle, { marginTop: 16, marginBottom: 6 }]}>Choisir une variété</Text>
       <View style={st.pillsWrap}>
         {pearVarieties
@@ -3663,7 +3868,7 @@ function PearSection({ d }: { d: Item }) {
             return (
               <TouchableOpacity
                 key={v.id}
-                onPress={() => setPearSelected(prev => (prev?.id === v.id ? null : v))} // toggle
+                onPress={() => setPearSelected(prev => (prev?.id === v.id ? null : v))}
                 activeOpacity={0.9}
                 style={[st.pill, on && st.pillActive]}
               >
@@ -3679,46 +3884,25 @@ function PearSection({ d }: { d: Item }) {
           })}
       </View>
 
-      {/* 4b) Quand une variété est sélectionnée : afficher SES usages (en chips, sans titre) + infos spécifiques */}
-      {pearSelected && (() => {
-        // Spécifiques variété sinon génériques
-        const avgUnit =
-          toNumMaybe(pearSelected.pear_spcfc_wght) ??
-          toNumMaybe(d.avg_unit_g) ?? null;
+      {/* 4) Quand une variété est sélectionnée : usages + infos spécifiques + convertisseurs */}
+      {pearSelected && dd && (
+        <View style={{ marginTop: 12 }}>
+          {/* Usages de la variété — chips avec étoiles (pas de titre) */}
+          {(() => {
+            const varietyUsages = [
+              { key: 'crok' as const,  label: 'À croquer',                 col: 'crok_pear'  },
+              { key: 'cook' as const,  label: 'À cuire (desserts chauds)', col: 'cook_pear'  },
+              { key: 'syrup' as const, label: 'En conserve / sirop',       col: 'syrup_pear' },
+              { key: 'salt' as const,  label: 'En salé',                   col: 'salt_pear'  },
+            ]
+              .map(u => ({ ...u, s: firstInt((pearVarOV as any)?.[u.col]) ?? 0 }))
+              .filter(x => x.s > 0)
+              .sort((a, b) => b.s - a.s);
 
-        const peelYVar =
-          toNumMaybe(pearSelected.pear_spcfc_peel) ??
-          toNumMaybe(d.peeled_yield) ?? null;
-
-        const dd: Item = {
-          ...d,
-          ...pearSelected,
-          avg_unit_g: avgUnit,
-          peeled_yield: peelYVar,
-        };
-
-        const avgNon = toNumMaybe(dd.avg_unit_g);
-        const peelY  = toNumMaybe(dd.peeled_yield);
-        const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
-
-        // Usages de cette variété (chips avec étoiles) — SANS le titre
-        const varietyUsages = [
-          { key: 'crok' as const,  label: 'À croquer',                 col: 'crok_pear'  },
-          { key: 'cook' as const,  label: 'À cuire (desserts chauds)', col: 'cook_pear'  },
-          { key: 'syrup' as const, label: 'En conserve / sirop',       col: 'syrup_pear' },
-          { key: 'salt' as const,  label: 'En salé',                    col: 'salt_pear'  },
-        ]
-          .map(u => ({ ...u, s: scoreFrom(pearSelected, u.col) }))
-          .filter(x => x.s > 0)
-          .sort((a, b) => b.s - a.s);
-
-        return (
-          <View style={{ marginTop: 12 }}>
-            {/* Usages de la variété — chips */}
-            {varietyUsages.length > 0 && (
+            return varietyUsages.length > 0 ? (
               <View style={st.pillsWrap}>
                 {varietyUsages.map(({ key, label, s }) => {
-                  const on = usageSel === key
+                  const on = usageSel === key;
                   return (
                     <TouchableOpacity
                       key={key}
@@ -3734,52 +3918,128 @@ function PearSection({ d }: { d: Item }) {
                   )
                 })}
               </View>
-            )}
+            ) : null;
+          })()}
 
-            {/* Infos clés spécifiques variété */}
-            <Text style={[st.sTitle, { marginTop: 10 }]}>Infos clés</Text>
-            {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
-            {peelY  !== null && <Row left="Taux d'épluchage" right={`×${fmt(peelY)}`} />}
-            {avgEpl !== null && (
-              <Row
-                left={`Poids épluché ${peeledLabelFor(d.id || d.label || '')}`}
-                right={`${fmt(avgEpl)} g`}
-              />
-            )}
+          {/* ==== Infos clés (variété) + molette ==== */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 6 }}>
+            <Text style={[st.sTitle, { flex: 1 }]}>Infos clés (variété)</Text>
 
-            {/* Épluché ⇆ Non épluché spécifiques si on a un rendement */}
-            {peelY !== null && (
-              <View style={{ marginTop: 8 }}>
-                <Text style={st.sTitle}>
-                  Épluché <Text style={st.arrow}>⇆</Text> Non épluché{' '}
-                  <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
-                </Text>
-
-                <InputWithEcho
-                  value={qtyEpl}
-                  onChangeText={setQtyEpl}
-                  placeholder="Quantité épluchée (g)"
-                  echoLabel="Épluchée (g)"
-                />
-                <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
-
-                <InputWithEcho
-                  value={qtyNon}
-                  onChangeText={setQtyNon}
-                  placeholder="Quantité non épluchée (g)"
-                  echoLabel="Non épluchée (g)"
-                />
-                <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
-              </View>
-            )}
-
-            {/* Convertisseurs (Quantité ⇆ Poids) si on a un poids pièce */}
-            {toNumMaybe(dd.avg_unit_g) !== null && (
-              <GenericConversions d={dd} />
+            {ENABLE_OVERRIDES && (
+              <TouchableOpacity
+                onPress={() => setShowVarEditor(true)}
+                activeOpacity={0.9}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  borderWidth: 2,
+                  borderColor: '#FFB6F9',
+                  backgroundColor: '#FFE4F6',
+                }}
+              >
+                <Text style={{ fontWeight: '900', color: '#FF4FA2' }}>⚙️</Text>
+              </TouchableOpacity>
             )}
           </View>
-        );
-      })()}
+
+          {/* Bandeau Données personnalisées (lié à la VARIÉTÉ) */}
+          {hasVarOverrides && (
+            <View
+              style={{
+                backgroundColor: '#FFF0F5',
+                borderColor: '#FF4FA2',
+                borderWidth: 1,
+                borderRadius: 10,
+                padding: 8,
+                marginBottom: 6,
+              }}
+            >
+              <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+<Text style={{ color: '#57324B', fontSize: 13 }}>
+  Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+</Text>
+
+            </View>
+          )}
+
+          {/* Lignes d’infos — précision en (parenthèses) sur la GAUCHE */}
+          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+          {peelY  !== null && (
+            <Row
+              left={`Taux d'épluchage ${peeledLabelFor(d.id || d.label || '')}`}
+              right={`×${fmt(peelY)}`}
+            />
+          )}
+          {avgEpl !== null && (
+            <Row
+              left={`Poids épluché ${peeledLabelFor(d.id || d.label || '')}`}
+              right={`${fmt(avgEpl)} g`}
+            />
+          )}
+
+          {/* Épluché ⇆ Non épluché — VARIÉTÉ */}
+          {peelY !== null && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={st.sTitle}>
+                Épluché <Text style={st.arrow}>⇆</Text> Non épluché <Text>{peeledLabelFor(d.id || d.label || '')}</Text>
+              </Text>
+
+              <InputWithEcho
+                value={qtyEpl}
+                onChangeText={setQtyEpl}
+                placeholder="Quantité épluchée (g)"
+                echoLabel="Épluchée (g)"
+              />
+              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
+
+              <InputWithEcho
+                value={qtyNon}
+                onChangeText={setQtyNon}
+                placeholder="Quantité non épluchée (g)"
+                echoLabel="Non épluchée (g)"
+              />
+              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
+            </View>
+          )}
+
+          {/* Quantité ⇆ Poids — pas de molette, mais bandeau lié à la VARIÉTÉ */}
+         {avgNon !== null && (
+  <GenericConversions
+    d={dd}
+    showGear={false}                 // ✅ pas de 2e molette ici
+    forceTargetId={varTargetId}      // ✅ bandeau “données personnalisées” synchronisé
+  />
+)}  
+
+          {/* ParamEditor — VARIÉTÉ (spécifiques) */}
+          {ENABLE_OVERRIDES && (
+            <ParamEditor
+              visible={showVarEditor}
+              onClose={() => setShowVarEditor(false)}
+              targetId={varTargetId}
+              base={(pearVarOV || pearSelected) as any}
+              specs={[
+                { key: 'pear_spcfc_wght', label: 'Poids moyen (1 pièce)', type: 'number', hint: 'g' },
+                { key: 'pear_spcfc_peel', label: 'Taux d’épluchage',      type: 'number', hint: 'ex: 0.85' },
+              ] as any}
+              onSaved={async () => {
+  await reloadVar();
+  const ok = await hasOverrides(varTargetId); // ✅ met à jour le bandeau immédiatement
+  setHasVarOverrides(ok);
+  setShowVarEditor(false);
+}}
+onReset={async () => {
+  await reloadVar();
+  const ok = await hasOverrides(varTargetId); // ✅ masque le bandeau si tout est remis à zéro
+  setHasVarOverrides(ok);
+  setShowVarEditor(false);
+}}
+
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 }
