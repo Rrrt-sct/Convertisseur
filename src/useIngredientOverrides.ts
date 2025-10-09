@@ -18,14 +18,14 @@ export function normalizeId(s: string) {
 /* -------------------------------------------------
  * Clé de stockage unique
  * ------------------------------------------------- */
-const key = (id: string) => `ovr_${normalizeId(id)}`
+const storageKey = (id: string) => `ovr_${normalizeId(id)}`
 
 /* -------------------------------------------------
  * Lecture brute (AsyncStorage)
  * ------------------------------------------------- */
 export async function loadOverrides(id: string): Promise<Record<string, any>> {
   try {
-    const raw = await AsyncStorage.getItem(key(id))
+    const raw = await AsyncStorage.getItem(storageKey(id))
     if (!raw) return {}
     const data = JSON.parse(raw)
     return data && typeof data === 'object' ? data : {}
@@ -39,7 +39,7 @@ export async function loadOverrides(id: string): Promise<Record<string, any>> {
  * ------------------------------------------------- */
 export async function saveOverridesRaw(id: string, obj: Record<string, any>): Promise<void> {
   try {
-    await AsyncStorage.setItem(key(id), JSON.stringify(obj))
+    await AsyncStorage.setItem(storageKey(id), JSON.stringify(obj || {}))
   } catch (e) {
     console.warn('saveOverridesRaw error', e)
   }
@@ -50,7 +50,7 @@ export async function saveOverridesRaw(id: string, obj: Record<string, any>): Pr
  * ------------------------------------------------- */
 export async function clearOverrides(id: string): Promise<void> {
   try {
-    await AsyncStorage.removeItem(key(id))
+    await AsyncStorage.removeItem(storageKey(id))
   } catch (e) {
     console.warn('clearOverrides error', e)
   }
@@ -101,7 +101,12 @@ export function useIngredientOverrides(id: string) {
     setVersion((v) => v + 1)
   }, [norm, reload])
 
-  return { values, reload, saveOverrides, resetOverrides, version }
+  // On expose aussi hasOverrides via le hook (pratique si tu ne veux pas l'importer séparément)
+  const hasOverridesViaHook = useCallback(async (someId: string) => {
+    return hasOverrides(someId)
+  }, [])
+
+  return { values, reload, saveOverrides, resetOverrides, version, hasOverrides: hasOverridesViaHook }
 }
 
 /* -------------------------------------------------
@@ -115,13 +120,13 @@ export function mergeWithOverrides<T extends object>(
 ): T {
   const out: any = { ...base }
   if (ov && typeof ov === 'object') {
-    for (const key of keys) {
-      const v = (ov as any)[key]
+    for (const k of keys) {
+      const v = (ov as any)[k]
       const has =
         v !== null &&
         v !== undefined &&
         !(typeof v === 'string' && v.trim() === '')
-      if (has) out[key] = v
+      if (has) out[k] = v
     }
   }
   return out as T

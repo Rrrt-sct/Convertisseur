@@ -1,7 +1,8 @@
-// app/results.tsx
-import { router, useLocalSearchParams } from 'expo-router'
-import { Calculator } from 'lucide-react-native'
-import React, { useMemo, useState } from 'react'
+// app/results.tsx — IMPORTS
+
+import { router, useLocalSearchParams } from 'expo-router';
+import { Calculator } from 'lucide-react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -11,19 +12,94 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native'
+} from 'react-native';
 
-import { ENABLE_OVERRIDES, SPEC_GENERIC } from '../src/overridesConfig'
-import ParamEditor from '../src/ParamEditor'; // ✅ import par défaut (PAS d’accolades)
-import { msToMMSS, useTimer } from '../src/timerContext'
+import ParamEditor from '../src/ParamEditor'; // ✅ export par défaut OK
+import { msToMMSS, useTimer } from '../src/timerContext';
+
+import {
+  ENABLE_OVERRIDES,
+  SPEC_GENERIC,
+  getSpecsFromRow
+} from '../src/overridesConfig';
+
 import {
   hasOverrides,
   mergeWithOverrides,
   normalizeId,
   useIngredientOverrides,
-} from '../src/useIngredientOverrides'
+} from '../src/useIngredientOverrides';
 
 
+
+
+
+
+// --- Spécifications des champs éditables par type d'ingrédient ---
+// (tu peux enrichir au fur et à mesure)
+const SPEC_BY_TYPE: Record<string, Array<{ key: string; label: string; type: 'number' | 'text'; hint?: string }>> = {
+  generic: [
+    { key: 'avg_unit_g',     label: 'Poids moyen (1 pièce)',      type: 'number', hint: 'g' },
+    { key: 'peeled_yield',   label: 'Taux d’épluchage',           type: 'number', hint: 'ex: 0.85' },
+    { key: 'density_g_ml',   label: 'Densité (g/ml)',             type: 'number', hint: 'ex: 1' },
+  ],
+
+  // Cuillères / densité
+  spoons: [
+    { key: 'tbsp_g',         label: '1 c. à soupe (g)',           type: 'number' },
+    { key: 'tsp_g',          label: '1 c. à café (g)',            type: 'number' },
+  ],
+
+  // Jus
+  juice: [
+    { key: 'juice_ml_per_g',   label: 'Jus par gramme (ml/g)',    type: 'number', hint: 'ex: 0.6' },
+    { key: 'juice_ml_per_unit',label: 'Jus par pièce (ml/pièce)', type: 'number' },
+  ],
+
+  // Longueur → poids
+  length: [
+    { key: 'lgth_g',           label: 'Poids par cm (g/cm)',      type: 'number' },
+  ],
+
+  // Œufs
+  eggs: [
+    { key: 'egg_s',          label: 'Œuf S (g)',                  type: 'number' },
+    { key: 'egg_m',          label: 'Œuf M (g)',                  type: 'number' },
+    { key: 'egg_l',          label: 'Œuf L (g)',                  type: 'number' },
+    { key: 'whte_pctge',     label: 'Pourcentage blanc',          type: 'number', hint: 'ex: 0.6' },
+    { key: 'ylw_pctge',      label: 'Pourcentage jaune',          type: 'number', hint: 'ex: 0.4' },
+  ],
+
+  // Pâtes (eau/sel)
+  pasta: [
+    { key: 'psta_wter',      label: 'Eau / g de pâtes (l/100g)',  type: 'number', hint: 'ex: 0.01' },
+    { key: 'psta_slt',       label: 'Sel / g de pâtes (g/100g)',  type: 'number', hint: 'ex: 0.1' },
+  ],
+}
+
+// Retourne la liste finale des champs à éditer pour un ingrédient normalisé
+function getSpecsFor(normId: string) {
+  const specs = [...SPEC_BY_TYPE.generic]
+
+  // familles par usage
+  const isPasta   = ['pates', 'pâtes', 'pasta'].includes(normId)
+  const isEggs    = ['oeuf', 'œuf', 'oeufs', 'œufs', 'eggs'].includes(normId)
+  const isOnion   = ['oignon', 'oignons'].includes(normId)
+  const isTomato  = ['tomate', 'tomates'].includes(normId)
+  const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail'].includes(normId)
+  const isCelery  = ['celeri'].includes(normId)
+
+  // modules transverses
+  specs.push(...SPEC_BY_TYPE.spoons)   // bcp d’ingrédients peuvent en bénéficier
+  specs.push(...SPEC_BY_TYPE.juice)    // idem
+  specs.push(...SPEC_BY_TYPE.length)   // au cas où
+
+  if (isPasta) specs.push(...SPEC_BY_TYPE.pasta)
+  if (isEggs)  specs.push(...SPEC_BY_TYPE.eggs)
+
+  // Tu peux affiner : retirer 'juice' si l’ingrédient n’a pas de jus, etc.
+  return specs
+}
 
 
 
@@ -494,8 +570,14 @@ function InfoButton({
   )
 }
 
-function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
-  // Etats saisies
+function IngredientCard({
+  d,
+  openInfo,
+}: {
+  d: Item
+  openInfo: (title: string, text: string) => void
+}) {
+  // ================== États UI saisis ==================
   const [qtyEpl, setQtyEpl] = useState('')
   const [qtyNon, setQtyNon] = useState('')
   const [countNon, setCountNon] = useState('')
@@ -521,7 +603,7 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const [celeryBranches, setCeleryBranches] = useState('')
   const [celeryWeight, setCeleryWeight] = useState('')
 
-  // Usages/Variétés PDT
+  // Usages / Variétés
   const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null)
   const [pdtSelected, setPdtSelected] = useState<any | null>(null)
 
@@ -531,169 +613,222 @@ function IngredientCard({ d, openInfo }: { d: Item; openInfo: (title: string, te
   const [pastaSelected, setPastaSelected] = useState<any | null>(null)
 
   // TOMATES — états UI
-  const [tomatoUsageSelKey, setTomatoUsageSelKey] = useState<null | typeof TOMATO_USAGES[number]['key']>(null)
+  const [tomatoUsageSelKey, setTomatoUsageSelKey] =
+    useState<null | (typeof TOMATO_USAGES)[number]['key']>(null)
   const [tomatoSelected, setTomatoSelected] = useState<any | null>(null)
 
-  
   // OIGNONS — états UI
-  const [onionUsageSelKey, setOnionUsageSelKey] = useState<null | typeof ONION_USAGES[number]['key']>(null)
+  const [onionUsageSelKey, setOnionUsageSelKey] =
+    useState<null | (typeof ONION_USAGES)[number]['key']>(null)
   const [onionSelected, setOnionSelected] = useState<any | null>(null)
 
-  // Flags par id
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
-  const isCelery = normId === 'celeri'
-  const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
-  const isTomato = ['tomate', 'tomates'].includes(normId)
-  const isOnion = ['oignon', 'oignons'].includes(normId)
-  const isAvocado = ['avocat', 'avocats'].includes(normId)
-  const isPepper  = ['poivron', 'poivrons'].includes(normId)
-  const isApple  = ['pomme', 'pommes'].includes(normId)
-  const isPear   = ['poire', 'poires'].includes(normId)
-  const isGarlic  = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normId)
-  const isCoffee = ['cafe', 'café', 'coffee'].includes(normId)
-  const isFlour = ['farine', 'farines', 'flour'].includes(normId)
+  // ================== Overrides (molette unique par ingrédient) ==================
+  const targetId = normalizeId(d.id || d.label || 'unknown')
+  const { values: ov, reload, version } = useIngredientOverrides(targetId)
+
+  // Données fusionnées (CSV + overrides utilisateur)
+  const dOV = mergeWithOverrides(d as any, ov, [
+    'avg_unit_g',
+    'peeled_yield',
+    'density_g_ml',
+    'tbsp_g',
+    'tsp_g',
+    'juice_ml_per_g',
+    'juice_ml_per_unit',
+    'lgth_g',
+    'egg_s',
+    'egg_m',
+    'egg_l',
+    'whte_pctge',
+    'ylw_pctge',
+    'psta_wter',
+    'psta_slt',
+  ])
+
+  // version simple pour forcer un re-render local si besoin
+  const [ovRev, setOvRev] = useState(0)
+  const bump = () => setOvRev((x) => x + 1)
+
+  // état du modal ⚙️
+  const [showEditor, setShowEditor] = useState(false)
+
+  // Specs dynamiques (afficher seulement les champs présents dans le CSV pour cet ingrédient)
+  const specsForThis = getSpecsFromRow(d as any)
+
+  // Savoir s’il existe des données utilisateur (bannière)
+  const [hasUserOverrides, setHasUserOverrides] = useState(false)
+  useEffect(() => {
+    let mounted = true
+    hasOverrides(targetId).then((ok) => { if (mounted) setHasUserOverrides(ok) })
+    return () => { mounted = false }
+  }, [targetId, version])
+
+  // ================== Flags par id (utilisés pour l’affichage) ==================
+  const normIdFlags = (d.id || d.label || '')
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+  const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normIdFlags)
+  const isCelery = normIdFlags === 'celeri'
+  const isPasta = ['pates', 'pâtes', 'pasta'].includes(normIdFlags)
+  const isTomato = ['tomate', 'tomates'].includes(normIdFlags)
+  const isOnion = ['oignon', 'oignons'].includes(normIdFlags)
+  const isAvocado = ['avocat', 'avocats'].includes(normIdFlags)
+  const isPepper = ['poivron', 'poivrons'].includes(normIdFlags)
+  const isApple = ['pomme', 'pommes'].includes(normIdFlags)
+  const isPear = ['poire', 'poires'].includes(normIdFlags)
+  const isGarlic = ['ail', 'gousse_d_ail', 'gousses_d_ail', 'tete_d_ail', 'tête_d_ail'].includes(normIdFlags)
+  const isCoffee = ['cafe', 'café', 'coffee'].includes(normIdFlags)
+  const isFlour = ['farine', 'farines', 'flour'].includes(normIdFlags)
+  const isZucchini = ['courgette', 'courgettes'].includes(normIdFlags)
+  const isEggplant = ['aubergine', 'aubergines'].includes(normIdFlags)
 
 
-
-  const peelY = getPeelYield(d)
-  const showPeeled =
-  !isPotato && 
-  peelY !== null && Number.isFinite(peelY) && peelY > 0
-
-  
+  // ================== Constantes dOV (utiliser dOV pour les calculs) ==================
+  const peelYEff = getPeelYield(dOV)
+  const showPeeled = !isPotato && peelYEff !== null && Number.isFinite(peelYEff) && peelYEff > 0
 
   // Accord "épluché / épluchée"
-  const g = (d.genre ?? d.gender ?? '').toString().trim().toLowerCase()
+  const g = (dOV.genre ?? dOV.gender ?? '').toString().trim().toLowerCase()
   const isF = g === 'f' || g.startsWith('fem')
   const EPL = `Épluch${isF ? 'ée' : 'é'}`
   const NON_EPL = `Non épluch${isF ? 'ée' : 'é'}`
   const NON_EPL_SHORT = 'non épl.'
 
   // Poids unitaire PDT selon taille
-  const pdtS = toNumMaybe(d.wght_pdt_s) ?? null
-  const pdtM = toNumMaybe(d.wght_pdt_m) ?? null
-  const pdtL = toNumMaybe(d.wght_pdt_l) ?? null
+  const pdtS = toNumMaybe(dOV.wght_pdt_s) ?? null
+  const pdtM = toNumMaybe(dOV.wght_pdt_m) ?? null
+  const pdtL = toNumMaybe(dOV.wght_pdt_l) ?? null
   const hasPdt = pdtS !== null || pdtM !== null || pdtL !== null
-  const pdtUnit = (pdtSize === 'S' ? (pdtS ?? 0) : pdtSize === 'M' ? (pdtM ?? 0) : (pdtL ?? 0))
+  const pdtUnit = pdtSize === 'S' ? pdtS ?? 0 : pdtSize === 'M' ? pdtM ?? 0 : pdtL ?? 0
 
   // Constantes générales
-  const density = d.density_g_ml ?? 1
-  const tsp_g = d.tsp_g ?? (d.tbsp_g ? d.tbsp_g / 3 : null)
-  const tbsp_g = d.tbsp_g ?? (tsp_g ? tsp_g * 3 : null)
+  const density = dOV.density_g_ml ?? 1
+  const tsp_gEff = dOV.tsp_g ?? (dOV.tbsp_g ? dOV.tbsp_g / 3 : null)
+  const tbsp_gEff = dOV.tbsp_g ?? (tsp_gEff ? tsp_gEff * 3 : null)
 
   // Pâtes (eau/sel)
-  const pastaW = toNumMaybe(d.psta_wter)
-  const pastaS = toNumMaybe(d.psta_slt)
+  const pastaW = toNumMaybe(dOV.psta_wter)
+  const pastaS = toNumMaybe(dOV.psta_slt)
   const hasPasta = pastaW !== null || pastaS !== null
 
   // Œufs
-  const eggS = toNumMaybe(d.egg_s) ?? null
-  const eggM = toNumMaybe(d.egg_m) ?? null
-  const eggL = toNumMaybe(d.egg_l) ?? null
-  const whitePct = toNumMaybe(d.whte_pctge) ?? null
-  const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
+  const eggS = toNumMaybe(dOV.egg_s) ?? null
+  const eggM = toNumMaybe(dOV.egg_m) ?? null
+  const eggL = toNumMaybe(dOV.egg_l) ?? null
+  const whitePct = toNumMaybe(dOV.whte_pctge) ?? null
+  const yolkPct = toNumMaybe(dOV.ylw_pctge) ?? null
   const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
   const eggUnit = eggSize === 'S' ? (eggS ?? 0) : eggSize === 'M' ? (eggM ?? 0) : (eggL ?? 0)
 
   // Céleri
-  const celeryG = toNumMaybe(d.clr_lgth) ?? null
+  const celeryG = toNumMaybe(dOV.clr_lgth) ?? null
   const hasCelery = isCelery && celeryG !== null
 
-  // THÉ
-  const hasTea = d.tea !== undefined && d.tea !== null && String(d.tea).trim() !== ''
-  const t_grn_tp = (d as any).grn_tp
-  const t_grn_tm = (d as any).grn_tm
-  const t_bck_tp = (d as any).bck_tp
-  const t_bck_tm = (d as any).bck_tm
-  const t_olg_tp = (d as any).olg_tp
-  const t_olg_tm = (d as any).olg_tm
-  const t_rbs_tp = (d as any).rbs_tp
-  const t_rbs_tm = (d as any).rbs_tm
+  // THÉ (affichage)
+  const hasTea = dOV.tea !== undefined && dOV.tea !== null && String(dOV.tea).trim() !== ''
+  const t_grn_tp = (dOV as any).grn_tp
+  const t_grn_tm = (dOV as any).grn_tm
+  const t_bck_tp = (dOV as any).bck_tp
+  const t_bck_tm = (dOV as any).bck_tm
+  const t_olg_tp = (dOV as any).olg_tp
+  const t_olg_tm = (dOV as any).olg_tm
+  const t_rbs_tp = (dOV as any).rbs_tp
+  const t_rbs_tm = (dOV as any).rbs_tm
 
-  // -------- Bloc “Infos clés” (unique) --------
-  const infoRows: React.ReactNode[] = []
-  if (hasTea) {
-    if (t_grn_tp !== null || t_grn_tm !== null)
-      infoRows.push(<Row key="tea-grn" left="Thé vert" right={`${teaTemp(t_grn_tp)} • ${teaTime(t_grn_tm)}`} />)
-    if (t_bck_tp !== null || t_bck_tm !== null)
-      infoRows.push(<Row key="tea-bck" left="Thé noir" right={`${teaTemp(t_bck_tp)} • ${teaTime(t_bck_tm)}`} />)
-    if (t_olg_tp !== null || t_olg_tm !== null)
-      infoRows.push(<Row key="tea-olg" left="Oolong" right={`${teaTemp(t_olg_tp)} • ${teaTime(t_olg_tm)}`} />)
-    if (t_rbs_tp !== null || t_rbs_tm !== null)
-      infoRows.push(<Row key="tea-rbs" left="Rooibos" right={`${teaTemp(t_rbs_tp)} • ${teaTime(t_rbs_tm)}`} />)
-  }
-  if (!isPotato && d.avg_unit_g) {
-    infoRows.push(<Row key="avg" left="Poids moyen (1 pièce)" right={`${fmt(d.avg_unit_g)} g`} />)
-  }
+  // ================== Infos clés ==================
+  
+  // ================== Infos clés (standardisées) ==================
+const infoRows: React.ReactNode[] = []
 
- 
-  // --- PDT : remplacer "Poids épluché (×...)" par "Taux moyen d'épluchage"
-if (isPotato) {
-  const peel = getPeelYield(d)
-  if (peel !== null && Number.isFinite(peel)) {
-    infoRows.push(<Row key="pdt-peel-rate" left="Taux moyen d'épluchage" right={`×${fmt(peel)}`} />)
-  }
+// 1) Poids moyen (1 pièce) — si dispo
+const avgUnit = toNumMaybe(dOV.avg_unit_g)
+if (avgUnit !== null) {
+  infoRows.push(
+    <Row key="avg_unit_g" left="Poids moyen (1 pièce)" right={`${fmt(avgUnit)} g`} />
+  )
 }
 
- if (showPeeled && d.avg_unit_g) {
-const special =
-  isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)' :
-  isAvocado ? ' (Avocat pelé et dénoyauté)' :
-  isPepper  ? ' (Poivron équeuté, épépiné, non pelé)' :
-  isGarlic  ? ' (Gousse pelée et dégermée)' :
-  isApple   ? ' (Pomme pelée et évidée)' :
-              ` (×${fmt(peelY!)})`
+// 2) Taux d’épluchage — si dispo
+const peelRate = getPeelYield(dOV) // gère tes colonnes multiples si besoin
+if (peelRate !== null && Number.isFinite(peelRate)) {
+  infoRows.push(
+    <Row key="peeled_yield" left="Taux d'épluchage" right={`×${fmt(peelRate)}`} />
+  )
+}
 
+// 3) Poids épluché (avec précision entre parenthèses) — si les 2 sont dispo
+if (avgUnit !== null && peelRate !== null && Number.isFinite(peelRate)) {
+  const special =
+    isTomato    ? ' (Tomate équeutée et époinçonnée, non pelée)' :
+    isAvocado   ? ' (Avocat pelé et dénoyauté)' :
+    isPepper    ? ' (Poivron équeuté, épépiné, non pelé)' :
+    isGarlic    ? ' (Gousse pelée et dégermée)' :
+    isApple     ? ' (Pomme pelée et évidée)' :
+    isZucchini  ? ' (Courgette équeutée et épluchée une tranche sur deux)' :
+    isEggplant  ? ' (Aubergine équeutée)' :
+                  ` (×${fmt(peelRate)})`;
 
   infoRows.push(
     <Row
       key="peeled"
       left={`Poids ${EPL.toLowerCase()}${special}`}
-      right={`${fmt((d.avg_unit_g || 0) * (peelY || 0))} g`}
+      right={`${fmt(avgUnit * peelRate)} g`}
     />
-  )
+  );
 }
 
-// --- AIL : "Tête d'ail" juste après Poids épluché (ou après Poids moyen s'il n'y a pas de peelY)
-if (isGarlic) {
-  const cloves =
-    toNumMaybe((d as any).ail_nmbr) ??
-    toNumMaybe((d as any).ail_nmber) ?? null
-  if (cloves && Number.isFinite(cloves) && cloves > 0) {
-    const n = Math.round(cloves)
-    const unit = n > 1 ? 'gousses' : 'gousse'
-    infoRows.push(<Row key="garlic-head" left="Tête d'ail" right={`≈ ${n} ${unit}`} />)
+// (optionnel) Infos complémentaires si présentes dans le CSV / overrides.
+// On les ajoute APRES le trio standard pour garder l’ordre cohérent.
+
+// Cuillères
+const tbspNum = toNumMaybe(dOV.tbsp_g)
+if (tbspNum !== null) {
+  infoRows.push(<Row key="tbsp_g" left="1 cuillère à soupe" right={`${fmt(tbspNum)} g`} />)
+}
+const tspNum = toNumMaybe(dOV.tsp_g)
+if (tspNum !== null) {
+  infoRows.push(<Row key="tsp_g" left="1 cuillère à café" right={`${fmt(tspNum)} g`} />)
+}
+
+// Densité
+const densNum = toNumMaybe(dOV.density_g_ml)
+if (densNum !== null) {
+  infoRows.push(<Row key="density" left="Densité" right={`${fmt(densNum)} g/ml`} />)
+}
+
+// Jus moyen (1 pièce)
+const jPerUnit = juicePerUnitMl(dOV)
+if (jPerUnit != null) {
+  infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={fmtVolAllUnits(jPerUnit)} />)
+}
+
+
+  if (isGarlic) {
+    const cloves = toNumMaybe((dOV as any).ail_nmbr) ?? toNumMaybe((dOV as any).ail_nmber) ?? null
+    if (cloves && Number.isFinite(cloves) && cloves > 0) {
+      const n = Math.round(cloves)
+      const unit = n > 1 ? 'gousses' : 'gousse'
+      infoRows.push(<Row key="garlic-head" left="Tête d'ail" right={`≈ ${n} ${unit}`} />)
+    }
   }
-}
 
+  ;(() => {
+    const jPerUnit = juicePerUnitMl(dOV)
+    if (jPerUnit != null) {
+      infoRows.push(<Row key="juice" left="Jus moyen (1 pièce)" right={fmtVolAllUnits(jPerUnit)} />)
+    }
+  })()
 
-
-  {(() => {
-    const jPerUnit = juicePerUnitMl(d)
-    if (jPerUnit == null) return null
-    infoRows.push(
-      <Row key="juice" left="Jus moyen (1 pièce)" right={fmtVolAllUnits(jPerUnit)} />
-    )
-    return null
-  })()}
-
-
-  /* ----- Variétés / Usages ----- */
-  const pdtVarieties = useMemo(() => (DB as any[]).filter(v => Number(v?.is_pdt) === 1), [])
-  const pastaVarieties = useMemo(() => {
-    const hasAnyPst = (row: any) =>
-      ['pst_lg', 'pst_shrt', 'pst_sml', 'pst_flf', 'pst_ovn'].some((k) => hasVal(row?.[k]))
-    return (DB as any[]).filter(v => hasAnyPst(v))
-  }, [])
+  // ================== Variétés / Usages (inchangé) ==================
+  const pdtVarieties = useMemo(() => (DB as any[]).filter((v) => Number(v?.is_pdt) === 1), [])
   const pastaUsages = useMemo(() => {
-    const rows = (DB as any[]).filter(r =>
-      ['pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'].some(k => hasVal(r?.[k]))
+    const rows = (DB as any[]).filter((r) =>
+      ['pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'].some((k) => hasVal(r?.[k]))
     )
-    return rows.map(r => {
-      const nums = [
-        'pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst'
-      ].map(k => firstInt(r?.[k])).filter((n): n is number => n !== null)
+    return rows.map((r) => {
+      const nums = ['pfct_lg_pst','pfct_shrt_pst','pfct_sml_pst','pfct_flf_pst','pfct_ovn_pst']
+        .map((k) => firstInt(r?.[k])).filter((n): n is number => n !== null)
       const numMain = nums[0] ?? 0
       const flags = {
         lg: hasVal(r?.pfct_lg_pst),
@@ -706,52 +841,104 @@ if (isGarlic) {
       return { row: r, num: numMain, flags, isGen }
     }).filter(x => x.num > 0)
   }, [])
-  const tomatoVarieties = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_tmt)), [])
-  const onionVarieties  = useMemo(() => (DB as any[]).filter(v => hasVal(v?.is_onn)), [])
+  const tomatoVarieties = useMemo(() => (DB as any[]).filter((v) => hasVal(v?.is_tmt)), [])
+  const onionVarieties  = useMemo(() => (DB as any[]).filter((v) => hasVal(v?.is_onn)), [])
 
   const selectedUsage = useMemo(
     () => pastaUsages.find(u => u.row?.id === pastaUsageSelId) || null,
     [pastaUsages, pastaUsageSelId]
   )
 
-  /* ===== RENDER ===== */
+  // ================== RENDER ==================
   return (
     <View style={st.card}>
-      {/* Titre + image */}
+      {/* Titre + molette + image */}
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Text style={[st.h2, { flex: 1 }]}>{d.label}</Text>
-        {imgSrc(d.id) && <Image source={imgSrc(d.id)} style={{ width: 44, height: 44, marginLeft: 8 }} resizeMode="contain" />}
+
+       
+        {imgSrc(d.id) && (
+          <Image source={imgSrc(d.id)} style={{ width: 44, height: 44, marginLeft: 8 }} resizeMode="contain" />
+        )}
       </View>
 
-      {(infoRows.length > 0) && (
-        <View style={st.section}>
-          <Text style={st.sTitle}>Infos clés</Text>
-          {infoRows}
+      {/* Bannière “Données personnalisées” */}
+      {hasUserOverrides && (
+        <View
+          style={{
+            backgroundColor: '#FFF0F5',
+            borderColor: '#FF4FA2',
+            borderWidth: 1,
+            borderRadius: 10,
+            padding: 8,
+            marginTop: 6,
+            marginBottom: 6,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Text style={{ fontSize: 12 }}>⚙️</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+            <Text style={{ color: '#57324B', fontSize: 13 }}>
+              Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+            </Text>
+          </View>
         </View>
       )}
 
+{(infoRows.length > 0) && (
+  <View style={st.section}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+      <Text style={[st.sTitle, { flex: 1 }]}>Infos clés</Text>
+
+      {ENABLE_OVERRIDES && (
+        <TouchableOpacity
+          onPress={() => setShowEditor(true)}
+          activeOpacity={0.9}
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: 999,
+            borderWidth: 2,
+            borderColor: '#FFB6F9',
+            backgroundColor: '#FFE4F6',
+          }}
+        >
+          <Text style={{ fontWeight: '900', color: '#FF4FA2' }}>⚙️</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+
+    {infoRows}
+  </View>
+)}
+
+
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
       {(() => {
-         if (isApple || isPear) return null
-         if (isGarlic) return null
-  const peelY = getPeelYield(d)
-  if (!peelY) return null   // 🚫 masque si aucune valeur dans le CSV
+        if (isApple || isPear) return null
+        if (isGarlic) return null
+        const peelY = getPeelYield(dOV)
+        if (!peelY) return null
 
-  const nonFromEpl = num(qtyEpl) / peelY
-  const eplFromNon = num(qtyNon) * peelY
+        const nonFromEpl = num(qtyEpl) / peelY
+        const eplFromNon = num(qtyNon) * peelY
 
-  return (
-    <View style={st.section}>
-      <Text style={st.sTitle}>
-        Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-        <Text>
-          {isTomato  ? ' (Tomate équeutée et époinçonnée, non pelée)'
-            : isAvocado ? ' (Avocat pelé et dénoyauté)'
-            : isPepper  ? ' (Poivron équeuté, épépiné, non pelé)'
-            : ''}
-        </Text>
-      </Text>
-
+        return (
+          <View style={st.section}>
+            <Text style={st.sTitle}>
+  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+  <Text>
+    {isTomato    ? ' (Tomate équeutée et époinçonnée, non pelée)'
+    : isAvocado  ? ' (Avocat pelé et dénoyauté)'
+    : isPepper   ? ' (Poivron équeuté, épépiné, non pelé)'
+    : isZucchini ? ' (Courgette équeutée et épluchée une tranche sur deux)'
+    : isEggplant ? ' (Aubergine équeutée)'
+    : ''}
+  </Text>
+</Text>
 
             <InputWithEcho
               value={qtyEpl}
@@ -774,181 +961,292 @@ if (isGarlic) {
 
       {/* ========= Module Œufs ========= */}
       {(() => {
-        const eggS = toNumMaybe(d.egg_s) ?? null
-        const eggM = toNumMaybe(d.egg_m) ?? null
-        const eggL = toNumMaybe(d.egg_l) ?? null
-        const whitePct = toNumMaybe(d.whte_pctge) ?? null
-        const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? null
-        const hasEggs = (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
-
+        const eggS = toNumMaybe(dOV.egg_s) ?? null
+        const eggM = toNumMaybe(dOV.egg_m) ?? null
+        const eggL = toNumMaybe(dOV.egg_l) ?? null
+        const whitePct = toNumMaybe(dOV.whte_pctge) ?? null
+        const yolkPct  = toNumMaybe(dOV.ylw_pctge)  ?? null
+        const hasEggs =
+          (eggS || eggM || eggL) !== null && (whitePct !== null || yolkPct !== null)
         if (!hasEggs) return null
-
-        return <EggsSection d={d} />
+        return <EggsSection d={dOV} />
       })()}
 
-{/* --------- Module VOLAILLE --------- */}
-{(() => {
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isChicken = normId === 'volaille'
-  if (!isChicken) return null
-  return <ChickenSection d={d} />
-})()}
+      {/* --------- Module VOLAILLE --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isChicken = normId === 'volaille'
+        if (!isChicken) return null
+        return <ChickenSection d={dOV} />
+      })()}
 
-{/* --------- Module ÉPICES --------- */}
-{(() => {
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isSpices = normId === 'epices' || normId === 'epice'
-  if (!isSpices) return null
-  return <SpicesSection d={d} />
-})()}
-
+      {/* --------- Module ÉPICES --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isSpices = normId === 'epices' || normId === 'epice'
+        if (!isSpices) return null
+        return <SpicesSection d={dOV} />
+      })()}
 
       {/* --------- Pommes de terre --------- */}
       {(() => {
-        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
         const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
         if (!isPotato) return null
-        return <PotatoSection d={d} openInfo={openInfo} />
+        return <PotatoSection d={dOV} openInfo={openInfo} />
       })()}
 
       {/* --------- Module PÂTES --------- */}
       {(() => {
-        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
         const isPasta = ['pates', 'pâtes', 'pasta'].includes(normId)
         if (!isPasta) return null
-        return <PastaSection d={d} openInfo={openInfo} />
+        return <PastaSection d={dOV} openInfo={openInfo} />
       })()}
 
       {/* --------- Module TOMATES --------- */}
       {(() => {
-        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
         const isTomato = ['tomate', 'tomates'].includes(normId)
         if (!isTomato) return null
-        return <TomatoSection d={d} />
+        return <TomatoSection d={dOV} />
       })()}
 
       {/* --------- Module FROMAGES --------- */}
-{(() => {
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isCheese = normId === 'fromages' || normId === 'fromage' || normId === 'cheese'
-  if (!isCheese) return null
-  return <CheeseSection d={d} />
-})()}
-
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isCheese = normId === 'fromages' || normId === 'fromage' || normId === 'cheese'
+        if (!isCheese) return null
+        return <CheeseSection d={dOV} />
+      })()}
 
       {/* --------- Module OIGNONS --------- */}
       {(() => {
-        const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
         const isOnion = ['oignon', 'oignons'].includes(normId)
         if (!isOnion) return null
-        return <OnionSection d={d} />
+        return <OnionSection d={dOV} />
       })()}
 
       {/* --------- Module CHOUX --------- */}
-{(() => {
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isCabbage = normId === 'choux' || normId === 'chou'
-  if (!isCabbage) return null
-  return <CabbageSection d={d} />
-})()}
-
-{/* --------- Module AIL --------- */}
-{(() => {
-  const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-  const isGarlic = normId === 'ail' || normId === 'gousse_d_ail' || normId === 'gousses_d_ail'
-  if (!isGarlic) return null
-  return <GarlicSection d={d} />
-})()}
-
-
-  {/* --------- Module POMMES --------- */}
-  {(() => {
-    const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-    const isApple = ['pomme', 'pommes'].includes(normId)
-    if (!isApple) return null
-    return <AppleSection d={d} />
-  })()}
-
-  {/* --------- Module POIRES --------- */}
-  {(() => {
-    const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-    const isPear = ['poire', 'poires'].includes(normId)
-    if (!isPear) return null
-    return <PearSection d={d} />
-  })()}
-
-  {/* --------- Module FARINE --------- */}
-  {(() => {
-    const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-    const isFlour = ['farine', 'farines', 'flour'].includes(normId)
-    if (!isFlour) return null
-    return <FlourSection d={d} />
-  })()}
-
-
-
-  {/* --------- Jus (PRIORITÉ AVANT Quantité/Poids) --------- */}
-  {(() => {
-    if (!hasJuice(d)) return null
-    return <JuiceSection d={d} />
-  })()}
-
-  {/* --------- Module CAFÉ --------- */}
-  {(() => {
-    const ref = (d.id || d.label || '').toString().toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // retire accents
-      .replace(/\s+/g, '_')
-    const isCoffee = ['cafe','coffee'].includes(ref)
-    if (!isCoffee) return null
-    return <CoffeeSection d={d} />
-  })()}
-
-
-
-        {/* --------- Conversions génériques (non-PDT, non-Pâtes) --------- */}
       {(() => {
-    const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-    const isPotato = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
-    const isPasta  = ['pates', 'pâtes', 'pasta'].includes(normId)
-    const isApple  = ['pomme', 'pommes'].includes(normId)
-    if (isPotato || isPasta || isApple || isPear || isGarlic || !d.avg_unit_g) return null
-    return <GenericConversions d={d} />
-  })()}
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isCabbage = normId === 'choux' || normId === 'chou'
+        if (!isCabbage) return null
+        return <CabbageSection d={dOV} />
+      })()}
 
-        {/* --------- Céleri --------- */}
+      {/* --------- Module AIL --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isGarlic = ['ail','gousse_d_ail','gousses_d_ail'].includes(normId)
+        if (!isGarlic) return null
+        return <GarlicSection d={dOV} />
+      })()}
+
+      {/* --------- Module POMMES --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isApple = ['pomme', 'pommes'].includes(normId)
+        if (!isApple) return null
+        return <AppleSection d={dOV} />
+      })()}
+
+      {/* --------- Module POIRES --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isPear = ['poire', 'poires'].includes(normId)
+        if (!isPear) return null
+        return <PearSection d={dOV} />
+      })()}
+
+      {/* --------- Module FARINE --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isFlour = ['farine', 'farines', 'flour'].includes(normId)
+        if (!isFlour) return null
+        return <FlourSection d={dOV} />
+      })()}
+
+      {/* --------- Jus (priorité) --------- */}
+      {(() => {
+        if (!hasJuice(dOV)) return null
+        return <JuiceSection d={dOV} />
+      })()}
+
+      {/* --------- Module CAFÉ --------- */}
+      {(() => {
+        const ref = (dOV.id || dOV.label || '')
+          .toString()
+          .toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '_')
+        const isCoffee = ['cafe','coffee'].includes(ref)
+        if (!isCoffee) return null
+        return <CoffeeSection d={dOV} />
+      })()}
+
+      {/* --------- Conversions génériques --------- */}
+      {/* --------- Conversions génériques --------- */}
+{(() => {
+  const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+  const isPotato   = ['pomme_de_terre', 'pommes_de_terre', 'pdt'].includes(normId)
+  const isPasta    = ['pates', 'pâtes', 'pasta'].includes(normId)
+  const isApple    = ['pomme', 'pommes'].includes(normId)
+  const isPear     = ['poire', 'poires'].includes(normId)
+  const isGarlic   = ['ail', 'gousse_d_ail', 'gousses_d_ail'].includes(normId)
+  const isZucchini = ['courgette', 'courgettes'].includes(normId)
+  const isEggplant = ['aubergine', 'aubergines'].includes(normId)
+
+  if (isPotato || isPasta || isApple || isPear || isGarlic || isZucchini || isEggplant || !dOV.avg_unit_g) return null
+  return <GenericConversions d={dOV} />
+})()}
+
+
+      {/* --------- Céleri --------- */}
+      {(() => {
+        const normId = (dOV.id || dOV.label || '').toString().toLowerCase().replace(/\s+/g, '_')
+        const isCelery = normId === 'celeri'
+        const celeryG = toNumMaybe(dOV.clr_lgth) ?? null
+        if (!isCelery || celeryG === null) return null
+        return <CelerySection d={dOV} />
+      })()}
+
+      {/* --------- Taille ⇆ Poids --------- */}
+      {dOV.lgth_g ? <LengthWeightSection d={dOV} /> : null}
+
+      {/* --------- Cuillères ⇆ Poids --------- */}
+      {(dOV.tbsp_g || dOV.tsp_g) ? <SpoonsSection d={dOV} /> : null}
+
+      {/* --------- Pâtes — eau & sel --------- */}
+      {(() => {
+        const pw = toNumMaybe(dOV.psta_wter)
+        const ps = toNumMaybe(dOV.psta_slt)
+        const hp = pw !== null || ps !== null
+        if (!hp) return null
+        return <PastaWaterSaltSection d={dOV} />
+      })()}
+
+      {/* ======= PARAM EDITOR (modal) ======= */}
+      <ParamEditor
+        visible={showEditor}
+        onClose={() => setShowEditor(false)}
+        targetId={targetId}
+        base={d as any}              // CSV d’origine (pour "valeurs par défaut")
+        specs={specsForThis as any}  // champs dynamiques (carotte = juste avg_unit_g + peeled_yield, etc.)
+        onSaved={async () => {
+          await reload()
+          const ok = await hasOverrides(targetId)
+          setHasUserOverrides(ok)
+          setShowEditor(false)
+          bump()
+        }}
+        onReset={async () => {
+          await reload()
+          const ok = await hasOverrides(targetId)
+          setHasUserOverrides(ok)
+          setShowEditor(false)
+          bump()
+        }}
+      />
+    </View>
+  )
+}
+ 
+
+  function EggsSection({ d }: { d: Item }) {
+    const [eggSize, setEggSize] = useState<'S' | 'M' | 'L'>('S')
+    const [eggTargetTotal, setEggTargetTotal] = useState('')
+    const [eggTargetWhite, setEggTargetWhite] = useState('')
+    const [eggTargetYolk, setEggTargetYolk] = useState('')
+    const [eggCount, setEggCount] = useState('')
+
+
+    const eggS = toNumMaybe(d.egg_s) ?? 0
+    const eggM = toNumMaybe(d.egg_m) ?? 0
+    const eggL = toNumMaybe(d.egg_l) ?? 0
+    const whitePct = toNumMaybe(d.whte_pctge) ?? 0
+    const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? 0
+    const eggUnit = eggSize === 'S' ? eggS : eggSize === 'M' ? eggM : eggL
+
+    return (
+      <View style={st.section}>
+        <Text style={st.sTitle}>Infos clés</Text>
+        <Row left="Œuf petit (S)" right="< 50 g" />
+        <Row left="Œuf moyen (M)" right="50–60 g" />
+        <Row left="Œuf gros (L)" right="60–70 g" />
+        <View style={{ height: 6 }} />
+        <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
+        <Row left="Pochés" right="2 min" />
+        <Row left="À la coque" right="3 min" />
+        <Row left="Durs" right="9 min" />
+
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+          {(['S', 'M', 'L'] as const).map(sz => {
+            const on = eggSize === sz
+            return (
+              <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
+                <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+
+        <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
+
+        <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
         {(() => {
-          const normId = (d.id || d.label || '').toString().toLowerCase().replace(/\s+/g, '_')
-          const isCelery = normId === 'celeri'
-          const celeryG = toNumMaybe(d.clr_lgth) ?? null
-          if (!isCelery || celeryG === null) return null
-          return <CelerySection d={d} />
+          const sumPct = whitePct + yolkPct
+          const denom = (eggUnit || 0) * sumPct
+          const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
+          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
         })()}
 
-        
-        {/* --------- Taille ⇆ Poids --------- */}
-        {d.lgth_g ? <LengthWeightSection d={d} /> : null}
-
-        {/* --------- Cuillères ⇆ Poids --------- */}
-        {(d.tbsp_g || d.tsp_g) ? <SpoonsSection d={d} /> : null}
-
-        {/* --------- Pâtes — eau & sel --------- */}
+        <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
         {(() => {
-          const pastaW = toNumMaybe(d.psta_wter)
-          const pastaS = toNumMaybe(d.psta_slt)
-          const hasPasta = pastaW !== null || pastaS !== null
-          if (!hasPasta) return null
-          return <PastaWaterSaltSection d={d} />
+          const denom = (eggUnit || 0) * whitePct
+          const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
+          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
         })()}
+
+        <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
+        {(() => {
+          const denom = (eggUnit || 0) * yolkPct
+          const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
+          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
+        })()}
+
+        {/* Nombre d'œufs → Poids (blanc, jaune, total) */}
+
+
+    <InputWithEcho
+      value={eggCount}
+      onChangeText={setEggCount}
+      placeholder="Nombre d'œufs (ex: 3)"
+      echoLabel="Œufs"
+    />
+
+    {(() => {
+      const n = num(eggCount) // nombre d'œufs
+      const whiteW = n * (eggUnit || 0) * (whitePct || 0)
+      const yolkW  = n * (eggUnit || 0) * (yolkPct  || 0)
+      const totalW = whiteW + yolkW
+
+      return (
+        <>
+          <Row left="Poids Blancs" right={fmtAllUnits(whiteW)} />
+          <Row left="Poids Jaunes" right={fmtAllUnits(yolkW)} />
+          <Row left="Poids Blanc+Jaune" right={fmtAllUnits(totalW)} />
+        </>
+      )
+    })()}
+
       </View>
+      
     )
   }
 
-  /* ========= Sections réutilisables (découpées pour lisibilité) ========= */
-
-  // ↓↓↓ ajoute ceci quelque part dans results.tsx (par ex. juste avant EggsSection) ↓↓↓
- 
- 
-function GenericConversions({ d }: { d: Item }) {
+  function GenericConversions({ d }: { d: Item }) {
   // ——— États UI des champs de conversion
   const [genWeightEpl, setGenWeightEpl] = React.useState('');
   const [genWeightNon, setGenWeightNon] = React.useState('');
@@ -957,13 +1255,15 @@ function GenericConversions({ d }: { d: Item }) {
   // ——— Identifiant “cible” (clé de stockage)
   const targetId = normalizeId(d.id || d.label || 'unknown');
 
-  // ——— Hook overrides (valeurs, reload, version pour trigger les effets)
+  // ——— Hook overrides (valeurs, reload, version pour re-render)
+  // ⚠️ NE PAS déstructurer hasOverrides ici : il n’est pas renvoyé par le hook.
   const { values: ov, reload, version } = useIngredientOverrides(targetId);
 
   // ——— Savoir s’il existe des données utilisateur (contrôle du bandeau)
   const [hasUserOverrides, setHasUserOverrides] = React.useState(false);
   React.useEffect(() => {
     let mounted = true;
+    // hasOverrides vient de l'import depuis useIngredientOverrides.ts
     hasOverrides(targetId).then(ok => { if (mounted) setHasUserOverrides(ok); });
     return () => { mounted = false; };
   }, [targetId, version]); // ← version change après save/reset
@@ -1093,12 +1393,12 @@ function GenericConversions({ d }: { d: Item }) {
           visible={showEditor}
           onClose={() => setShowEditor(false)}
           onSaved={async () => {
-            // 1) recharger le hook (maj dd, avgNon, peelY…)
+            // 1) recharger les overrides → met à jour dd, avgNon, peelY…
             await reload();
-            // 2) rafraîchir l’état du bandeau
+            // 2) mettre à jour le bandeau “Données personnalisées”
             const ok = await hasOverrides(targetId);
             setHasUserOverrides(ok);
-            // 3) fermer le modal côté parent (sécurité supplémentaire)
+            // 3) fermer le modal
             setShowEditor(false);
           }}
         />
@@ -1107,101 +1407,6 @@ function GenericConversions({ d }: { d: Item }) {
   );
 }
 
-
- 
- 
-
-  function EggsSection({ d }: { d: Item }) {
-    const [eggSize, setEggSize] = useState<'S' | 'M' | 'L'>('S')
-    const [eggTargetTotal, setEggTargetTotal] = useState('')
-    const [eggTargetWhite, setEggTargetWhite] = useState('')
-    const [eggTargetYolk, setEggTargetYolk] = useState('')
-    const [eggCount, setEggCount] = useState('')
-
-
-    const eggS = toNumMaybe(d.egg_s) ?? 0
-    const eggM = toNumMaybe(d.egg_m) ?? 0
-    const eggL = toNumMaybe(d.egg_l) ?? 0
-    const whitePct = toNumMaybe(d.whte_pctge) ?? 0
-    const yolkPct  = toNumMaybe(d.ylw_pctge)  ?? 0
-    const eggUnit = eggSize === 'S' ? eggS : eggSize === 'M' ? eggM : eggL
-
-    return (
-      <View style={st.section}>
-        <Text style={st.sTitle}>Infos clés</Text>
-        <Row left="Œuf petit (S)" right="< 50 g" />
-        <Row left="Œuf moyen (M)" right="50–60 g" />
-        <Row left="Œuf gros (L)" right="60–70 g" />
-        <View style={{ height: 6 }} />
-        <Text style={st.sTitle}>Cuisson (départ eau bouillante)</Text>
-        <Row left="Pochés" right="2 min" />
-        <Row left="À la coque" right="3 min" />
-        <Row left="Durs" right="9 min" />
-
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-          {(['S', 'M', 'L'] as const).map(sz => {
-            const on = eggSize === sz
-            return (
-              <TouchableOpacity key={sz} onPress={() => setEggSize(sz)} activeOpacity={0.9} style={[st.sizeBtn, on && st.sizeBtnOn]}>
-                <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{sz}</Text>
-              </TouchableOpacity>
-            )
-          })}
-        </View>
-
-        <Text style={[st.sTitle, { marginTop: 10 }]}>Poids <Text style={st.arrow}>⇆</Text> Quantité</Text>
-
-        <InputWithEcho value={eggTargetTotal} onChangeText={setEggTargetTotal} placeholder="Pds voulu Blanc+Jaune (g)" echoLabel="Blanc+Jaune (g)" />
-        {(() => {
-          const sumPct = whitePct + yolkPct
-          const denom = (eggUnit || 0) * sumPct
-          const eggs = denom > 0 ? Math.ceil(num(eggTargetTotal) / denom) : 0
-          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-        })()}
-
-        <InputWithEcho value={eggTargetWhite} onChangeText={setEggTargetWhite} placeholder="Poids voulu Blancs (g)" echoLabel="Blancs (g)" />
-        {(() => {
-          const denom = (eggUnit || 0) * whitePct
-          const eggs = denom > 0 ? Math.ceil(num(eggTargetWhite) / denom) : 0
-          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-        })()}
-
-        <InputWithEcho value={eggTargetYolk} onChangeText={setEggTargetYolk} placeholder="Poids voulu Jaune (g)" echoLabel="Jaune (g)" />
-        {(() => {
-          const denom = (eggUnit || 0) * yolkPct
-          const eggs = denom > 0 ? Math.ceil(num(eggTargetYolk) / denom) : 0
-          return <Row left="Nombre d'œufs estimés" right={`${eggs} œufs`} />
-        })()}
-
-        {/* Nombre d'œufs → Poids (blanc, jaune, total) */}
-
-
-    <InputWithEcho
-      value={eggCount}
-      onChangeText={setEggCount}
-      placeholder="Nombre d'œufs (ex: 3)"
-      echoLabel="Œufs"
-    />
-
-    {(() => {
-      const n = num(eggCount) // nombre d'œufs
-      const whiteW = n * (eggUnit || 0) * (whitePct || 0)
-      const yolkW  = n * (eggUnit || 0) * (yolkPct  || 0)
-      const totalW = whiteW + yolkW
-
-      return (
-        <>
-          <Row left="Poids Blancs" right={fmtAllUnits(whiteW)} />
-          <Row left="Poids Jaunes" right={fmtAllUnits(yolkW)} />
-          <Row left="Poids Blanc+Jaune" right={fmtAllUnits(totalW)} />
-        </>
-      )
-    })()}
-
-      </View>
-      
-    )
-  }
 
   function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
     const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null)
