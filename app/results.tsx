@@ -776,7 +776,7 @@ if (
     isPepper   ? ' (Poivron équeuté, épépiné, non pelé)' :
     isZucchini ? ' (Courgette équeutée et épluchée une tranche sur deux)' :
     isEggplant ? ' (Aubergine équeutée)' :
-                 ` (×${fmt(peelRate)})`
+  ''; // 👉 supprime la parenthèse (×0.85)
 
   infoRows.push(
     <Row
@@ -1104,7 +1104,7 @@ if (jPerUnit != null) {
   const isZucchini = ['courgette', 'courgettes'].includes(normId)
   const isEggplant = ['aubergine', 'aubergines'].includes(normId)
 
-  if (isPotato || isPasta || isApple || isPear || isGarlic || isZucchini || isEggplant || !dOV.avg_unit_g) return null
+  if (isPotato || isPasta || isApple || isPear || isGarlic || isZucchini || !dOV.avg_unit_g) return null
   return <GenericConversions d={dOV} />
 })()}
 
@@ -1419,210 +1419,305 @@ function GenericConversions({
 }
 
 
-  function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
-    const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null)
-    const [pdtSelected, setPdtSelected] = useState<any | null>(null)
-    const [qtyEpl, setQtyEpl] = useState('')
-    const [qtyNon, setQtyNon] = useState('')
+ function PotatoSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
+  const [pdtMethod, setPdtMethod] = useState<PdtMethod | null>(null);
+  const [pdtSelected, setPdtSelected] = useState<any | null>(null);
+  const [qtyEpl, setQtyEpl] = useState('');
+  const [qtyNon, setQtyNon] = useState('');
 
-    // Toutes les variétés de pommes de terre
-    const pdtVarieties = useMemo(
-      () => (DB as any[]).filter(v => Number(v?.is_pdt) === 1),
-      []
-    )
+  // Toutes les variétés de PDT
+  const pdtVarieties = useMemo(
+    () => (DB as any[]).filter(v => Number(v?.is_pdt) === 1),
+    []
+  );
 
-    return (
-      <View style={st.section}>
-        {/* 1) Choisir un usage */}
-        <Text style={st.sTitle}>Choisir un usage</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-          {PDT_METHODS.map(m => {
-            const on = pdtMethod?.label === m.label
+  // --------- OVERRIDES — VARIÉTÉ ---------
+  const varTargetId = normalizeId(pdtSelected?.id || pdtSelected?.label || 'pdt_variety');
+  const { values: ovVar, reload: reloadVar, version: verVar } = useIngredientOverrides(varTargetId);
+  const [showVarEditor, setShowVarEditor] = useState(false);
+  const [hasVarOverrides, setHasVarOverrides] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    hasOverrides(varTargetId).then(ok => { if (mounted) setHasVarOverrides(ok); });
+    return () => { mounted = false; };
+  }, [varTargetId, verVar]);
+
+  // Var sélectionnée + overrides (champs spécifiques variété)
+  const pdtVarOV = useMemo(() => {
+    if (!pdtSelected) return null;
+    return mergeWithOverrides(pdtSelected as any, ovVar, [
+      'pdt_spcfc_wght',
+      'pdt_spcfc_peel',
+    ]);
+  }, [pdtSelected, ovVar]);
+
+  // dd = base + (variété + overrides) recopiée vers avg_unit_g / peeled_yield
+  const dd: Item | null = useMemo(() => {
+    if (!pdtVarOV) return null;
+    const avgUnit =
+      toNumMaybe(pdtVarOV.pdt_spcfc_wght) ??
+      toNumMaybe(d.avg_unit_g) ?? null;
+    const peelYVar =
+      toNumMaybe(pdtVarOV.pdt_spcfc_peel) ??
+      toNumMaybe(d.peeled_yield) ?? null;
+    return {
+      ...d,
+      ...pdtVarOV,
+      avg_unit_g: avgUnit,
+      peeled_yield: peelYVar,
+    } as Item;
+  }, [d, pdtVarOV]);
+
+  const avgNon = dd ? toNumMaybe(dd.avg_unit_g) : null;
+  const peelY  = dd ? toNumMaybe(dd.peeled_yield) : null;
+  const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
+
+  return (
+    <View style={st.section}>
+      {/* 1) Choisir un usage */}
+      <Text style={st.sTitle}>Choisir un usage</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+        {PDT_METHODS.map(m => {
+          const on = pdtMethod?.label === m.label;
+          return (
+            <TouchableOpacity
+              key={m.label}
+              onPress={() => setPdtMethod(prev => (prev?.label === m.label ? null : m))}
+              activeOpacity={0.9}
+              style={[st.pill, on && st.pillActive]}
+            >
+              <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                {m.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* 2) Variétés recommandées pour l’usage sélectionné */}
+      {pdtMethod && (() => {
+        const recos = pdtVarieties
+          .map(v => ({ v, s: scoreFor(v, pdtMethod) }))
+          .filter(x => x.s >= 1)
+          .sort(
+            (a, b) =>
+              b.s - a.s ||
+              String(a.v.label ?? a.v.pdt_variety ?? a.v.id)
+                .localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' })
+          );
+
+        return (
+          <View style={{ marginBottom: 12 }}>
+            {recos.length === 0 ? (
+              <Text style={{ color: '#666' }}>
+                Aucune variété particulièrement recommandée pour {pdtMethod.label.toLowerCase()}.
+              </Text>
+            ) : (
+              <View style={st.pillsWrap}>
+                {recos.map(({ v, s }) => {
+                  const name = String(v.label ?? v.pdt_variety ?? v.id);
+                  const on = pdtSelected?.id === v.id;
+                  return (
+                    <TouchableOpacity
+                      key={v.id}
+                      onPress={() => setPdtSelected(prev => (prev?.id === v.id ? null : v))}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                    >
+                      {imgSrc(v.id) ? (
+                        <Image
+                          source={imgSrc(v.id)}
+                          style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                        />
+                      ) : null}
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {name}
+                      </Text>
+                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        );
+      })()}
+
+      {/* 3) Choisir une variété — liste complète */}
+      <Text style={[st.sTitle, { marginTop: 4, marginBottom: 6 }]}>Choisir une variété</Text>
+      <View style={st.pillsWrap}>
+        {pdtVarieties
+          .map(v => ({ v, name: String(v.label ?? v.pdt_variety ?? v.id) }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
+          .map(({ v, name }) => {
+            const on = pdtSelected?.id === v.id;
             return (
               <TouchableOpacity
-                key={m.label}
-                onPress={() => {
-                  // Toggle usage, mais on NE TOUCHE PAS à la liste “Choisir une variété”
-                  setPdtMethod(prev => (prev?.label === m.label ? null : m))
-                  // on ne reset pas la variété si on reclique un usage différent ? à toi de voir :
-                  // je garde la variété si elle existe, c’est plus pratique.
-                }}
+                key={v.id}
+                onPress={() => setPdtSelected(prev => (prev?.id === v.id ? null : v))}
                 activeOpacity={0.9}
                 style={[st.pill, on && st.pillActive]}
               >
-                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
-                  {m.label}
-                </Text>
+                {imgSrc(v.id) ? (
+                  <Image
+                    source={imgSrc(v.id)}
+                    style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
+                  />
+                ) : null}
+                <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
               </TouchableOpacity>
-            )
+            );
           })}
-        </View>
-
-        {/* 2) Variétés recommandées pour l’usage sélectionné (chips triées par étoiles, décroissant) */}
-        {pdtMethod && (() => {
-          const recos = pdtVarieties
-            .map(v => ({ v, s: scoreFor(v, pdtMethod) }))
-            .filter(x => x.s >= 1)
-            .sort(
-              (a, b) =>
-                b.s - a.s ||
-                String(a.v.label ?? a.v.pdt_variety ?? a.v.id)
-                  .localeCompare(String(b.v.label ?? b.v.pdt_variety ?? b.v.id), 'fr', { sensitivity: 'base' })
-            )
-
-          return (
-            <View style={{ marginBottom: 12 }}>
-              {/* (on ne met PAS de titre verbeux, juste les chips pour rester clean) */}
-              {recos.length === 0 ? (
-                <Text style={{ color: '#666' }}>
-                  Aucune variété particulièrement recommandée pour {pdtMethod.label.toLowerCase()}.
-                </Text>
-              ) : (
-                <View style={st.pillsWrap}>
-                  {recos.map(({ v, s }) => {
-                    const name = String(v.label ?? v.pdt_variety ?? v.id)
-                    const on = pdtSelected?.id === v.id
-                    return (
-                      <TouchableOpacity
-                        key={v.id}
-                        onPress={() => setPdtSelected(prev => (prev?.id === v.id ? null : v))} // toggle
-                        activeOpacity={0.9}
-                        style={[st.pill, on && st.pillActive]}
-                      >
-                        {imgSrc(v.id) ? (
-                          <Image
-                            source={imgSrc(v.id)}
-                            style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
-                          />
-                        ) : null}
-                        <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
-                          {name}
-                        </Text>
-                        <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
-                      </TouchableOpacity>
-                    )
-                  })}
-                </View>
-              )}
-            </View>
-          )
-        })()}
-
-        {/* 3) Choisir une variété — liste COMPLÈTE, alphabétique, SANS étoiles (ne change pas quand on clique un usage) */}
-        <Text style={[st.sTitle, { marginTop: 4, marginBottom: 6 }]}>Choisir une variété</Text>
-        <View style={st.pillsWrap}>
-          {pdtVarieties
-            .map(v => ({ v, name: String(v.label ?? v.pdt_variety ?? v.id) }))
-            .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
-            .map(({ v, name }) => {
-              const on = pdtSelected?.id === v.id
-              return (
-                <TouchableOpacity
-                  key={v.id}
-                  onPress={() => setPdtSelected(prev => (prev?.id === v.id ? null : v))} // toggle
-                  activeOpacity={0.9}
-                  style={[st.pill, on && st.pillActive]}
-                >
-                  {imgSrc(v.id) ? (
-                    <Image
-                      source={imgSrc(v.id)}
-                      style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }}
-                    />
-                  ) : null}
-                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
-                </TouchableOpacity>
-              )
-            })}
-        </View>
-
-        {/* 4) Détails quand une variété est sélectionnée */}
-        {pdtSelected && (
-    <View style={{ marginTop: 12 }}>
-      {/* (en-tête supprimé) */}
-
-      {!!pdtSelected.pdt_texture && (
-        <Row left="Chair" right={String(pdtSelected.pdt_texture)} />
-      )}
-
-      {/* Usages de la variété — chips avec étoiles */}
-      {(() => {
-        const varUsages = PDT_METHODS
-          .map(m => ({ m, s: scoreFor(pdtSelected, m) }))
-          .filter(x => x.s >= 1)
-          .sort((a, b) => b.s - a.s)
-
-        return varUsages.length > 0 ? (
-          <View style={[st.pillsWrap, { marginTop: 8 }]}>
-            {varUsages.map(({ m, s }) => {
-              const on = pdtMethod?.label === m.label
-              return (
-                <TouchableOpacity
-                  key={m.label}
-                  onPress={() => setPdtMethod(prev => (prev?.label === m.label ? null : m))}
-                  activeOpacity={0.9}
-                  style={[st.pill, on && st.pillActive]}
-                >
-                  <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
-                    {m.label}
-                  </Text>
-                  <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-        ) : null
-      })()}
-
-      {/* Infos + conversions spécifiques variété */}
-      {(() => {
-        const avgNon = toNumMaybe(pdtSelected.pdt_spcfc_wght) ?? null
-        const peelY  = toNumMaybe(pdtSelected.pdt_spcfc_peel) ?? null
-        if (avgNon === null && peelY === null) return null
-
-        return (
-          <View style={{ marginTop: 14 }}>
-            <Text style={st.sTitle}>Infos clés (variété)</Text>
-            {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
-            {peelY  !== null && <Row left="Taux moyen d'épluchage" right={`×${fmt(peelY)}`} />}
-
-            {peelY !== null && (
-              <View style={[st.section, { marginTop: 10 }]}>
-                <Text style={st.sTitle}>
-                  Épluché <Text style={st.arrow}>⇆</Text> Non épluché
-                </Text>
-                <InputWithEcho
-                  value={qtyEpl}
-                  onChangeText={setQtyEpl}
-                  placeholder="Quantité épluchée (g)"
-                  echoLabel="Épluchée (g)"
-                />
-                <Row
-                  left="Équiv. non épluché"
-                  right={fmtAllUnits(num(qtyEpl) / (peelY || 1))}
-                />
-                <InputWithEcho
-                  value={qtyNon}
-                  onChangeText={setQtyNon}
-                  placeholder="Quantité non épluchée (g)"
-                  echoLabel="Non épluchée (g)"
-                />
-                <Row
-                  left="Équiv. épluché"
-                  right={fmtAllUnits(num(qtyNon) * (peelY || 0))}
-                />
-              </View>
-            )}
-
-            {/* Quantité ⇆ Poids */}
-            <GenericConversions d={{ ...d, ...pdtSelected }} />
-          </View>
-            )
-            })()}
-          </View>
-        )}
       </View>
-    )
-  }
+
+      {/* 4) Détails quand une variété est sélectionnée */}
+      {pdtSelected && (
+        <View style={{ marginTop: 12 }}>
+          {!!pdtSelected.pdt_texture && (
+            <Row left="Chair" right={String(pdtSelected.pdt_texture)} />
+          )}
+
+          {/* Usages de la variété — chips avec étoiles */}
+          {(() => {
+            const varUsages = PDT_METHODS
+              .map(m => ({ m, s: scoreFor(pdtSelected, m) }))
+              .filter(x => x.s >= 1)
+              .sort((a, b) => b.s - a.s);
+
+            return varUsages.length > 0 ? (
+              <View style={[st.pillsWrap, { marginTop: 8 }]}>
+                {varUsages.map(({ m, s }) => {
+                  const on = pdtMethod?.label === m.label;
+                  return (
+                    <TouchableOpacity
+                      key={m.label}
+                      onPress={() => setPdtMethod(prev => (prev?.label === m.label ? null : m))}
+                      activeOpacity={0.9}
+                      style={[st.pill, on && st.pillActive]}
+                    >
+                      <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>
+                        {m.label}
+                      </Text>
+                      <Text style={[st.pillBadge, on && { color: '#fff' }]}>{starsFor(s)}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            ) : null;
+          })()}
+
+          {/* ==== Infos clés (variété) + molette (unique) ==== */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 6 }}>
+            <Text style={[st.sTitle, { flex: 1 }]}>Infos clés (variété)</Text>
+
+            {ENABLE_OVERRIDES && (
+              <TouchableOpacity
+                onPress={() => setShowVarEditor(true)}
+                activeOpacity={0.9}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  borderRadius: 999,
+                  borderWidth: 2,
+                  borderColor: '#FFB6F9',
+                  backgroundColor: '#FFE4F6',
+                }}
+              >
+                <Text style={{ fontWeight: '900', color: '#FF4FA2' }}>⚙️</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Bandeau Données personnalisées (lié à la VARIÉTÉ) */}
+          {hasVarOverrides && (
+            <View
+              style={{
+                backgroundColor: '#FFF0F5',
+                borderColor: '#FF4FA2',
+                borderWidth: 1,
+                borderRadius: 10,
+                padding: 8,
+                marginBottom: 6,
+              }}
+            >
+              <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+              <Text style={{ color: '#57324B', fontSize: 13 }}>
+                Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+              </Text>
+            </View>
+          )}
+
+          {/* Lignes d’infos */}
+          {avgNon !== null && <Row left="Poids moyen (1 pièce)" right={`${fmt(avgNon)} g`} />}
+          {peelY  !== null && <Row left="Taux d'épluchage" right={`×${fmt(peelY)}`} />}
+          {avgEpl !== null && (
+            <Row left="Poids épluché" right={`${fmt(avgEpl)} g`} />
+          )}
+
+          {/* Épluché ⇆ Non épluché — VARIÉTÉ */}
+          {peelY !== null && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={st.sTitle}>
+                Épluché <Text style={st.arrow}>⇆</Text> Non épluché
+              </Text>
+
+              <InputWithEcho
+                value={qtyEpl}
+                onChangeText={setQtyEpl}
+                placeholder="Quantité épluchée (g)"
+                echoLabel="Épluchée (g)"
+              />
+              <Row left="Équiv. non épluché" right={fmtAllUnits(num(qtyEpl) / (peelY || 1))} />
+
+              <InputWithEcho
+                value={qtyNon}
+                onChangeText={setQtyNon}
+                placeholder="Quantité non épluchée (g)"
+                echoLabel="Non épluchée (g)"
+              />
+              <Row left="Équiv. épluché" right={fmtAllUnits(num(qtyNon) * (peelY || 0))} />
+            </View>
+          )}
+
+          {/* Quantité ⇆ Poids — pas de molette ici */}
+          {avgNon !== null && (
+            <GenericConversions
+              d={dd as Item}
+              showGear={false}
+              forceTargetId={varTargetId}
+            />
+          )}
+
+          {/* ParamEditor — VARIÉTÉ (spécifiques) */}
+          {ENABLE_OVERRIDES && (
+            <ParamEditor
+              visible={showVarEditor}
+              onClose={() => setShowVarEditor(false)}
+              targetId={varTargetId}
+              base={(pdtVarOV || pdtSelected) as any}
+              specs={[
+                { key: 'pdt_spcfc_wght', label: 'Poids moyen (1 pièce)', type: 'number', hint: 'g' },
+                { key: 'pdt_spcfc_peel', label: 'Taux d’épluchage',      type: 'number', hint: 'ex: 0.85' },
+              ] as any}
+              onSaved={async () => {
+                await reloadVar();
+                const ok = await hasOverrides(varTargetId);
+                setHasVarOverrides(ok);
+                setShowVarEditor(false);
+              }}
+              onReset={async () => {
+                await reloadVar();
+                const ok = await hasOverrides(varTargetId);
+                setHasVarOverrides(ok); // le bandeau disparaît s’il n’y a plus d’overrides
+                setShowVarEditor(false);
+              }}
+            />
+          )}
+        </View>
+      )}
+    </View>
+  );
+}
 
 
   function PastaSection({ d, openInfo }: { d: Item; openInfo: (title: string, text: string) => void }) {
@@ -3109,7 +3204,7 @@ function AppleSection({ d }: { d: Item }) {
     }}
   />
 )}
-
+f
         </View>
       )}
 
