@@ -628,22 +628,15 @@ function IngredientCard({
 
   // Données fusionnées (CSV + overrides utilisateur)
   const dOV = mergeWithOverrides(d as any, ov, [
-    'avg_unit_g',
-    'peeled_yield',
-    'density_g_ml',
-    'tbsp_g',
-    'tsp_g',
-    'juice_ml_per_g',
-    'juice_ml_per_unit',
-    'lgth_g',
-    'egg_s',
-    'egg_m',
-    'egg_l',
-    'whte_pctge',
-    'ylw_pctge',
-    'psta_wter',
-    'psta_slt',
-  ])
+  'avg_unit_g','peeled_yield','density_g_ml','tbsp_g','tsp_g',
+  'juice_ml_per_g','juice_ml_per_unit','lgth_g',
+  'egg_s','egg_m','egg_l','whte_pctge','ylw_pctge',
+  'psta_wter','psta_slt',
+  // 👇👇 AJOUTE les clés café pour que CoffeeSection voie bien les overrides
+  'coffee_mouture','coffee_tmp','coffee_tme','coffee_cup_cl',
+  'coffee_g_per_cl_lght','coffee_g_per_cl_strng','coffee_g_per_cl_intense',
+  'coffee_spcfc_tbsp_g',
+])
 
   // version simple pour forcer un re-render local si besoin
   const [ovRev, setOvRev] = useState(0)
@@ -1104,7 +1097,7 @@ if (jPerUnit != null) {
   const isZucchini = ['courgette', 'courgettes'].includes(normId)
   const isEggplant = ['aubergine', 'aubergines'].includes(normId)
 
-  if (isPotato || isPasta || isApple || isPear || isGarlic || isZucchini || !dOV.avg_unit_g) return null
+  if (isPotato || isPasta || isApple || isPear || isGarlic || !dOV.avg_unit_g) return null
   return <GenericConversions d={dOV} />
 })()}
 
@@ -1255,25 +1248,25 @@ if (jPerUnit != null) {
 // ✅ NEW signature: on peut masquer la molette et forcer le targetId
 function GenericConversions({
   d,
-  showGear = true,
+  showGear,            // ← désormais OPTIONNEL, et caché par défaut
   forceTargetId,
 }: {
-  d: Item;
-  showGear?: boolean;
-  forceTargetId?: string;
+  d: Item
+  showGear?: boolean
+  forceTargetId?: string
 }) {
-  // ——— États UI des champs de conversion
+  // ——— États UI
   const [genWeightEpl, setGenWeightEpl] = React.useState('');
   const [genWeightNon, setGenWeightNon] = React.useState('');
   const [countNon,     setCountNon]     = React.useState('');
 
-  // ✅ targetId pilotable (utile pour lier au même espace d’overrides que la VARIÉTÉ)
-  const targetId = forceTargetId ? forceTargetId : normalizeId(d.id || d.label || 'unknown');
+  // ——— Identifiant de stockage (normalisé)
+  const targetId = forceTargetId ?? normalizeId(d.id || d.label || 'unknown');
 
-  // Hook overrides
+  // ——— Overrides
   const { values: ov, reload, version } = useIngredientOverrides(targetId);
 
-  // Bandeau “données personnalisées” — basé sur le targetId effectif
+  // ——— Bandeau “Données personnalisées”
   const [hasUserOverrides, setHasUserOverrides] = React.useState(false);
   React.useEffect(() => {
     let mounted = true;
@@ -1281,24 +1274,27 @@ function GenericConversions({
     return () => { mounted = false; };
   }, [targetId, version]);
 
-  // Fusion
+  // ——— Fusion des valeurs utiles
   const dd = mergeWithOverrides(d as any, ov, ['avg_unit_g', 'peeled_yield']);
   const avgNon = toNumMaybe(dd.avg_unit_g);
-  const peelY  = getPeelYield(dd);
+  const peelY  = getPeelYield(dd); // garde la logique multi-colonnes
   const avgEpl = (avgNon !== null && peelY) ? avgNon * peelY : null;
 
-  // Modal éditeur (⚙️) — désactivable via showGear
+  // ——— Molette: cachée par défaut, visible seulement si showGear === true
+  const showGearResolved = (showGear === true) && ENABLE_OVERRIDES;
+
+  // ——— Specs pour l’éditeur
   const [showEditor, setShowEditor] = React.useState(false);
 
   return (
     <View style={st.section}>
-      {/* Titre + ⚙️ (optionnelle) */}
+      {/* Titre + (éventuelle) molette */}
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
         <Text style={[st.sTitle, { flex: 1 }]}>
           Quantité <Text style={st.arrow}>⇆</Text> Poids
         </Text>
 
-        {ENABLE_OVERRIDES && showGear && (
+        {showGearResolved && (
           <TouchableOpacity
             onPress={() => setShowEditor(true)}
             activeOpacity={0.9}
@@ -1316,7 +1312,7 @@ function GenericConversions({
         )}
       </View>
 
-      {/* ✅ Bandeau lié au même targetId (varieté si forceTargetId donné) */}
+      {/* Bandeau “Données personnalisées” — reste affiché même si la molette est cachée */}
       {hasUserOverrides && (
         <View
           style={{
@@ -1328,15 +1324,16 @@ function GenericConversions({
             marginBottom: 8,
           }}
         >
-          <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
-<Text style={{ color: '#57324B', fontSize: 13 }}>
-  Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
-</Text>
- 
+          <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>
+            ⚠️ Données personnalisées
+          </Text>
+          <Text style={{ color: '#57324B', fontSize: 13 }}>
+            Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+          </Text>
         </View>
       )}
 
-      {/* 1) Poids épluché → Nb pièces (si on a un rendement), sinon poids → nb pièces */}
+      {/* 1) Si on a un rendement → “Poids épluché (g)” → pièces estimées */}
       {peelY ? (
         <>
           <InputWithEcho
@@ -1352,6 +1349,7 @@ function GenericConversions({
           })()}
         </>
       ) : (
+        /* 1b) Sinon → champ générique “Poids (g)” */
         <>
           <InputWithEcho
             value={genWeightEpl}
@@ -1380,7 +1378,7 @@ function GenericConversions({
         return <Row left="Nombre de pièces estimées" right={`${pieces} pièces`} />;
       })()}
 
-      {/* 3) Nb pièces → Poids (et épluché si rendement) */}
+      {/* 3) Nb pièces → Poids (non épl.) + Poids épluché si rendement */}
       <InputWithEcho
         value={countNon}
         onChangeText={setCountNon}
@@ -1392,8 +1390,8 @@ function GenericConversions({
         <Row left="Poids épluché" right={fmtAllUnits(num(countNon) * (avgNon ?? 0) * peelY)} />
       ) : null}
 
-      {/* ⚙️ (optionnelle) */}
-      {ENABLE_OVERRIDES && showGear && (
+      {/* ÉDITEUR ⚙️ (monté uniquement si on a demandé showGear) */}
+      {showGearResolved && (
         <ParamEditor
           targetId={targetId}
           base={d as any}
@@ -1403,13 +1401,13 @@ function GenericConversions({
           onSaved={async () => {
             await reload();
             const ok = await hasOverrides(targetId);
-            setHasUserOverrides(ok);     // ✅ met le bandeau à jour tout de suite
+            setHasUserOverrides(ok);
             setShowEditor(false);
           }}
           onReset={async () => {
             await reload();
             const ok = await hasOverrides(targetId);
-            setHasUserOverrides(ok);     // ✅ masque le bandeau si tout est reset
+            setHasUserOverrides(ok);
             setShowEditor(false);
           }}
         />
@@ -2461,35 +2459,43 @@ function CelerySection({ d }: { d: Item }) {
 }
 
 function JuiceSection({ d }: { d: Item }) {
-  const [weightG, setWeightG] = useState('')
-  const [pieces, setPieces]   = useState('')
-  const [volOrWeight, setVolOrWeight] = useState('')
+  const [weightG, setWeightG] = useState('');
+  const [pieces, setPieces]   = useState('');
+  const [volOrWeight, setVolOrWeight] = useState('');
 
-  const perG = toNumPos(d.juice_ml_per_g)
-  const avgG = toNumPos(d.avg_unit_g)
-  const perUnit = juicePerUnitMl(d) // = avg_unit_g * juice_ml_per_g si dispo, sinon juice_ml_per_unit
+  // — Détection "orange" (pour n’impacter que cet ingrédient)
+  const normId = (d.id || d.label || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_');
+  const isOrange = normId.includes('orange');
+
+  const perG   = toNumPos(d.juice_ml_per_g);
+  const avgG   = toNumPos(d.avg_unit_g);
+  const perUnit = juicePerUnitMl(d); // = avg_unit_g * juice_ml_per_g si dispo, sinon juice_ml_per_unit
 
   // Calculs pour les barres 1 et 2
-  const volFromWeight = perG ? juiceFromWeightMl(num(weightG), d) : null
-  const volFromPieces = perUnit != null ? (num(pieces) * perUnit) : null
+  const volFromWeight = perG ? juiceFromWeightMl(num(weightG), d) : null;
+  const volFromPieces = perUnit != null ? (num(pieces) * perUnit) : null;
 
-  // Calculs pour la 3e barre (Volume ou poids voulu)
-  const volOrW = num(volOrWeight)
-  let estWeight: number | null = null
-  let estPieces: number | null = null
+  // Barre 3 — Volume ou poids voulu (ml ou g)
+  const volOrW = num(volOrWeight);
+  let estWeight: number | null = null;
+  let estPieces: number | null = null;
 
   if (volOrW && perG) {
-    // Interprétation : si >1000, on suppose que c’est en g (fruit)
+    // Heuristique: si > 1000 on suppose que c’est un poids (g)
     if (volOrW > 1000 && avgG) {
-      estWeight = volOrW
-      estPieces = avgG ? estWeight / avgG : null
+      estWeight = volOrW;
+      estPieces = avgG ? estWeight / avgG : null;
     } else {
-      estWeight = volOrW / perG
-      estPieces = avgG ? estWeight / avgG : null
+      estWeight = volOrW / perG;
+      estPieces = avgG ? estWeight / avgG : null;
     }
   } else if (volOrW && perUnit) {
-    estPieces = volOrW / perUnit
-    estWeight = avgG && estPieces ? estPieces * avgG : null
+    estPieces = volOrW / perUnit;
+    estWeight = avgG && estPieces ? estPieces * avgG : null;
   }
 
   return (
@@ -2502,21 +2508,21 @@ function JuiceSection({ d }: { d: Item }) {
           <InputWithEcho
             value={weightG}
             onChangeText={setWeightG}
-            placeholder={`Poids du ${String(d.label || 'produit')} (g)`}
-            echoLabel="Volume estimé"
+            placeholder={isOrange ? 'Poids (g)' : `Poids du ${String(d.label || 'produit')} (g)`}
+            echoLabel={isOrange ? 'Poids (g)' : 'Poids (g)'}
           />
           <Row left="Volume estimé" right={fmtVolAllUnits(volFromWeight ?? 0)} />
         </>
       )}
 
-      {/* Barre 2 — N pièces (poids inconnu) -> Volume estimé */}
+      {/* Barre 2 — N pièces -> Volume estimé */}
       {perUnit != null && (
         <>
           <InputWithEcho
             value={pieces}
             onChangeText={setPieces}
-            placeholder="Nombre de pièces (poids inconnu)"
-            echoLabel="Volume estimé"
+            placeholder={isOrange ? 'Nombre de pièces (ex: 3)' : 'Nombre de pièces (poids inconnu)'}
+            echoLabel="Pièces"
           />
           <Row left="Volume estimé" right={fmtVolAllUnits(volFromPieces ?? 0)} />
         </>
@@ -2527,12 +2533,12 @@ function JuiceSection({ d }: { d: Item }) {
         value={volOrWeight}
         onChangeText={setVolOrWeight}
         placeholder="Volume ou poids voulu (ml ou g)"
-        echoLabel="Estimation"
+        echoLabel="Entrée"
       />
       <Row left="Poids estimé" right={`${fmt(estWeight)} g`} />
       <Row left="Nombre de pièces estimé" right={fmt(estPieces)} />
     </View>
-  )
+  );
 }
 
 
