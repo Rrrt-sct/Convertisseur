@@ -887,12 +887,14 @@ if (jPerUnit != null) {
         </View>
       )}
 
-{(infoRows.length > 0) && (
+
+{(infoRows.length > 0 || (ENABLE_OVERRIDES && specsForThis.length > 0)) && (
   <View style={st.section}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
       <Text style={[st.sTitle, { flex: 1 }]}>Infos clés</Text>
 
-      {ENABLE_OVERRIDES && (
+      {/* ⚙️ masquer pour le café ici */}
+      {ENABLE_OVERRIDES && specsForThis.length > 0 && !isCoffee && (
         <TouchableOpacity
           onPress={() => setShowEditor(true)}
           activeOpacity={0.9}
@@ -910,9 +912,11 @@ if (jPerUnit != null) {
       )}
     </View>
 
+    {/* Si aucune info (cas café), on garde un corps vide pour conserver la structure */}
     {infoRows}
   </View>
 )}
+
 
 
       {/* ========= Épluché ⇆ Non épluché (si peeled_yield) ========= */}
@@ -3590,210 +3594,271 @@ function GarlicSection({ d }: { d: Item }) {
 }
 
 function CoffeeSection({ d }: { d: Item }) {
-  // Sélection usage & intensité
-  const [coffeeSelected, setCoffeeSelected] = React.useState<any | null>(null)
-  const [intensity, setIntensity] = React.useState<'lght' | 'strng' | 'intense'>('lght')
+  // ───────── UI state
+  const [selectedUsage, setSelectedUsage] = useState<any | null>(null);
+  const [intensity, setIntensity] = useState<'lght' | 'strng' | 'intense'>('lght');
+  const [cups, setCups] = useState('');
+  const [grams, setGrams] = useState('');
+  const [tbsp, setTbsp] = useState('');
+  const [weightToSpoons, setWeightToSpoons] = useState('');
 
-  // Entrées utilisateur
-  const [cups, setCups] = React.useState('')   // Nb tasses
-  const [volCl, setVolCl] = React.useState('') // Volume souhaité (cl)
+  // ───────── Overrides (molette) — 1 seule molette pour “café”
+  const coffeeTargetId = normalizeId(d.id || d.label || 'coffee');
+  const { values: coffeeOV, reload: reloadCoffeeOV, version: coffeeOVVer } =
+    useIngredientOverrides(coffeeTargetId);
+  const [showCoffeeEditor, setShowCoffeeEditor] = useState(false);
+  const [hasCoffeeOverrides, setHasCoffeeOverrides] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    hasOverrides(coffeeTargetId).then(ok => { if (mounted) setHasCoffeeOverrides(ok); });
+    return () => { mounted = false; };
+  }, [coffeeTargetId, coffeeOVVer]);
 
-  // ===== Helpers robustes =====
-  const clean = (v: any): string =>
-    String(v ?? '').trim().replace(/^['"]+|['"]+$/g, '').replace(',', '.')
-
-  const n = (v: any): number | null => {
-    const s0 = clean(v)
-    if (!s0) return null
-    const s = s0.replace(/[^0-9.+-]/g, '')
-    if (!s || s === '.' || s === '+' || s === '-') return null
-    const x = Number(s)
-    return Number.isFinite(x) ? x : null
-  }
-
-  const parseRange = (v: any): { min: number; max: number; avg: number } | null => {
-    const s = clean(v)
-    if (!s) return null
-    const m = s.match(/^\s*([0-9]+(?:\.[0-9]+)?)\s*[-–]\s*([0-9]+(?:\.[0-9]+)?)\s*$/)
-    if (!m) return null
-    const a = Number(m[1])
-    const b = Number(m[2])
-    if (!Number.isFinite(a) || !Number.isFinite(b)) return null
-    const min = Math.min(a, b)
-    const max = Math.max(a, b)
-    return { min, max, avg: (min + max) / 2 }
-  }
-
-  const showNumOrRange = (v: any, unit: string): string => {
-    const r = parseRange(v)
-    if (r) return `${fmt(r.min)}–${fmt(r.max)} ${unit}`
-    const x = n(v)
-    return x == null ? '—' : `${fmt(x)} ${unit}`
-  }
-
-  const truthy = (v: any) => {
-    const s = String(v ?? '').trim().toLowerCase()
-    return s === '1' || s === 'true' || s === 'x' || s === 'oui' || s === 'yes'
-  }
-
-  // Usages: lignes où is_coffee_use est réellement vrai
-  const coffeeUsages = React.useMemo(
-    () => (DB as any[]).filter(v => truthy(v?.is_coffee_use)),
+  // ───────── Usages depuis le CSV (is_coffee_use “truthy”)
+  const coffeeUsages = useMemo(
+    () => (DB as any[]).filter(row => isTrue(row?.is_coffee_use)),
     []
-  )
+  );
 
-  // Facteur g/cl selon intensité
-  const gPerCl = (row: any): number => {
-    const l = n(row?.coffee_g_per_cl_lght)
-    const s = n(row?.coffee_g_per_cl_strng)
-    const i = n(row?.coffee_g_per_cl_intense)
-    return intensity === 'lght' ? (l ?? 0) : intensity === 'strng' ? (s ?? 0) : (i ?? 0)
-  }
+  // ───────── Fusion des données pour l’AFFICHAGE :
+  // priorité aux overrides -> puis à la ligne d’usage sélectionnée -> puis à la ligne “café” d’origine
+  const dBase = useMemo(
+    () => mergeWithOverrides(d as any, coffeeOV, [
+      // volumes tasse
+      'coffee_cup_ml','coffee_cup_cl','cup_ml','cup_cl',
+      // dosages
+      'coffee_g_per_cl_lght','coffee_g_per_cl_light','coffee_g_cl_doux',
+      'coffee_g_per_cl_strng','coffee_g_per_cl_strong','coffee_g_cl_corse',
+      'coffee_g_per_cl_intense','coffee_g_cl_intense',
+      // cuillère à soupe
+      'coffee_spcfc_tbsp_g','coffee_tbsp_g','tbsp_g_coffee',
+      // divers
+      'coffee_mouture','coffee_tmp','coffee_tme',
+    ]) as Item,
+    [d, coffeeOV]
+  );
 
-  // Poids d'1 c. à café (g)
-  const tbspG = (row: any) => n(row?.coffee_spcfc_tbsp_g) ?? 0
+  // si un usage est choisi, on lui permet d’overrider les champs d’affichage
+  const dEff = useMemo(() => ({ ...dBase, ...(selectedUsage || {}) }) as Item, [dBase, selectedUsage]);
 
-  // --- Calculs “Nombre de tasses” ---
-  const cupsN = num(cups)
+  // ───────── Helpers robustes
+  const pickNum = (obj: any, keys: string[], map?: (n: number)=>number): number | null => {
+    for (const k of keys) {
+      const v = toNumMaybe(obj?.[k]);
+      if (v != null) return map ? map(v) : v;
+    }
+    return null;
+  };
+  const pickStr = (obj: any, keys: string[]): string => {
+    for (const k of keys) {
+      const s = String(obj?.[k] ?? '').trim();
+      if (s) return s;
+    }
+    return '';
+  };
+  const fmtOrDash = (n: number | null) => (n == null || !Number.isFinite(n) || n <= 0 ? '—' : fmt(n));
 
-  // Volume d’une tasse (ml) : priorité à coffee_cup_ml ; sinon *10 depuis cl
-  const cupMl =
-    coffeeSelected
-      ? (n(coffeeSelected.coffee_cup_ml) ??
-         (n(coffeeSelected.coffee_cup_cl) != null ? (n(coffeeSelected.coffee_cup_cl)! * 10) : 0))
-      : 0
+  // ───────── Lecture valeurs (avec alias)
+  const cupMl = pickNum(dEff, ['coffee_cup_ml','cup_ml']) ?? pickNum(dEff, ['coffee_cup_cl','cup_cl'], cl => cl*10) ?? 0;
+  const cupCl = cupMl / 10;
 
-  const totalMlFromCups = cupsN * cupMl
-  const totalClFromCups = totalMlFromCups / 10
+  const doseLght   = pickNum(dEff, ['coffee_g_per_cl_lght','coffee_g_per_cl_light','coffee_g_cl_doux']) ?? 0;
+  const doseStrng  = pickNum(dEff, ['coffee_g_per_cl_strng','coffee_g_per_cl_strong','coffee_g_cl_corse']) ?? 0;
+  const doseIntens = pickNum(dEff, ['coffee_g_per_cl_intense','coffee_g_cl_intense']) ?? 0;
 
-  // Eau et café
-  const waterMlFromCups = totalMlFromCups
-  const coffeeGFromCups = totalClFromCups * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
-  const spoonsFromCups = (tbspG(coffeeSelected) > 0) ? (coffeeGFromCups / tbspG(coffeeSelected)) : 0
+  const tbsp_g = pickNum(dEff, ['coffee_spcfc_tbsp_g','coffee_tbsp_g','tbsp_g_coffee']);
+  const moutureTxt = pickStr(dEff, ['coffee_mouture']);
+  const tempC      = pickNum(dEff, ['coffee_tmp']);
+  const timeMin    = pickNum(dEff, ['coffee_tme']);
 
-  // --- Calculs “Volume souhaité (cl)” ---
-  const volClN = num(volCl)
-  const coffeeGFromVol = volClN * (coffeeSelected ? gPerCl(coffeeSelected) : 0)
-  const spoonsFromVol = (tbspG(coffeeSelected) > 0) ? (coffeeGFromVol / tbspG(coffeeSelected)) : 0
+  const dosePerCl =
+    intensity === 'lght'  ? doseLght
+    : intensity === 'strng' ? doseStrng
+    : doseIntens;
+
+  const gramsPerCup = (dosePerCl || 0) * (cupCl || 0);
+
+  // ───────── UI
+  const INTENSITIES = [
+    { key: 'lght' as const,   label: 'Doux'    },
+    { key: 'strng' as const,  label: 'Corsé'   },
+    { key: 'intense' as const,label: 'Intense' },
+  ];
 
   return (
     <View style={st.section}>
-      {/* 1) Choisir un usage */}
+      {/* 1) Choisir un usage — dynamiques depuis le CSV */}
       <Text style={st.sTitle}>Choisir un usage</Text>
       <View style={st.pillsWrap}>
         {coffeeUsages
-          .map(v => ({ v, name: String(v.label ?? v.id) }))
+          .map(u => ({ u, name: String(u.label ?? u.id ?? 'Usage') }))
           .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }))
-          .map(({ v, name }) => {
-            const on = coffeeSelected?.id === v.id
+          .map(({ u, name }) => {
+            const on = selectedUsage?.id === u.id;
             return (
               <TouchableOpacity
-                key={v.id}
-                onPress={() => setCoffeeSelected(v)}
+                key={u.id}
+                onPress={() => setSelectedUsage(prev => (prev?.id === u.id ? null : u))}
                 activeOpacity={0.9}
                 style={[st.pill, on && st.pillActive]}
               >
-                {imgSrc(v.id) ? (
-                  <Image source={imgSrc(v.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
+                {imgSrc(u.id) ? (
+                  <Image source={imgSrc(u.id)} style={{ width: 18, height: 18, marginRight: 6, borderRadius: 4 }} />
                 ) : null}
                 <Text style={[st.pillText, on && st.pillTextOn]} numberOfLines={1}>{name}</Text>
               </TouchableOpacity>
-            )
+            );
           })}
+        {coffeeUsages.length === 0 && (
+          <Text style={{ color: '#666' }}>Aucun usage café trouvé (is_coffee_use).</Text>
+        )}
       </View>
 
-      {/* 2) Choisir une intensité */}
+      {/* 2) Intensité */}
       <Text style={[st.sTitle, { marginTop: 8 }]}>Intensité</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-        {[
-          { k: 'lght' as const, label: 'Faible' },
-          { k: 'strng' as const, label: 'Fort' },
-          { k: 'intense' as const, label: 'Intense' },
-        ].map(opt => {
-          const on = intensity === opt.k
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+        {INTENSITIES.map(i => {
+          const on = intensity === i.key;
           return (
             <TouchableOpacity
-              key={opt.k}
-              onPress={() => setIntensity(opt.k)}
+              key={i.key}
               activeOpacity={0.9}
-              style={[st.sizeBtn, on && st.sizeBtnOn]}
+              onPress={() => setIntensity(i.key)}
+              style={[st.pill, on && st.pillActive]}
             >
-              <Text style={[st.sizeBtnText, on && st.sizeBtnTextOn]}>{opt.label}</Text>
+              <Text style={[st.pillText, on && st.pillTextOn]}>{i.label}</Text>
             </TouchableOpacity>
-          )
+          );
         })}
       </View>
 
-      {/* 3) Infos clés */}
-     {/* 3) Infos clés */}
-{coffeeSelected && (
-  <View style={{ marginTop: 8 }}>
-    <Text style={st.sTitle}>Infos clés</Text>
-    <Row left="Mouture" right={String(coffeeSelected.coffee_mouture ?? '—')} />
-    <Row left="1 c. à café" right={`${fmt(tbspG(coffeeSelected))} g`} />
-    <Row left="Température de l’eau" right={showNumOrRange(coffeeSelected.coffee_tmp, '°C')} />
-    <Row left="Temps d’infusion" right={showNumOrRange(coffeeSelected.coffee_tme, 'min')} />
-    <Row
-      left="Volume d’une tasse"
-      right={
-        cupMl
-          ? `${fmt(cupMl)} ml  |  ${fmt(cupMl / 10)} cl`
-          : '—'
-      }
-    />
-    {/* 👉 Nouvelle ligne : quantité de café par cl */}
-    <Row
-      left="Café par cl"
-      right={
-        (() => {
-          const val = gPerCl(coffeeSelected)
-          const label =
-            intensity === 'lght'
-              ? 'faible'
-              : intensity === 'strng'
-              ? 'fort'
-              : 'intense'
-          return val > 0 ? `${fmt(val)} g/cl (${label})` : '—'
-        })()
-      }
-    />
-  </View>
-)}
+      {/* 3) Molette — visible UNIQUEMENT si un usage est choisi (une seule molette) */}
+      {selectedUsage && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, marginBottom: 6 }}>
+          <Text style={[st.sTitle, { flex: 1 }]}>Réglages café</Text>
+          {ENABLE_OVERRIDES && (
+            <TouchableOpacity
+              onPress={() => setShowCoffeeEditor(true)}
+              activeOpacity={0.9}
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderRadius: 999,
+                borderWidth: 2,
+                borderColor: '#FFB6F9',
+                backgroundColor: '#FFE4F6',
+              }}
+            >
+              <Text style={{ fontWeight: '900', color: '#FF4FA2' }}>⚙️</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+      {selectedUsage && hasCoffeeOverrides && (
+        <View
+          style={{
+            backgroundColor: '#FFF0F5',
+            borderColor: '#FF4FA2',
+            borderWidth: 1,
+            borderRadius: 10,
+            padding: 8,
+            marginBottom: 6,
+          }}
+        >
+          <Text style={{ color: '#FF4FA2', fontWeight: '700' }}>⚠️ Données personnalisées</Text>
+          <Text style={{ color: '#57324B', fontSize: 13 }}>
+            Ces valeurs remplacent celles de base. Appuyez sur ⚙️ pour revoir ou réinitialiser.
+          </Text>
+        </View>
+      )}
 
-      {/* 4) Barres de conversion */}
-      {coffeeSelected && (
+      {/* 4) Infos clés — claires et robustes */}
+      <Text style={st.sTitle}>Infos clés</Text>
+      <Row left="Volume tasse" right={`${fmtOrDash(cupMl)} ml (${fmtOrDash(cupCl)} cl)`} />
+      <Row left="Dosage doux (g/cl)" right={fmtOrDash(doseLght)} />
+      <Row left="Dosage corsé (g/cl)" right={fmtOrDash(doseStrng)} />
+      <Row left="Dosage intense (g/cl)" right={fmtOrDash(doseIntens)} />
+      <Row left="Grammes par tasse (intensité sélectionnée)" right={`${fmtOrDash(gramsPerCup)} g`} />
+      <Row left="1 c. à soupe de café" right={tbsp_g != null ? `${fmt(tbsp_g)} g` : '—'} />
+      {!!moutureTxt && <Row left="Mouture" right={moutureTxt} />}
+      {tempC != null && <Row left="Température" right={`${fmt(tempC)} °C`} />}
+      {timeMin != null && <Row left="Temps" right={`${fmt(timeMin)} min`} />}
+
+      {/* 5) Convertisseurs */}
+      <Text style={[st.sTitle, { marginTop: 8 }]}>Tasses ⇆ Poids</Text>
+      <InputWithEcho
+        value={cups}
+        onChangeText={setCups}
+        placeholder="Nombre de tasses (ex: 2)"
+        echoLabel="Tasses"
+      />
+      <Row left="Poids de café (g)" right={fmtAllUnits(num(cups) * (gramsPerCup || 0))} />
+
+      <InputWithEcho
+        value={grams}
+        onChangeText={setGrams}
+        placeholder="Poids de café (g)"
+        echoLabel="Poids (g)"
+      />
+      <Row left="Nombre de tasses" right={gramsPerCup > 0 ? fmt(num(grams) / gramsPerCup) : '—'} />
+
+      {tbsp_g != null && (
         <>
-          {/* 4.1 — Nombre de tasses → Eau & Café */}
-          <Text style={[st.sTitle, { marginTop: 10 }]}>
-            Nombre de tasses souhaitées <Text style={st.arrow}>→</Text> Eau & Café
+          <Text style={[st.sTitle, { marginTop: 8 }]}>
+            Cuillères <Text style={st.arrow}>⇆</Text> Poids
           </Text>
           <InputWithEcho
-            value={cups}
-            onChangeText={setCups}
-            placeholder="Nombre de tasses (ex: 3)"
-            echoLabel="Tasses"
+            value={tbsp}
+            onChangeText={setTbsp}
+            placeholder="Cuillères à soupe (ex: 2)"
+            echoLabel="c. à soupe"
           />
-          <Row left="Eau" right={`${fmt(waterMlFromCups)} ml  |  ${fmt(totalClFromCups)} cl`} />
-          <Row left="Café" right={`${fmt(coffeeGFromCups)} g`} />
-          <Row left="≈ Cuillères à café" right={fmt(spoonsFromCups)} />
-
-          {/* 4.2 — Volume souhaité (cl) → Café */}
-          <Text style={[st.sTitle, { marginTop: 10 }]}>
-            Volume souhaité (cl) <Text style={st.arrow}>→</Text> Café
-          </Text>
+          <Row left="Poids (g)" right={fmtAllUnits(num(tbsp) * (tbsp_g || 0))} />
           <InputWithEcho
-            value={volCl}
-            onChangeText={setVolCl}
-            placeholder="Volume (cl) — ex: 45"
-            echoLabel="Volume (cl)"
+            value={weightToSpoons}
+            onChangeText={setWeightToSpoons}
+            placeholder="Poids (g) — ex: 15"
+            echoLabel="Poids (g)"
           />
-          <Row left="Café" right={`${fmt(coffeeGFromVol)} g`} />
-          <Row left="≈ Cuillères à café" right={fmt(spoonsFromVol)} />
+          <Row
+            left="Équivalent"
+            right={tbsp_g ? `${fmt(num(weightToSpoons) / tbsp_g, 2)} c. à soupe` : '— c. à soupe'}
+          />
         </>
       )}
+
+      {/* 6) ParamEditor (UNE seule molette, liée à l’ingrédient café) */}
+      {ENABLE_OVERRIDES && (
+        <ParamEditor
+          visible={showCoffeeEditor}
+          onClose={() => setShowCoffeeEditor(false)}
+          targetId={coffeeTargetId}
+          base={d as any}
+          specs={[
+            { key: 'coffee_g_per_cl_lght',    label: 'Dosage doux (g/cl)',    type: 'number', hint: 'g/cl' },
+            { key: 'coffee_g_per_cl_strng',   label: 'Dosage corsé (g/cl)',   type: 'number', hint: 'g/cl' },
+            { key: 'coffee_g_per_cl_intense', label: 'Dosage intense (g/cl)', type: 'number', hint: 'g/cl' },
+            { key: 'coffee_cup_ml',           label: 'Volume tasse (ml)',     type: 'number', hint: 'ml'   },
+            { key: 'coffee_spcfc_tbsp_g',     label: '1 c. à soupe café (g)', type: 'number', hint: 'g'    },
+          ] as any}
+          onSaved={async () => {
+            await reloadCoffeeOV();
+            const ok = await hasOverrides(coffeeTargetId);
+            setHasCoffeeOverrides(ok);
+            setShowCoffeeEditor(false);
+          }}
+          onReset={async () => {
+            await reloadCoffeeOV();
+            const ok = await hasOverrides(coffeeTargetId);
+            setHasCoffeeOverrides(ok);
+            setShowCoffeeEditor(false);
+          }}
+        />
+      )}
     </View>
-  )
+  );
 }
+
 
 function PearSection({ d }: { d: Item }) {
   const [qtyEpl, setQtyEpl] = useState('');
