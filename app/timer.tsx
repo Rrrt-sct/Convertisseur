@@ -80,7 +80,7 @@ export default function TimerScreen() {
           style={st.nameInput}
           value={displayName}
           onChangeText={setDisplayName}
-          placeholder="Nom du minuteur (ex : Pâtes, Four, Sirop...)"
+          placeholder="Nom du minuteur (ex : Pâtes, Four...)"
           placeholderTextColor="#FFB6F9"
           accessibilityLabel="Nom du minuteur"
           returnKeyType="done"

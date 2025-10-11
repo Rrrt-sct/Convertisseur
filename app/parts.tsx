@@ -152,13 +152,10 @@ export default function PartsConverterScreen() {
                       keyboardType="default"
                       placeholderTextColor="#FF92E0"
                     />
-                    {show && (resLeft?.initial || resLeft?.scaled) ? (
+                    {show && resLeft?.scaled ? (
                       <View style={st.resultBox}>
                         <Text style={st.resultMini}>
-                          <Text style={st.resultMiniK}>Initial</Text> : {resLeft?.initial || '—'}
-                        </Text>
-                        <Text style={st.resultMini}>
-                          <Text style={st.resultMiniK}>Converti</Text> : {resLeft?.scaled || '—'}
+                          <Text style={st.resultMiniK}>Converti</Text> : {resLeft.scaled}
                         </Text>
                       </View>
                     ) : null}
@@ -177,13 +174,10 @@ export default function PartsConverterScreen() {
                       keyboardType="default"
                       placeholderTextColor="#FF92E0"
                     />
-                    {show && (resRight?.initial || resRight?.scaled) ? (
+                    {show && resRight?.scaled ? (
                       <View style={st.resultBox}>
                         <Text style={st.resultMini}>
-                          <Text style={st.resultMiniK}>Initial</Text> : {resRight?.initial || '—'}
-                        </Text>
-                        <Text style={st.resultMini}>
-                          <Text style={st.resultMiniK}>Converti</Text> : {resRight?.scaled || '—'}
+                          <Text style={st.resultMiniK}>Converti</Text> : {resRight.scaled}
                         </Text>
                       </View>
                     ) : null}
@@ -304,7 +298,7 @@ const st = StyleSheet.create({
     borderRadius: 10,
     padding: 8,
   },
-  resultMini: { color: '#57324B', fontWeight: '600', marginBottom: 2 },
+  resultMini: { color: '#57324B', fontWeight: '600' },
   resultMiniK: { color: '#7a3c84', fontWeight: '900' },
 
   // CTA
