@@ -2598,38 +2598,44 @@ function SpoonsSection({ d }: { d: Item }) {
 
 function PastaWaterSaltSection({ d }: { d: Item }) {
   const [pastaG, setPastaG] = useState('')
-  const [waterL, setWaterL] = useState('')
-  const pastaW = toNumMaybe(d.psta_wter)
-  const pastaS = toNumMaybe(d.psta_slt)
+
+  // Stockage normalisé attendu :
+  // - d.psta_wter : L d’eau / g de pâtes   (ex : 0.01  => 1 L pour 100 g)
+  // - d.psta_slt  : g de sel / L d’eau     (ex : 10    => 10 g par litre)
+  const waterPerGram = toNumMaybe(d.psta_wter) ?? 0     // L/g
+  const saltPerLiter = toNumMaybe(d.psta_slt)  ?? 0     // g/L
+
+  const g = num(pastaG)
+  const L = g * waterPerGram                          // litres d’eau
+  const cl = L * 10
+  const ml = L * 1000
+
+  // ✅ Sel basé sur le volume d’eau (g/L), plus JAMAIS sur les g de pâtes
+  const saltG = L * saltPerLiter                      // grammes de sel
+
+  // Valeurs "infos clés" affichables si tu veux (optionnel) :
+  // - eau UI = L / 100 g => waterPerGram * 100
+  // - sel UI = g / L     => saltPerLiter (identité)
 
   return (
     <View style={st.section}>
       <Text style={[st.sTitle, { marginTop: 8 }]}>
         Pâtes <Text style={st.arrow}>⇆</Text> Eau & Sel
       </Text>
-      <InputWithEcho value={pastaG} onChangeText={setPastaG} placeholder="Qtité de pâtes (g)" echoLabel="Pâtes (g)" />
-      {(() => {
-        const g = num(pastaG)
-        const L = g * (pastaW ?? 0)
-        const cl = L * 10
-        const ml = L * 1000
-        const saltG = (pastaS ?? 0) * g
-        return (
-          <>
-            <Row left="Quantité d'eau" right={`${fmt(L, 3)} l  |  ${fmt(cl, 1)} cl  |  ${fmt(ml, 0)} ml`} />
-            <Row left="Quantité de sel" right={fmtAllUnits(saltG)} />
-          </>
-        )
-      })()}
-      <InputWithEcho value={waterL} onChangeText={setWaterL} placeholder="Quantité d'eau (l)" echoLabel="Eau (l)" />
-      {(() => {
-        const L2 = num(waterL)
-        const saltG2 = L2 * (pastaS ?? 0) * 100
-        return <Row left="Quantité de sel" right={fmtAllUnits(saltG2)} />
-      })()}
+
+      <InputWithEcho
+        value={pastaG}
+        onChangeText={setPastaG}
+        placeholder="Qtité de pâtes (g)"
+        echoLabel="Pâtes (g)"
+      />
+
+      <Row left="Quantité d'eau" right={`${fmt(L, 3)} l  |  ${fmt(cl, 1)} cl  |  ${fmt(ml, 0)} ml`} />
+      <Row left="Quantité de sel" right={fmtAllUnits(saltG)} />
     </View>
   )
 }
+
 
 function ChickenSection({ d }: { d: Item }) {
   const [selectedVar, setSelectedVar] = useState<any | null>(null)

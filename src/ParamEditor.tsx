@@ -8,6 +8,8 @@ type Spec = {
   label: string
   type: 'number' | 'text'
   hint?: string
+  toUi?:   (raw: any, allRaw?: Record<string, any>) => any
+  fromUi?: (ui: any, helpers?: { getStorage?: (k: string) => any; getUi?: (k: string) => any }) => any
 }
 
 type Props = {
@@ -16,19 +18,21 @@ type Props = {
   specs: Spec[]
   visible: boolean
   onClose: () => void
-  /** Appelé après save/reset pour permettre au parent (results.tsx) de recharger et mettre à jour le bandeau */
   onSaved?: () => void
+}
+
+const numUi = (v: any) => {
+  const n = Number(String(v ?? '').replace(',', '.'))
+  return Number.isFinite(n) ? n : 0
 }
 
 export default function ParamEditor(props: Props) {
   const { targetId, base, specs, visible, onClose, onSaved } = props
   const normId = normalizeId(targetId)
 
-  // Valeurs d’édition (string pour TextInput)
   const [form, setForm] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
 
-  // Charger les overrides existants et pré-remplir
   useEffect(() => {
     let mounted = true
     const run = async () => {
@@ -38,48 +42,51 @@ export default function ParamEditor(props: Props) {
 
       const initial: Record<string, string> = {}
       for (const s of specs) {
-        // priorité à l’override si présent, sinon valeur de base si dispo
-        const v =
-          existing[s.key] ??
-          (base[s.key] !== undefined && base[s.key] !== null ? String(base[s.key]) : '')
-        initial[s.key] = String(v ?? '')
+        const raw = (existing[s.key] !== undefined ? existing[s.key] : base[s.key])
+        const uiVal = s.toUi ? s.toUi(raw, existing) : raw
+        initial[s.key] = uiVal !== undefined && uiVal !== null ? String(uiVal) : ''
       }
       setForm(initial)
       setLoading(false)
     }
     run()
-    return () => {
-      mounted = false
-    }
+    return () => { mounted = false }
   }, [normId, specs, base, visible])
 
-  const handleChange = (k: string, v: string) => {
-    setForm((f) => ({ ...f, [k]: v }))
-  }
+  const handleChange = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
   const handleSave = async () => {
-    // On ne stocke que les champs non vides
     const toSave: Record<string, any> = {}
+    const getStorage = (k: string) => {
+      const v = toSave[k]
+      return v === undefined ? (base as any)[k] : v
+    }
+    const getUi = (k: string) => form[k]
+
     for (const s of specs) {
-      const raw = form[s.key]
-      if (raw !== undefined && raw !== null && String(raw).trim() !== '') {
-        toSave[s.key] = s.type === 'number' ? Number(String(raw).replace(',', '.')) : raw
+      const ui = form[s.key]
+      if (ui === undefined || ui === null || String(ui).trim() === '') continue
+
+      if (s.fromUi) {
+        toSave[s.key] = s.fromUi(ui, { getStorage, getUi })
+      } else {
+        toSave[s.key] = s.type === 'number' ? numUi(ui) : ui
       }
     }
+
     await saveOverridesRaw(normId, toSave)
-    onSaved?.()     // pour que le parent recharge (bandeau, recalculs)
+    onSaved?.()
     onClose()
   }
 
   const handleReset = async () => {
     await clearOverrides(normId)
-    onSaved?.()     // pour que le parent recharge
+    onSaved?.()
     onClose()
   }
 
   if (!visible) return null
 
-  // UI modal centrée (Modal natif iOS/Android, et fallback web)
   const Card = (
     <View
       style={{
@@ -178,15 +185,11 @@ export default function ParamEditor(props: Props) {
   )
 
   if (Platform.OS === 'web') {
-    // overlay centré pour le web
     return (
       <View
         style={{
           position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
+          left: 0, right: 0, top: 0, bottom: 0,
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.35)',
