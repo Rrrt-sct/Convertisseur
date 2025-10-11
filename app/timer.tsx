@@ -4,40 +4,31 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { msToMMSS, useTimer } from '../src/timerContext'
 
-/**
- * Écran Minuteur
- * - Robuste côté parsing des entrées (minutes/secondes)
- * - Normalise les secondes (>= 60 ⇒ report en minutes)
- * - Empêche le démarrage à 0s
- * - Boutons accessibles + états désactivés cohérents
- * - Ne dépend que de l'état du timer (running/remainingMs)
- */
 export default function TimerScreen() {
-  const { running, remainingMs, start, pause, reset } = useTimer()
+  const {
+    running,
+    remainingMs,
+    start,
+    pause,
+    reset,
+    displayName,
+    setDisplayName,
+  } = useTimer()
 
-  // Champs contrôlés en texte pour éviter les NaN et conserver les zéros non significatifs à l'affichage
+  // Champs contrôlés
   const [minutes, setMinutes] = useState('')
   const [seconds, setSeconds] = useState('')
 
-  // === Helpers ===
+  // Helpers
   const onlyDigits = (s: string) => s.replace(/[^0-9]/g, '')
   const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
 
   const normalizeInputs = useCallback((mStr: string, sStr: string) => {
-    // Nettoyage
     let m = Number(onlyDigits(mStr)) || 0
     let s = Number(onlyDigits(sStr)) || 0
-
-    // Report des secondes en minutes si s >= 60
-    if (s >= 60) {
-      m += Math.floor(s / 60)
-      s = s % 60
-    }
-
-    // Clamp raisonnable (éviter des valeurs absurdes)
+    if (s >= 60) { m += Math.floor(s / 60); s = s % 60 }
     m = clamp(m, 0, 9999)
     s = clamp(s, 0, 59)
-
     return { m, s }
   }, [])
 
@@ -53,11 +44,9 @@ export default function TimerScreen() {
   const onStartPause = useCallback(() => {
     if (running) {
       pause()
-    } else {
-      if (totalMs > 0) {
-        Keyboard.dismiss()
-        start(totalMs)
-      }
+    } else if (totalMs > 0) {
+      Keyboard.dismiss()
+      start(totalMs)
     }
   }, [running, pause, start, totalMs])
 
@@ -67,7 +56,6 @@ export default function TimerScreen() {
     setSeconds('')
   }, [reset])
 
-  // Normalisation visuelle sur blur ("07" → "07", "7" → "07")
   const onMinutesBlur = useCallback(() => {
     const { m } = normalizeInputs(minutes, '0')
     setMinutes(m.toString())
@@ -78,7 +66,6 @@ export default function TimerScreen() {
     setSeconds(s.toString().padStart(2, '0'))
   }, [seconds, normalizeInputs])
 
-  // Si on est en cours, on masque le clavier au changement d'état
   useEffect(() => {
     if (running) Keyboard.dismiss()
   }, [running])
@@ -87,8 +74,24 @@ export default function TimerScreen() {
     <View style={st.container}>
       <Text style={st.title} accessibilityRole="header">⏱️ Minuteur</Text>
 
-      {/* Affichage du temps restant issu du contexte (fiable à l'horloge) */}
-      <Text style={st.timeDisplay} accessibilityLabel={`Temps restant ${msToMMSS(remainingMs)}`}>
+      {/* Nom du minuteur (utilisé par l’overlay global quand il sonne) */}
+      <View style={{ width: '100%', maxWidth: 420, marginBottom: 10 }}>
+        <TextInput
+          style={st.nameInput}
+          value={displayName}
+          onChangeText={setDisplayName}
+          placeholder="Nom du minuteur (ex : Pâtes, Four, Sirop...)"
+          placeholderTextColor="#FFB6F9"
+          accessibilityLabel="Nom du minuteur"
+          returnKeyType="done"
+        />
+      </View>
+
+      {/* Affichage du temps restant */}
+      <Text
+        style={st.timeDisplay}
+        accessibilityLabel={`Temps restant ${msToMMSS(remainingMs)}`}
+      >
         {msToMMSS(remainingMs)}
       </Text>
 
@@ -125,7 +128,11 @@ export default function TimerScreen() {
 
       {/* Bouton principal */}
       <TouchableOpacity
-        style={[st.cta, running ? st.ctaPause : st.ctaStart, (!canStart && !canPause) && st.ctaDisabled]}
+        style={[
+          st.cta,
+          running ? st.ctaPause : st.ctaStart,
+          (!canStart && !canPause) && st.ctaDisabled,
+        ]}
         onPress={onStartPause}
         disabled={!canStart && !canPause}
         accessibilityRole="button"
@@ -140,13 +147,16 @@ export default function TimerScreen() {
         onPress={onReset}
         disabled={!canReset}
         accessibilityRole="button"
-        accessibilityState={{ disabled: !canReset }}
       >
         <Text style={st.ctaText}>Réinitialiser</Text>
       </TouchableOpacity>
 
       {/* Retour */}
-      <TouchableOpacity onPress={() => router.back()} style={st.backBtn} accessibilityRole="button">
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={st.backBtn}
+        accessibilityRole="button"
+      >
         <Text style={st.backText}>↩︎ Retour</Text>
       </TouchableOpacity>
     </View>
@@ -161,7 +171,17 @@ const st = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
-  title: { fontSize: 52, fontWeight: '900', color: '#FF4FA2', marginBottom: 20 },
+  title: { fontSize: 52, fontWeight: '900', color: '#FF4FA2', marginBottom: 10 },
+  nameInput: {
+    backgroundColor: '#FFF0FA',
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#FFB6F9',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 18,
+    color: '#FF4FA2',
+  },
   timeDisplay: { fontSize: 52, fontWeight: '900', color: '#FF4FA2', marginBottom: 20 },
   inputsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   timeInput: {

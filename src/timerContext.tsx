@@ -1,4 +1,4 @@
-// src/timerContext.tsx — correctif tick "now"
+// src/timerContext.tsx — version avec nom + overlay global
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 import { playBell, prepareBell } from './bell'
@@ -11,6 +11,14 @@ export type TimerCtx = {
   start: (durationMs: number) => void
   pause: () => void
   reset: () => void
+
+  // ✅ Nom du minuteur
+  displayName: string
+  setDisplayName: (s: string) => void
+
+  // ✅ Overlay global “prêt !”
+  doneVisible: boolean
+  setDoneVisible: (v: boolean) => void
 }
 
 const TimerContext = createContext<TimerCtx | undefined>(undefined)
@@ -27,28 +35,32 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [running, setRunning] = useState(false)
   const [hasRung, setHasRung] = useState(false)
 
-  // ✅ NOUVEAU : horloge interne qui force le render
+  // horloge interne pour forcer le render
   const [now, setNow] = useState(() => Date.now())
-
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const playingRef = useRef(false)
+
+  // ✅ nom + overlay global
+  const [displayName, setDisplayName] = useState('')
+  const [doneVisible, setDoneVisible] = useState(false)
 
   useEffect(() => {
     prepareBell().catch(() => {})
   }, [])
 
-  // ✅ remainingMs dépend de "now"
+  // remaining dépend de now
   const remainingMs = useMemo(() => {
     if (!deadline) return 0
     return Math.max(0, deadline - now)
   }, [deadline, now])
 
   const start = useCallback((durationMs: number) => {
-    const dl = Date.now() + durationMs
+    const dl = Date.now() + Math.max(0, Math.floor(durationMs))
     setDeadline(dl)
     setRunning(true)
     setHasRung(false)
-    setNow(Date.now()) // reset tick de référence
+    setDoneVisible(false) // ✅ on repart propre
+    setNow(Date.now())
   }, [])
 
   const pause = useCallback(() => {
@@ -63,32 +75,32 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setRunning(false)
     setDeadline(null)
     setHasRung(false)
+    setDoneVisible(false) // ✅ masque l’overlay
     setNow(Date.now())
   }, [])
 
-  // ✅ Intervalle : on met à jour "now" (et uniquement ça)
+  // tick
   useEffect(() => {
     if (!running) {
       if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
       return
     }
     if (!tickRef.current) {
-      tickRef.current = setInterval(() => {
-        setNow(Date.now())
-      }, 250)
+      tickRef.current = setInterval(() => setNow(Date.now()), 250)
     }
     return () => {
       if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null }
     }
   }, [running])
 
-  // ✅ Déclenchement unique quand remainingMs atteint 0
+  // fin du timer → son + overlay
   useEffect(() => {
     if (!running || hasRung || !deadline) return
     if (remainingMs > 0) return
 
     setRunning(false)
     setHasRung(true)
+    setDoneVisible(true) // ✅ affiche l’overlay global
 
     if (!playingRef.current) {
       playingRef.current = true
@@ -96,7 +108,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [running, hasRung, deadline, remainingMs])
 
-  // Protection retour d’arrière-plan
+  // retour d’arrière-plan
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') setNow(Date.now())
@@ -112,7 +124,11 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     start,
     pause,
     reset,
-  }), [running, remainingMs, deadline, hasRung, start, pause, reset])
+    displayName,
+    setDisplayName,
+    doneVisible,
+    setDoneVisible,
+  }), [running, remainingMs, deadline, hasRung, start, pause, reset, displayName, doneVisible])
 
   return <TimerContext.Provider value={value}>{children}</TimerContext.Provider>
 }

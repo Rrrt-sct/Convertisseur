@@ -441,6 +441,10 @@ export default function Results() {
               <Text style={st.actionLink}>🌎 Convertisseur universel</Text>
             </TouchableOpacity>
             {/* dans <View style={st.actionsWrap}> */}
+            <TouchableOpacity onPress={() => router.push('/parts')}>
+  <Text style={st.actionLink}>🍽️ Conversion de parts</Text>
+</TouchableOpacity>
+
             <TouchableOpacity onPress={() => router.push('/calculatrice')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                       <Calculator size={18} color="#57324B" strokeWidth={2} />
                       <Text style={st.actionLink}>Calculatrice</Text>
