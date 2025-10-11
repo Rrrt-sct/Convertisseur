@@ -2540,7 +2540,17 @@ function JuiceSection({ d }: { d: Item }) {
         echoLabel="Entrée"
       />
       <Row left="Poids estimé" right={`${fmt(estWeight)} g`} />
-      <Row left="Nombre de pièces estimé" right={fmt(estPieces)} />
+      {(() => {
+  const piecesCeil =
+    estPieces != null && isFinite(estPieces) ? Math.ceil(estPieces) : null;
+  return (
+    <Row
+      left="Nombre de pièces estimé"
+      right={piecesCeil != null ? `${piecesCeil} pièces` : '—'}
+    />
+  );
+})()}
+
     </View>
   );
 }
